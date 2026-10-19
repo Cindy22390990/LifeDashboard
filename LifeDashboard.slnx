@@ -1,3 +1,6 @@
 <Solution>
   <Project Path="LifeDashboard.Api/LifeDashboard.Api.csproj" />
+  <Project Path="LifeDashboard.Application/LifeDashboard.Application.csproj" />
+  <Project Path="LifeDashboard.Domain/LifeDashboard.Domain.csproj" />
+  <Project Path="LifeDashboard.Infrastructure/LifeDashboard.Infrastructure.csproj" />
 </Solution>

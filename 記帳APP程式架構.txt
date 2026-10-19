@@ -1,0 +1,78 @@
+LifeDashboard
+│
+├──LifeDashboard.Api
+│    │
+│    ├── Controllers
+│    │   ├── AccountController.cs
+│    │   ├── TransactionController.cs
+│    │   └── GoalController.cs
+│    │
+│    ├── Models
+│    │   │
+│    │   ├── Requests
+│    │   │   ├── LoginRequest.cs
+│    │   │   └── TransactionRequest.cs
+│    │   └── Responses
+│    │       ├── LoginResponse.cs
+│    │       └── ApiResponse.cs
+│    │
+│    └── Extensions
+│
+│
+├── LifeDashboard.Application
+│   │
+│   ├── Services
+│   │   ├── Interfaces
+│   │   │   ├── IAccountService.cs
+│   │   │   ├── ITransactionService.cs
+│   │   │   └── IGoalService.cs
+│   │   │
+│   │   ├AccountService.cs
+│   │   ├TransactionService.cs
+│   │   └GoalService.cs
+│   │
+│   ├── Repositories
+│   │     └ Interfaces
+│   │         ├── IAccountRepository.cs
+│   │         ├── ITransactionRepository.cs
+│   │         └── IGoalRepository.cs
+│   │   
+│   │   
+│   └─ Models
+│        └── DTOs
+│                ├── Account─AccountDto.cs
+│                ├── Transaction─TransactionDto.cs
+│                └── Goal─GoalDto.cs
+│
+│
+├── LifeDashboard.Domain
+│   │
+│   ├── Entities
+│   │   ├── Account.cs
+│   │   ├── Transaction.cs
+│   │   └── Goal.cs
+│   │
+│   ├── Enums
+│   │   ├── AccountType.cs
+│   │   ├── GoalTier.cs
+│   │   ├── GoalType.cs
+│   │   └── TransactionType.cs
+│   │
+│   └── ValueObjects
+│        └── Money.cs
+│
+│
+└── LifeDashboard.Infrastructure
+    │
+    ├── Repositories
+    │   ├── AccountRepository.cs
+    │   ├── TransactionRepository.cs
+    │   └── GoalRepository.cs
+    │
+    ├── Data
+    │   └── LifeDashboardDbContext.cs
+    ├── Authentication
+    │   ├── ITokenService.cs
+    │   └── JwtTokenService.cs
+    │第一階段重構規格書 總結匯報
+    └── Migrations
