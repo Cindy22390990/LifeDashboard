@@ -1,5 +1,6 @@
 ﻿import { create } from 'zustand';
-import { ISystemSetting } from '@/domain/models/ISystemSetting';
+import axios from 'axios';
+import type { ISystemSetting } from '@/domain/models/ISystemSetting'; // 加上 type
 import { SettingRepository } from '@/infrastructure/api/SettingRepository';
 
 // 定義 Store 的狀態與可執行的 Action
@@ -29,8 +30,9 @@ export const useSettingStore = create<SettingState>((set) => ({
         try {
             const data = await SettingRepository.getSetting();
             set({ setting: data, isLoading: false });
-        } catch (err: any) {
-            set({ error: err.response?.data?.message || '取得設定失敗', isLoading: false });
+        } catch (err: unknown) {
+            const errorMsg = axios.isAxiosError(err) ? err.response?.data?.message : '取得設定失敗';
+            set({ error: errorMsg, isLoading: false });
         }
     },
 
@@ -40,8 +42,9 @@ export const useSettingStore = create<SettingState>((set) => ({
         try {
             await SettingRepository.initializeSetting(data);
             set({ setting: data, isLoading: false }); // 成功後直接更新本地狀態
-        } catch (err: any) {
-            set({ error: err.response?.data?.message || '初始化設定失敗', isLoading: false });
+        } catch (err: unknown) {
+            const errorMsg = axios.isAxiosError(err) ? err.response?.data?.message : '初始化設定失敗';
+            set({ error: errorMsg, isLoading: false });
             throw err; // 將錯誤往上拋，讓 UI 可以顯示 Toast 或警告框
         }
     },
@@ -52,8 +55,9 @@ export const useSettingStore = create<SettingState>((set) => ({
         try {
             await SettingRepository.updateSetting(data);
             set({ setting: data, isLoading: false }); // 成功後同步更新本地狀態
-        } catch (err: any) {
-            set({ error: err.response?.data?.message || '更新設定失敗', isLoading: false });
+        } catch (err: unknown) {
+            const errorMsg = axios.isAxiosError(err) ? err.response?.data?.message : '更新設定失敗';
+            set({ error: errorMsg, isLoading: false });
             throw err; // 拋給 UI 處理
         }
     }

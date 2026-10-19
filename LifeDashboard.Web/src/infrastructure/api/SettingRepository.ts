@@ -1,5 +1,5 @@
 ﻿import http from './http';
-import { ISystemSetting, IApiResponse } from '@/domain/models/ISystemSetting';
+import type { ISystemSetting, IApiResponse } from '@/domain/models/ISystemSetting';
 
 // 系統設定 Repository
 // 負責封裝所有對後端 SettingController 的 API 請求
@@ -10,16 +10,16 @@ export const SettingRepository = {
     // 取得目前設定 (GET)
     getSetting: async (): Promise<ISystemSetting> => {
         // 由於我們在 http.ts 攔截器已經 return response.data，所以這裡直接轉型
-        return await http.get<any, ISystemSetting>('/Setting');
+        return await http.get<unknown, ISystemSetting>('/Setting');
     },
 
     // 初始化設定 (POST)
     initializeSetting: async (data: ISystemSetting): Promise<IApiResponse> => {
-        return await http.post<any, IApiResponse>('/Setting', data);
+        return await http.post<unknown, IApiResponse>('/Setting', data);
     },
 
     // 更新設定 (PUT)
     updateSetting: async (data: ISystemSetting): Promise<IApiResponse> => {
-        return await http.put<any, IApiResponse>('/Setting', data);
+        return await http.put<unknown, IApiResponse>('/Setting', data);
     }
 };
