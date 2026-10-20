@@ -4,7 +4,7 @@ namespace LifeDashboard.Domain.Entities;
 
 public class Transaction
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
 
     // 交易類型：支出、收入、轉帳
@@ -28,7 +28,7 @@ public class Transaction
 
 
     // 使用哪個帳戶
-    public int AccountId { get; set; }
+    public Guid AccountId { get; set; }
 
 
     // 對應帳戶
@@ -37,7 +37,7 @@ public class Transaction
 
     // 轉帳目的帳戶
     // 如果不是轉帳，可以為 null
-    public int? ToAccountId { get; set; }
+    public Guid? ToAccountId { get; set; }
 
 
     public Account? ToAccount { get; set; }

@@ -7,7 +7,7 @@
 
 const http = axios.create({
     // 對應你剛剛後端 Swagger 的 Port 號
-    baseURL: 'https://localhost:7214/api',
+    baseURL: '/api',
     timeout: 10000, // 10秒 Timeout 防呆
     headers: {
         'Content-Type': 'application/json',
