@@ -1,6 +1,7 @@
 ﻿using LifeDashboard.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace LifeDashboard.Infrastructure.Data
 {
     // 資料庫上下文 (DbContext)
@@ -16,7 +17,7 @@ namespace LifeDashboard.Infrastructure.Data
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<Goal> Goals { get; set; }
-
+        public DbSet<User> Users { get; set; }
         // ====== 這是我們新增的 ======
         // 系統設定資料表
         public DbSet<SystemSetting> SystemSettings { get; set; }

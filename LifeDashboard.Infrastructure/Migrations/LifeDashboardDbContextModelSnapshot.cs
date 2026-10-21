@@ -56,7 +56,12 @@ namespace LifeDashboard.Infrastructure.Migrations
                     b.Property<DateTime>("UpdatedAtUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Accounts");
                 });
@@ -133,6 +138,9 @@ namespace LifeDashboard.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
                     b.ToTable("SystemSettings");
                 });
 
@@ -163,8 +171,8 @@ namespace LifeDashboard.Infrastructure.Migrations
                     b.Property<Guid?>("ToAccountId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("TransactionDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly>("TransactionDate")
+                        .HasColumnType("date");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -172,17 +180,57 @@ namespace LifeDashboard.Infrastructure.Migrations
                     b.Property<DateTime>("UpdatedAtUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
 
                     b.HasIndex("ToAccountId");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("Transactions");
+                });
+
+            modelBuilder.Entity("LifeDashboard.Domain.Entities.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("LifeDashboard.Domain.Entities.Account", b =>
+                {
+                    b.HasOne("LifeDashboard.Domain.Entities.User", null)
+                        .WithMany("Accounts")
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("LifeDashboard.Domain.Entities.SystemSetting", b =>
                 {
+                    b.HasOne("LifeDashboard.Domain.Entities.User", null)
+                        .WithOne("SystemSetting")
+                        .HasForeignKey("LifeDashboard.Domain.Entities.SystemSetting", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.OwnsOne("LifeDashboard.Domain.ValueObjects.AllocationRatio", "Allocation", b1 =>
                         {
                             b1.Property<Guid>("SystemSettingId")
@@ -229,6 +277,10 @@ namespace LifeDashboard.Infrastructure.Migrations
                         .HasForeignKey("ToAccountId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("LifeDashboard.Domain.Entities.User", null)
+                        .WithMany("Transactions")
+                        .HasForeignKey("UserId");
+
                     b.Navigation("Account");
 
                     b.Navigation("ToAccount");
@@ -236,6 +288,15 @@ namespace LifeDashboard.Infrastructure.Migrations
 
             modelBuilder.Entity("LifeDashboard.Domain.Entities.Account", b =>
                 {
+                    b.Navigation("Transactions");
+                });
+
+            modelBuilder.Entity("LifeDashboard.Domain.Entities.User", b =>
+                {
+                    b.Navigation("Accounts");
+
+                    b.Navigation("SystemSetting");
+
                     b.Navigation("Transactions");
                 });
 #pragma warning restore 612, 618

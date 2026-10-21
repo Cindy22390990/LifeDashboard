@@ -92,7 +92,6 @@ namespace LifeDashboard.Application.Services
             var newSetting = new SystemSetting(
                 userId: userId,
                 userName: dto.UserName,
-                passwordHash: "TempHash_Please_Replace_Later",
                 payday: dto.Payday,
                 allocation: newAllocation
             );

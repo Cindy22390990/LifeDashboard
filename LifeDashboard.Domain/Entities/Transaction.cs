@@ -24,7 +24,7 @@ public class Transaction
 
 
     // 交易日期
-    public DateTime TransactionDate { get; set; }
+    public DateOnly TransactionDate { get; set; }
 
 
     // 使用哪個帳戶

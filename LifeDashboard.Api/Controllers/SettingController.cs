@@ -12,6 +12,7 @@ namespace LifeDashboard.Api.Controllers
     // 如果要修改功能應該修改哪裡：如果前端需要新的 API 路徑（例如：重設密碼），請在這裡新增對應的 [HttpPost] 或 [HttpPut] 方法。
     [ApiController]
     [Route("api/[controller]")]
+    // /api/Setting
     public class SettingController : ControllerBase
     {
         private readonly ISettingService _settingService;
@@ -91,10 +92,16 @@ namespace LifeDashboard.Api.Controllers
                 // 回傳 400 Bad Request 給前端，前端攔截後可以顯示對應的紅字提示
                 return BadRequest(new { Message = ex.Message });
             }
-            catch (Exception ex)
+            catch(KeyNotFoundException ex)
             {
-                // 伺服器未預期錯誤
-                return StatusCode(500, new { Message = "伺服器發生未預期的錯誤", Detail = ex.Message });
+                return NotFound(new { Message = ex.Message });
+            }
+            catch(Exception)
+            {
+                return StatusCode(500,new
+                {
+                    Message="伺服器錯誤"
+                });
             }
         }
     }

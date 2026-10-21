@@ -8,6 +8,6 @@ namespace LifeDashboard.Application.Models.DTOs
         public int Type { get; set; }
         public string? CategoryId { get; set; }
         public string Description { get; set; } = string.Empty;
-        public DateTime TransactionDate { get; set; }
+        public DateOnly TransactionDate { get; set; }
     }
 }
