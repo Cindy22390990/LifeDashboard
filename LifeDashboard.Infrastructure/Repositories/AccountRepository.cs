@@ -16,16 +16,24 @@ namespace LifeDashboard.Infrastructure.Repositories;
         _context = context;
     }
 
-    public async Task<IEnumerable<Account>> GetAllAsync()
+    public async Task<IEnumerable<Account>> GetAllAsync(
+    Guid userId)
     {
         return await _context.Accounts
+            .Where(a => a.UserId == userId)
             .OrderByDescending(a => a.CreatedAtUtc)
             .ToListAsync();
     }
 
-    public async Task<Account?> GetByIdAsync(Guid id)
+    public async Task<Account?> GetByIdAsync(
+    Guid id,
+    Guid userId)
     {
-        return await _context.Accounts.FindAsync(id);
+        return await _context.Accounts
+            .FirstOrDefaultAsync(
+                a =>
+                a.Id == id &&
+                a.UserId == userId);
     }
 
     public async Task AddAsync(Account account)
@@ -39,17 +47,27 @@ namespace LifeDashboard.Infrastructure.Repositories;
         await _context.SaveChangesAsync();
     }
 
-    public async Task DeleteAsync(Guid id)
+    public async Task DeleteAsync(
+        Guid id,
+        Guid userId)
     {
-        var account = await _context.Accounts
-            .FirstOrDefaultAsync(a => a.Id == id);
+        var account =
+            await _context.Accounts
+            .FirstOrDefaultAsync(
+                a =>
+                a.Id == id &&
+                a.UserId == userId);
 
-        if (account == null)
+
+        if(account == null)
         {
-            throw new KeyNotFoundException("找不到指定帳戶。");
+            throw new KeyNotFoundException(
+                "找不到指定帳戶");
         }
 
+
         account.MarkAsDeleted();
+
 
         await _context.SaveChangesAsync();
     }

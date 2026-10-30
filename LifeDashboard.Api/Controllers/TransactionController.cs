@@ -1,6 +1,8 @@
-﻿using LifeDashboard.Application.Models.DTOs;
+﻿using LifeDashboard.Api.Extensions;
+using LifeDashboard.Application.Models.DTOs;
 using LifeDashboard.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LifeDashboard.Api.Controllers;
 
@@ -16,12 +18,19 @@ public TransactionController(ITransactionService transactionService)
 }
 
 // GET: api/Transaction
+[Authorize]
 [HttpGet]
 public async Task<ActionResult<IEnumerable<TransactionDto>>> GetTransactions()
 {
     try
     {
-        var result = await _transactionService.GetAllTransactionsAsync();
+        var userId =
+    User.GetUserId();
+
+
+    var result =
+        await _transactionService
+        .GetAllTransactionsAsync(userId);
 
         return Ok(result);
     }
@@ -38,18 +47,44 @@ public async Task<ActionResult<IEnumerable<TransactionDto>>> GetTransactions()
 }
 
 // POST: api/Transaction
+[Authorize]
 [HttpPost]
-public async Task<ActionResult<TransactionDto>> CreateTransaction(CreateTransactionDto dto)
+public async Task<ActionResult<TransactionDto>> CreateTransaction(
+    CreateTransactionDto dto)
 {
-    var result = await _transactionService.CreateTransactionAsync(dto);
-    return CreatedAtAction(nameof(GetTransactions), new { id = result.Id }, result);
+    var userId =
+        User.GetUserId();
+
+
+    var result =
+        await _transactionService
+        .CreateTransactionAsync(
+            userId,
+            dto);
+
+
+    return CreatedAtAction(
+        nameof(GetTransactions),
+        new { id = result.Id },
+        result);
 }
 
 // DELETE: api/Transaction/{id}
+[Authorize]
 [HttpDelete("{id}")]
-public async Task<IActionResult> DeleteTransaction(Guid id)
+public async Task<IActionResult> DeleteTransaction(
+    Guid id)
 {
-    await _transactionService.DeleteTransactionAsync(id);
+    var userId =
+        User.GetUserId();
+
+
+    await _transactionService
+        .DeleteTransactionAsync(
+            userId,
+            id);
+
+
     return NoContent();
 }
 }

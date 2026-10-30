@@ -14,17 +14,24 @@ namespace LifeDashboard.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<Transaction>> GetAllAsync()
+        public async Task<IEnumerable<Transaction>> GetAllAsync(
+            Guid userId)
         {
             return await _context.Transactions
+                .Where(t => t.UserId == userId)
                 .OrderByDescending(t => t.TransactionDate)
-                .ThenByDescending(t => t.CreatedAtUtc)
                 .ToListAsync();
         }
 
-        public async Task<Transaction?> GetByIdAsync(Guid id)
+        public async Task<Transaction?> GetByIdAsync(
+            Guid id,
+            Guid userId)
         {
-            return await _context.Transactions.FindAsync(id);
+            return await _context.Transactions
+                .FirstOrDefaultAsync(
+                    t =>
+                    t.Id == id &&
+                    t.UserId == userId);
         }
 
         public async Task<Transaction> AddAsync(Transaction transaction)

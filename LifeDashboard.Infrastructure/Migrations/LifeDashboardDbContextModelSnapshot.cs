@@ -56,7 +56,7 @@ namespace LifeDashboard.Infrastructure.Migrations
                     b.Property<DateTime>("UpdatedAtUtc")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("UserId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -119,10 +119,6 @@ namespace LifeDashboard.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("Payday")
                         .HasColumnType("int");
 
@@ -180,7 +176,7 @@ namespace LifeDashboard.Infrastructure.Migrations
                     b.Property<DateTime>("UpdatedAtUtc")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("UserId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -218,9 +214,13 @@ namespace LifeDashboard.Infrastructure.Migrations
 
             modelBuilder.Entity("LifeDashboard.Domain.Entities.Account", b =>
                 {
-                    b.HasOne("LifeDashboard.Domain.Entities.User", null)
+                    b.HasOne("LifeDashboard.Domain.Entities.User", "User")
                         .WithMany("Accounts")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("LifeDashboard.Domain.Entities.SystemSetting", b =>
@@ -277,13 +277,17 @@ namespace LifeDashboard.Infrastructure.Migrations
                         .HasForeignKey("ToAccountId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("LifeDashboard.Domain.Entities.User", null)
+                    b.HasOne("LifeDashboard.Domain.Entities.User", "User")
                         .WithMany("Transactions")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Account");
 
                     b.Navigation("ToAccount");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("LifeDashboard.Domain.Entities.Account", b =>

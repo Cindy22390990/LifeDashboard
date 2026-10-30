@@ -54,13 +54,23 @@ namespace LifeDashboard.Api.Controllers
         public async Task<IActionResult> Register(
             RegisterRequest request)
         {
-            await _authService.RegisterAsync(request);
-
-
-            return Ok(new
+            try
             {
-                message = "註冊成功"
-            });
+                await _authService.RegisterAsync(request);
+
+
+                return Ok(new
+                {
+                    message = "註冊成功"
+                });
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
         }
 
         // ============================================

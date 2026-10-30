@@ -7,14 +7,24 @@ namespace LifeDashboard.Application.Services.Interfaces;
     public interface IAccountService
     {
         // 取得帳戶列表
-        Task<IEnumerable<AccountDto>> GetAllAccountsAsync();
-        
+        Task<IEnumerable<AccountDto>>
+            GetAllAccountsAsync(
+                Guid userId);
+
         // 新增帳戶
-        Task<AccountDto> CreateAccountAsync(CreateAccountDto dto);
-        
+        Task<AccountDto>
+            CreateAccountAsync(
+                Guid userId,
+                CreateAccountDto dto);
+
         // 修改帳戶 (不回傳值，使用 HTTP 204 No Content)
-        Task UpdateAccountAsync(Guid id, UpdateAccountDto dto);
-        
+       Task UpdateAccountAsync(
+            Guid id,
+            Guid userId,
+            UpdateAccountDto dto);
+
         // 軟刪除帳戶
-        Task SoftDeleteAccountAsync(Guid id);
+         Task SoftDeleteAccountAsync(
+            Guid id,
+            Guid userId);
     }

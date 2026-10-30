@@ -19,9 +19,14 @@ namespace LifeDashboard.Application.Services
             _accountRepository = accountRepository;
         }
 
-        public async Task<IEnumerable<TransactionDto>> GetAllTransactionsAsync()
+        public async Task<IEnumerable<TransactionDto>> GetAllTransactionsAsync(
+            Guid userId)
         {
-            var transactions = await _transactionRepository.GetAllAsync();
+            var transactions =
+                await _transactionRepository
+                .GetAllAsync(userId);
+
+
             return transactions.Select(t => new TransactionDto
             {
                 Id = t.Id,
@@ -34,62 +39,110 @@ namespace LifeDashboard.Application.Services
             });
         }
 
-        public async Task<TransactionDto> CreateTransactionAsync(CreateTransactionDto dto)
+        public async Task<TransactionDto> CreateTransactionAsync(
+            Guid userId,
+            CreateTransactionDto dto)
         {
-            var account = await _accountRepository.GetByIdAsync(dto.AccountId);
-            if (account == null) throw new KeyNotFoundException("找不到指定的帳戶");
+            var account =
+                await _accountRepository
+                .GetByIdAsync(
+                    dto.AccountId,
+                    userId);
 
-            var transaction = new Transaction
+
+            if(account == null)
             {
-                Id = Guid.NewGuid(),
-                AccountId = dto.AccountId,
-                Amount = dto.Amount,
-                Type = (TransactionType)dto.Type,
-                Note = dto.Description ?? string.Empty,
-                Category = string.Empty,
-                TransactionDate = dto.TransactionDate,
-                CreatedAtUtc = DateTime.UtcNow,
-                UpdatedAtUtc = DateTime.UtcNow
-            };
+                throw new KeyNotFoundException(
+                    "找不到指定的帳戶");
+            }
 
-            // 業務邏輯：連動更新帳戶餘額
-            if (transaction.Type == TransactionType.Expense)
+
+            var transaction = new Transaction(
+                userId,
+                dto.AccountId,
+                dto.Amount,
+                (TransactionType)dto.Type,
+                dto.Description ?? string.Empty,
+                dto.TransactionDate
+            );
+
+            if(transaction.Type == TransactionType.Expense)
+            {
                 account.CurrentBalance -= transaction.Amount;
-            else if (transaction.Type == TransactionType.Income)
+            }
+            else if(transaction.Type == TransactionType.Income)
+            {
                 account.CurrentBalance += transaction.Amount;
+            }
+
 
             await _accountRepository.UpdateAsync(account);
-            var createdTx = await _transactionRepository.AddAsync(transaction);
+
+
+            var createdTx =
+                await _transactionRepository
+                .AddAsync(transaction);
+
+
 
             return new TransactionDto
             {
                 Id = createdTx.Id,
+
                 AccountId = createdTx.AccountId,
+
                 Amount = createdTx.Amount,
+
                 Type = (int)createdTx.Type,
+
                 Description = createdTx.Note,
+
                 TransactionDate = createdTx.TransactionDate
             };
         }
 
-        public async Task DeleteTransactionAsync(Guid id)
+        public async Task DeleteTransactionAsync(
+            Guid userId,
+            Guid id)
         {
-            var transaction = await _transactionRepository.GetByIdAsync(id);
-            if (transaction == null) throw new KeyNotFoundException("找不到該筆交易紀錄");
+            var transaction =
+                await _transactionRepository.GetByIdAsync(
+                    id,
+                    userId);
 
-            var account = await _accountRepository.GetByIdAsync(transaction.AccountId);
-            if (account != null)
+
+            if(transaction == null)
             {
-                // 業務邏輯：刪除紀錄時，將帳戶餘額反向復原
-                if (transaction.Type == TransactionType.Expense)
+                throw new KeyNotFoundException(
+                    "找不到交易紀錄");
+            }
+
+
+            var account =
+                await _accountRepository
+                .GetByIdAsync(
+                    transaction.AccountId,
+                    userId);
+
+
+            if(account != null)
+            {
+                if(transaction.Type == TransactionType.Expense)
+                {
                     account.CurrentBalance += transaction.Amount;
-                else if (transaction.Type == TransactionType.Income)
+                }
+                else if(transaction.Type == TransactionType.Income)
+                {
                     account.CurrentBalance -= transaction.Amount;
+                }
+
 
                 await _accountRepository.UpdateAsync(account);
             }
 
-            await _transactionRepository.DeleteAsync(transaction);
+
+            await _transactionRepository
+                .DeleteAsync(transaction);
         }
     }
 }

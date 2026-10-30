@@ -4,8 +4,17 @@ namespace LifeDashboard.Application.Services.Interfaces
 {
     public interface ITransactionService
     {
-        Task<IEnumerable<TransactionDto>> GetAllTransactionsAsync();
-        Task<TransactionDto> CreateTransactionAsync(CreateTransactionDto dto);
-        Task DeleteTransactionAsync(Guid id);
+        Task<IEnumerable<TransactionDto>> GetAllTransactionsAsync(
+            Guid userId);
+
+
+        Task<TransactionDto> CreateTransactionAsync(
+            Guid userId,
+            CreateTransactionDto dto);
+
+
+        Task DeleteTransactionAsync(
+            Guid userId,
+            Guid id);
     }
 }

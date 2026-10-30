@@ -25,7 +25,14 @@ namespace LifeDashboard.Api
             // 1.註冊資料庫(這裡先使用 InMemory 記憶體資料庫方便你馬上測 Swagger)
             // 1. 註冊資料庫 (使用你 appsettings.json 中的 DefaultConnection)
             builder.Services.AddDbContext<LifeDashboardDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            {
+                options.UseSqlServer(
+                    builder.Configuration.GetConnectionString("DefaultConnection"));
+
+                options.EnableSensitiveDataLogging();
+
+                options.LogTo(Console.WriteLine);
+            });
             // 2.註冊 Repository 與 Service(依賴注入)
             builder.Services.AddScoped<ISettingRepository, SettingRepository>();
             builder.Services.AddScoped<ISettingService, SettingService>();
@@ -83,7 +90,7 @@ namespace LifeDashboard.Api
             // 4. 驗證 Token 是否過期
             // ============================================
             var jwtSettings =
-            builder.Configuration.GetSection("JwtSettings");
+                builder.Configuration.GetSection("JwtSettings");
 
 
             builder.Services.AddAuthentication(

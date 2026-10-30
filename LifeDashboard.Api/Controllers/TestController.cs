@@ -17,39 +17,32 @@ namespace LifeDashboard.Api.Controllers;
 [Route("api/test")]
 public class TestController : ControllerBase
 {
-
-
     // GET api/test/public
-    //
     // 不需要登入
     [HttpGet("public")]
     public IActionResult Public()
     {
-        return Ok(
-            "任何人都可以看到"
-        );
+        return Ok(new
+        {
+            message = "公開 API"
+        });
     }
 
 
 
     // GET api/test/private
-    //
     // 需要 JWT
     [Authorize]
     [HttpGet("private")]
     public IActionResult Private()
     {
 
-        var username =
-            User.Identity?.Name;
-
-
         return Ok(new
         {
-            message =
-                "JWT 驗證成功",
+            message = "JWT 驗證成功",
 
-            username
+            user =
+                User.Identity?.Name
         });
     }
 

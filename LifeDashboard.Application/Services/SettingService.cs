@@ -27,7 +27,9 @@ namespace LifeDashboard.Application.Services
             if (setting == null)
             {
                 // 如果找不到，看是要回傳預設值還是拋出 NotFound 例外
-                throw new Exception("找不到該使用者的系統設定");
+                throw new KeyNotFoundException(
+                     "找不到該使用者的系統設定"
+                );
             }
 
             // 將 Entity 轉換為 DTO 交給前端
@@ -48,7 +50,9 @@ namespace LifeDashboard.Application.Services
             var setting = await _settingRepository.GetByUserIdAsync(userId);
             if (setting == null)
             {
-                throw new Exception("找不到該使用者的系統設定");
+                throw new KeyNotFoundException(
+                    "找不到該使用者的系統設定"
+                );
             }
 
             // 1. 將前端傳來的數字，轉換為 Domain 的 Value Object

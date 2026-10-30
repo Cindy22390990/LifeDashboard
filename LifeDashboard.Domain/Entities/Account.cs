@@ -9,6 +9,12 @@ namespace LifeDashboard.Domain.Entities
     public class Account
     {
         public Guid Id { get; private set; }
+        // 所屬使用者
+        public Guid UserId { get; private set; }
+
+
+        // 導覽屬性
+        public virtual User User { get; private set; } = null!;
         public string Name { get; set; } = string.Empty;
         public AccountType Type { get; private set; }
         
@@ -30,15 +36,29 @@ namespace LifeDashboard.Domain.Entities
         private Account() { }
 
         // 建立新帳戶的工廠方法/建構子
-        public Account(string name, AccountType type, decimal initialBalance, bool isSystemAccount = false)
+        public Account(
+            Guid userId,
+            string name,
+            AccountType type,
+            decimal initialBalance,
+            bool isSystemAccount = false)
         {
             Id = Guid.NewGuid();
+
+            UserId = userId;
+
             Name = name;
+
             Type = type;
+
             InitialBalance = initialBalance;
+
             IsSystemAccount = isSystemAccount;
+
             IsDeleted = false;
+
             CreatedAtUtc = DateTime.UtcNow;
+
             UpdatedAtUtc = DateTime.UtcNow;
         }
 

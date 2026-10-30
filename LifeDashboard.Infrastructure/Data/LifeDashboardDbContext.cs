@@ -26,22 +26,34 @@ namespace LifeDashboard.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<Account>(entity =>
-            {
-                entity.HasKey(e => e.Id);
+            modelBuilder.Entity<SystemSetting>(entity =>
+        {
+            entity.HasKey(e => e.Id);
 
-                entity.Property(e => e.Name)
-                    .IsRequired()
-                    .HasMaxLength(50);
 
-                entity.Property(e => e.InitialBalance)
-                    .HasPrecision(18,2);
+            entity.HasOne<User>()
+                .WithOne(u => u.SystemSetting)
+                .HasForeignKey<SystemSetting>(s => s.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-                entity.Property(e => e.CurrentBalance)
-                    .HasPrecision(18,2);
 
-                entity.HasQueryFilter(a => !a.IsDeleted);
-            });
+            entity.OwnsOne(
+                e => e.Allocation,
+                allocation =>
+                {
+                    allocation.Property(p => p.Living)
+                        .HasColumnName("AllocLiving");
+
+                    allocation.Property(p => p.Savings)
+                        .HasColumnName("AllocSavings");
+
+                    allocation.Property(p => p.Investment)
+                        .HasColumnName("AllocInvestment");
+
+                    allocation.Property(p => p.Entertainment)
+                        .HasColumnName("AllocEntertainment");
+                });
+        });
 
 
             modelBuilder.Entity<Transaction>(entity =>

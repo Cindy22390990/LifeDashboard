@@ -16,25 +16,43 @@ namespace LifeDashboard.Application.Services
             _accountRepo = accountRepo; // 依賴注入 Repository
         }
 
-        public async Task<IEnumerable<AccountDto>> GetAllAccountsAsync()
+        public async Task<IEnumerable<AccountDto>> GetAllAccountsAsync(
+            Guid userId)
         {
-            var accounts = await _accountRepo.GetAllAsync();
+            var accounts =
+                await _accountRepo.GetAllAsync(userId);
+
+
             return accounts.Select(a => new AccountDto
             {
                 Id = a.Id,
                 Name = a.Name,
                 Type = a.Type,
-                CurrentBalance = a.InitialBalance, // 第一階段：暫以初始餘額作為當前餘額
+                CurrentBalance = a.InitialBalance,
                 IsSystemAccount = a.IsSystemAccount
             });
         }
 
-        public async Task<AccountDto> CreateAccountAsync(CreateAccountDto dto)
+        public async Task<AccountDto> CreateAccountAsync(
+            Guid userId,
+            CreateAccountDto dto)
         {
-            var account = new Account(dto.Name, dto.Type, dto.InitialBalance);
+            Console.WriteLine("==============");
+            Console.WriteLine(userId);
+            Console.WriteLine("==============");
             
+            var account =
+                new Account(
+                    userId,
+                    dto.Name,
+                    dto.Type,
+                    dto.InitialBalance);
+            
+            Console.WriteLine($"UserId = {account.UserId}");
             await _accountRepo.AddAsync(account);
+
             await _accountRepo.SaveChangesAsync();
+
 
             return new AccountDto
             {
@@ -46,21 +64,52 @@ namespace LifeDashboard.Application.Services
             };
         }
 
-        public async Task UpdateAccountAsync(Guid id, UpdateAccountDto dto)
+        public async Task UpdateAccountAsync(
+            Guid id,
+            Guid userId,
+            UpdateAccountDto dto)
         {
-            var account = await _accountRepo.GetByIdAsync(id);
-            if (account == null) throw new KeyNotFoundException("找不到指定的帳戶。");
+            var account =
+                await _accountRepo.GetByIdAsync(
+                    id,
+                    userId);
 
-            account.UpdateDetails(dto.Name, dto.Type);
+
+            if (account == null)
+            {
+                throw new KeyNotFoundException(
+                    "找不到指定的帳戶。");
+            }
+
+
+            account.UpdateDetails(
+                dto.Name,
+                dto.Type);
+
+
             await _accountRepo.SaveChangesAsync();
         }
 
-        public async Task SoftDeleteAccountAsync(Guid id)
+        public async Task SoftDeleteAccountAsync(
+            Guid id,
+            Guid userId)
         {
-            var account = await _accountRepo.GetByIdAsync(id);
-            if (account == null) throw new KeyNotFoundException("找不到指定的帳戶。");
+            var account =
+                await _accountRepo.GetByIdAsync(
+                    id,
+                    userId);
+
+
+            if (account == null)
+            {
+                throw new KeyNotFoundException(
+                    "找不到指定的帳戶。");
+            }
+
 
             account.MarkAsDeleted();
+
+
             await _accountRepo.SaveChangesAsync();
         }
     }
