@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LifeDashboard.Infrastructure.Migrations
 {
     [DbContext(typeof(LifeDashboardDbContext))]
-    [Migration("20261019020303_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20261021021925_InitialIdentity")]
+    partial class InitialIdentity
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,25 +27,31 @@ namespace LifeDashboard.Infrastructure.Migrations
 
             modelBuilder.Entity("LifeDashboard.Domain.Entities.Account", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Balance")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<decimal>("CurrentBalance")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("InitialBalance")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsSystemAccount")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -53,7 +59,12 @@ namespace LifeDashboard.Infrastructure.Migrations
                     b.Property<DateTime>("UpdatedAtUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Accounts");
                 });
@@ -126,24 +137,24 @@ namespace LifeDashboard.Infrastructure.Migrations
 
                     b.Property<string>("UserName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserSettings", (string)null);
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("SystemSettings");
                 });
 
             modelBuilder.Entity("LifeDashboard.Domain.Entities.Transaction", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AccountId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("Amount")
                         .HasPrecision(18, 2)
@@ -160,11 +171,11 @@ namespace LifeDashboard.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ToAccountId")
-                        .HasColumnType("int");
+                    b.Property<Guid?>("ToAccountId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("TransactionDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly>("TransactionDate")
+                        .HasColumnType("date");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -172,17 +183,57 @@ namespace LifeDashboard.Infrastructure.Migrations
                     b.Property<DateTime>("UpdatedAtUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
 
                     b.HasIndex("ToAccountId");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("Transactions");
+                });
+
+            modelBuilder.Entity("LifeDashboard.Domain.Entities.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("LifeDashboard.Domain.Entities.Account", b =>
+                {
+                    b.HasOne("LifeDashboard.Domain.Entities.User", null)
+                        .WithMany("Accounts")
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("LifeDashboard.Domain.Entities.SystemSetting", b =>
                 {
+                    b.HasOne("LifeDashboard.Domain.Entities.User", null)
+                        .WithOne("SystemSetting")
+                        .HasForeignKey("LifeDashboard.Domain.Entities.SystemSetting", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.OwnsOne("LifeDashboard.Domain.ValueObjects.AllocationRatio", "Allocation", b1 =>
                         {
                             b1.Property<Guid>("SystemSettingId")
@@ -206,7 +257,7 @@ namespace LifeDashboard.Infrastructure.Migrations
 
                             b1.HasKey("SystemSettingId");
 
-                            b1.ToTable("UserSettings");
+                            b1.ToTable("SystemSettings");
 
                             b1.WithOwner()
                                 .HasForeignKey("SystemSettingId");
@@ -229,6 +280,10 @@ namespace LifeDashboard.Infrastructure.Migrations
                         .HasForeignKey("ToAccountId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("LifeDashboard.Domain.Entities.User", null)
+                        .WithMany("Transactions")
+                        .HasForeignKey("UserId");
+
                     b.Navigation("Account");
 
                     b.Navigation("ToAccount");
@@ -236,6 +291,15 @@ namespace LifeDashboard.Infrastructure.Migrations
 
             modelBuilder.Entity("LifeDashboard.Domain.Entities.Account", b =>
                 {
+                    b.Navigation("Transactions");
+                });
+
+            modelBuilder.Entity("LifeDashboard.Domain.Entities.User", b =>
+                {
+                    b.Navigation("Accounts");
+
+                    b.Navigation("SystemSetting");
+
                     b.Navigation("Transactions");
                 });
 #pragma warning restore 612, 618

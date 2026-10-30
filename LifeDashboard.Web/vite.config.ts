@@ -41,6 +41,14 @@ export default defineConfig({
         },
     },
     server: {
-        port: 3000, // 前端固定跑在 3000 port
+    host: '0.0.0.0',
+    port: 5173,
+    proxy: {
+        '/api': {
+            target: 'http://localhost:5162',
+            changeOrigin: true,
+            secure: false
+        }
     }
+}
 });

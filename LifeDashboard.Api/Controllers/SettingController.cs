@@ -3,6 +3,8 @@ using LifeDashboard.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using LifeDashboard.Api.Extensions;
 
 namespace LifeDashboard.Api.Controllers
 {
@@ -12,6 +14,7 @@ namespace LifeDashboard.Api.Controllers
     // 如果要修改功能應該修改哪裡：如果前端需要新的 API 路徑（例如：重設密碼），請在這裡新增對應的 [HttpPost] 或 [HttpPut] 方法。
     [ApiController]
     [Route("api/[controller]")]
+    // /api/Setting
     public class SettingController : ControllerBase
     {
         private readonly ISettingService _settingService;
@@ -23,6 +26,7 @@ namespace LifeDashboard.Api.Controllers
 
         // GET: api/setting
         // 取得目前使用者的系統設定
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetSetting()
         {
@@ -30,58 +34,78 @@ namespace LifeDashboard.Api.Controllers
             {
                 // TODO: 未來接上 Infrastructure 的 JwtTokenService 後，UserId 應該從 User.Claims (Token) 中取得。
                 // 這裡先暫時用一個假定的 Guid 示意，確保編譯與流程順暢。
-                var currentUserId = Guid.Parse("00000000-0000-0000-0000-000000000000");
+                var userId = User.GetUserId();
 
-                var result = await _settingService.GetSettingAsync(currentUserId);
+                var result =
+                    await _settingService.GetSettingAsync(userId);
                 return Ok(result); // 200 OK，回傳 SystemSettingDto
             }
-            catch (Exception ex)
+             catch (KeyNotFoundException ex)
             {
-                return NotFound(new { Message = ex.Message }); // 404
+                return NotFound(new
+                {
+                    Message = ex.Message
+                });
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500,new
+                {
+                    Message = ex.Message
+                });
             }
         }
         // POST: api/setting
         // 初始化使用者的系統設定 (第一次使用時呼叫)
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> InitializeSetting([FromBody] SystemSettingDto dto)
         {
-            try
+             try
             {
-                // 假定 UserId，未來從 JWT Token 拿
-                var currentUserId = Guid.Parse("00000000-0000-0000-0000-000000000000");
+                var userId = User.GetUserId();
 
-                // 呼叫初始化服務
-                await _settingService.InitializeSettingAsync(currentUserId, dto);
+                await _settingService
+                    .InitializeSettingAsync(
+                        userId,
+                        dto);
 
-                return Created("", new { Message = "系統設定初始化成功！" }); // 201 Created
+                return Created("", new
+                {
+                    Message="系統設定初始化成功"
+                });
             }
-            catch (InvalidOperationException ex)
+            catch(InvalidOperationException ex)
             {
-                // 已存在的防呆錯誤
-                return Conflict(new { Message = ex.Message }); // 409 Conflict
+                return BadRequest(new
+                {
+                    Message = ex.Message
+                });
             }
-            catch (ArgumentException ex)
+            catch(Exception )
             {
-                // 比例或發薪日驗證錯誤
-                return BadRequest(new { Message = ex.Message }); // 400 Bad Request
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { Message = "伺服器發生未預期的錯誤", Detail = ex.Message });
+                return StatusCode(500,new
+                {
+                    Message="伺服器發生未預期錯誤",
+                    
+                });
             }
         }
         // PUT: api/setting
         // 更新目前使用者的系統設定 (發薪日、分配比例等)
+        [Authorize]
         [HttpPut]
         public async Task<IActionResult> UpdateSetting([FromBody] SystemSettingDto dto)
         {
             try
             {
                 // TODO: 同上，UserId 未來應從 Token 取得
-                var currentUserId = Guid.Parse("00000000-0000-0000-0000-000000000000");
+                var userId = User.GetUserId();
 
                 // 將資料丟給 Service 處理。所有的商業邏輯驗證（例如 100% 檢查）都會在底層的 Domain 發生。
-                await _settingService.UpdateSettingAsync(currentUserId, dto);
+                await _settingService.UpdateSettingAsync(
+                    userId,
+                    dto);
 
                 return Ok(new { Message = "系統設定更新成功" }); // 200 OK
             }
@@ -91,10 +115,16 @@ namespace LifeDashboard.Api.Controllers
                 // 回傳 400 Bad Request 給前端，前端攔截後可以顯示對應的紅字提示
                 return BadRequest(new { Message = ex.Message });
             }
-            catch (Exception ex)
+            catch(KeyNotFoundException ex)
             {
-                // 伺服器未預期錯誤
-                return StatusCode(500, new { Message = "伺服器發生未預期的錯誤", Detail = ex.Message });
+                return NotFound(new { Message = ex.Message });
+            }
+            catch(Exception)
+            {
+                return StatusCode(500,new
+                {
+                    Message="伺服器錯誤"
+                });
             }
         }
     }

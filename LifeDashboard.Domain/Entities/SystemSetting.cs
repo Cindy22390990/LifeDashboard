@@ -18,8 +18,7 @@ namespace LifeDashboard.Domain.Entities
         // 稱呼 (例如：我)
         public string UserName { get; private set; } = string.Empty;
 
-        // 密碼雜湊值，絕對不可存明碼
-        public string PasswordHash { get; private set; } = string.Empty;
+        
 
         // 發薪日期 (每月幾號)
         public int Payday { get; private set; }
@@ -36,12 +35,15 @@ namespace LifeDashboard.Domain.Entities
         protected SystemSetting() { }
 
         // 建立新設定時使用的建構子
-        public SystemSetting(Guid userId, string userName, string passwordHash, int payday, AllocationRatio allocation)
+       public SystemSetting(
+            Guid userId,
+            string userName,
+            int payday,
+            AllocationRatio allocation)
         {
             Id = Guid.NewGuid();
             UserId = userId;
             UserName = userName;
-            PasswordHash = passwordHash;
             Allocation = allocation;
 
             // 呼叫下方的方法來確保發薪日規則一致

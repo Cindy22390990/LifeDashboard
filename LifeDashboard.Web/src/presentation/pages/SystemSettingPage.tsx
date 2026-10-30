@@ -76,45 +76,57 @@ export const SystemSettingPage: React.FC = () => {
 {/* 錯誤訊息提示區塊 */ }
 { error && <div style={ { color: 'red', marginBottom: '10px' } }>⚠️ { error } </div> }
 
-<div style={ { border: '1px solid #ccc', padding: '20px', borderRadius: '8px' } }>
-    <h3>👤 個人化設定 </h3>
+<div style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '8px' }}>
+    <h3>👤 個人化設定</h3>
         <label>
-稱呼：
-<input type="text" name = "userName" value = { formData.userName } onChange = { handleChange } />
-    </label>
+            稱呼：
+            <input 
+                type="text" 
+                name="userName" 
+                value={formData?.userName || ''} 
+                onChange={handleChange} 
+            />
+        </label>
 
-    < h3 style = {{ marginTop: '20px' }}>📅 發薪設定 </h3>
+        <h3 style={{ marginTop: '20px' }}>📅 發薪設定</h3>
         <label>
-每月發薪日：
-<input type="number" name = "payday" value = { formData.payday } onChange = { handleChange } min = "1" max = "31" />
-    號
-{ !isPaydayValid && <span style={ { color: 'red', fontSize: '12px' } }> (請輸入 1 - 31 之間的日期)</span> }
-</label>
+            每月發薪日：
+            <input 
+                type="number" 
+                name="payday" 
+                value={formData?.payday || 0} 
+                onChange={handleChange} 
+                min="1" 
+                max="31" 
+            />
+            號
+            {!isPaydayValid && <span style={{ color: 'red', fontSize: '12px' }}> (請輸入 1-31 之間的日期)</span>}
+        </label>
 
-    < h3 style = {{ marginTop: '20px' }}>📊 資產分配比例(總和必須為 100 %) </h3>
-        < div style = {{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <label>🏠 生活：<input type="number" name = "living" value = { formData.living } onChange = { handleChange } /> % </label>
-                <label>💰 儲蓄：<input type="number" name = "savings" value = { formData.savings } onChange = { handleChange } /> % </label>
-                    <label>📈 投資：<input type="number" name = "investment" value = { formData.investment } onChange = { handleChange } /> % </label>
-                        <label>🎮 娛樂：<input type="number" name = "entertainment" value = { formData.entertainment } onChange = { handleChange } /> % </label>
-                            </div>
+        <h3 style={{ marginTop: '20px' }}>📊 資產分配比例 (總和必須為 100%)</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <label>🏠 生活：<input type="number" name="living" value={formData?.living || 0} onChange={handleChange} /> %</label>
+            <label>💰 儲蓄：<input type="number" name="savings" value={formData?.savings || 0} onChange={handleChange} /> %</label>
+            <label>📈 投資：<input type="number" name="investment" value={formData?.investment || 0} onChange={handleChange} /> %</label>
+            <label>🎮 娛樂：<input type="number" name="entertainment" value={formData?.entertainment || 0} onChange={handleChange} /> %</label>
+        </div>
 
-                            < hr style = {{ margin: '20px 0' }} />
+        <hr style={{ margin: '20px 0' }} />
 
-                                < div style = {{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <strong style={ { color: isRatioValid ? 'green' : 'red' } }>
-                                        目前總計：{ totalRatio }% { isRatioValid? '✅': '❌' }
-                                            </strong>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <strong style={{ color: isRatioValid ? 'green' : 'red' }}>
+                目前總計：{totalRatio}% {isRatioValid ? '✅' : '❌'}
+            </strong>
 
-                                            < button
-onClick = { handleSave }
-disabled = {!isFormValid || isLoading}
-style = {{ padding: '10px 20px', cursor: isFormValid ? 'pointer' : 'not-allowed' }}
-          >
-{ isLoading? '儲存中...': '儲存設定' }
-    </button>
-    </div>
-    </div>
+            <button 
+                onClick={handleSave} 
+                disabled={!isFormValid || isLoading} 
+                style={{ padding: '10px 20px', cursor: isFormValid ? 'pointer' : 'not-allowed' }}
+            >
+                {isLoading ? '儲存中...' : '儲存設定'}
+            </button>
+        </div>
+        </div>
     </div>
   );
 };

@@ -9,17 +9,35 @@ import type { ISystemSetting, IApiResponse } from '@/domain/models/ISystemSettin
 export const SettingRepository = {
     // 取得目前設定 (GET)
     getSetting: async (): Promise<ISystemSetting> => {
-        // 由於我們在 http.ts 攔截器已經 return response.data，所以這裡直接轉型
-        return await http.get<unknown, ISystemSetting>('/Setting');
+
+        return await http.get<ISystemSetting>(
+            '/Setting'
+        );
+
     },
 
-    // 初始化設定 (POST)
-    initializeSetting: async (data: ISystemSetting): Promise<IApiResponse> => {
-        return await http.post<unknown, IApiResponse>('/Setting', data);
+    // POST
+    initializeSetting: async (
+        data: ISystemSetting
+    ): Promise<IApiResponse> => {
+
+        return await http.post<IApiResponse>(
+            '/Setting',
+            data
+        );
+
     },
 
-    // 更新設定 (PUT)
-    updateSetting: async (data: ISystemSetting): Promise<IApiResponse> => {
-        return await http.put<unknown, IApiResponse>('/Setting', data);
+    // PUT
+    updateSetting: async (
+        data: ISystemSetting
+    ): Promise<IApiResponse> => {
+
+        return await http.put<IApiResponse>(
+            '/Setting',
+            data
+        );
+
     }
+
 };
