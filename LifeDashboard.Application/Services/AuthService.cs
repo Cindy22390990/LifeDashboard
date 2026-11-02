@@ -68,7 +68,7 @@ public class AuthService : IAuthService
 
         if(existingUser != null)
         {
-            throw new Exception(
+            throw new InvalidOperationException(
                 "帳號已存在"
             );
         }
@@ -118,8 +118,8 @@ public class AuthService : IAuthService
 
         if(user == null)
         {
-            throw new Exception(
-                "帳號不存在");
+            throw new UnauthorizedAccessException(
+                "密碼錯誤");
         }
 
 
@@ -133,7 +133,7 @@ public class AuthService : IAuthService
 
         if(!valid)
         {
-            throw new Exception(
+            throw new UnauthorizedAccessException(
                 "密碼錯誤");
         }
 

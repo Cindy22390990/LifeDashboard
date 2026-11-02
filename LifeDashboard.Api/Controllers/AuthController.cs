@@ -64,7 +64,7 @@ namespace LifeDashboard.Api.Controllers
                     message = "註冊成功"
                 });
             }
-            catch(Exception ex)
+            catch(InvalidOperationException ex)
             {
                 return BadRequest(new
                 {
@@ -88,10 +88,20 @@ namespace LifeDashboard.Api.Controllers
             LoginRequest request)
         {
 
-           var response =
-                await _authService.LoginAsync(request);
+            try
+            {
+                var response =
+                    await _authService.LoginAsync(request);
 
-            return Ok(response);
+                return Ok(response);
+            }
+            catch(UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new
+                {
+                    message = ex.Message
+                });
+            }
         }
 
     }

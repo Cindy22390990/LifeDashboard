@@ -2,6 +2,7 @@
     type AxiosInstance,
     type AxiosRequestConfig
 } from 'axios';
+import { useAuthStore } from '../../application/stores/useAuthStore';
 
 
 interface HttpClient extends Omit<AxiosInstance, 'get' | 'post' | 'put' | 'delete'> {
@@ -42,7 +43,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
     (config) => {
 
-        const token = localStorage.getItem("token");
+        const token = useAuthStore.getState().token;
 
         if (token) {
 
@@ -64,6 +65,17 @@ axiosInstance.interceptors.response.use(
 
     },
     (error) => {
+
+        const requestUrl = error.config?.url ?? '';
+        const isLoginRequest = requestUrl.toLowerCase().includes('/auth/login');
+
+        if (error.response?.status === 401 && !isLoginRequest) {
+            useAuthStore.getState().logout();
+
+            if (window.location.pathname !== '/login') {
+                window.location.assign('/login');
+            }
+        }
 
         if (error.response) {
 

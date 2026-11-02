@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace LifeDashboard.Application.Models.DTOs.Auth;
 // 登入成功後 API 回傳資料
 // 前端收到 Token 後：
@@ -13,5 +15,6 @@ public class LoginResponse
     // 例如:
     // 歡迎回來 Cindy
 
+    [JsonPropertyName("userName")]
     public string Username { get; set; } = string.Empty;
 }

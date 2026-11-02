@@ -32,8 +32,6 @@ namespace LifeDashboard.Api.Controllers
         {
             try
             {
-                // TODO: 未來接上 Infrastructure 的 JwtTokenService 後，UserId 應該從 User.Claims (Token) 中取得。
-                // 這裡先暫時用一個假定的 Guid 示意，確保編譯與流程順暢。
                 var userId = User.GetUserId();
 
                 var result =
@@ -99,7 +97,6 @@ namespace LifeDashboard.Api.Controllers
         {
             try
             {
-                // TODO: 同上，UserId 未來應從 Token 取得
                 var userId = User.GetUserId();
 
                 // 將資料丟給 Service 處理。所有的商業邏輯驗證（例如 100% 檢查）都會在底層的 Domain 發生。
