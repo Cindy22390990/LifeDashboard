@@ -2,7 +2,7 @@
     type AxiosInstance,
     type AxiosRequestConfig
 } from 'axios';
-import { useAuthStore } from '../../application/stores/useAuthStore';
+import { useAuthStore } from '../../application/stores/authStore';
 
 
 interface HttpClient extends Omit<AxiosInstance, 'get' | 'post' | 'put' | 'delete'> {
@@ -81,9 +81,13 @@ axiosInstance.interceptors.response.use(
 
             console.error(
                 'API Error:',
-                error.response.data.message ||
+                error.response.data?.message ||
                 '未知錯誤'
             );
+
+            if (error.response.status === 401) {
+                useAuthStore.getState().logout();
+            }
 
         }
         else {

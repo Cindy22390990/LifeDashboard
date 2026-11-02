@@ -39,9 +39,23 @@ export default function TransactionPage() {
       alert('請選擇帳戶並輸入大於 0 的金額');
       return;
     }
+    if (formData.type === TransactionType.Transfer) {
+      if (!formData.toAccountId) {
+        alert('請選擇轉入帳戶');
+        return;
+      }
+      if (formData.accountId === formData.toAccountId) {
+        alert('來源帳戶與轉入帳戶不可相同');
+        return;
+      }
+    }
     
     try {
-      await addTransaction(formData);
+      const payload = { ...formData };
+      if (payload.type !== TransactionType.Transfer) {
+        delete payload.toAccountId;
+      }
+      await addTransaction(payload);
       // 新增成功後清空表單 (保留日期與帳戶，方便連續記帳)
       setFormData(prev => ({ ...prev, amount: 0, description: '' }));
     } catch (error) {
@@ -97,7 +111,11 @@ export default function TransactionPage() {
           <label>帳戶：</label>
           <select 
             value={formData.accountId} 
-            onChange={(e) => setFormData({ ...formData, accountId: e.target.value })}
+            onChange={(e) => setFormData(prev => ({
+              ...prev,
+              accountId: e.target.value,
+              toAccountId: prev.toAccountId === e.target.value ? undefined : prev.toAccountId,
+            }))}
             required
           >
             <option value="" disabled>請選擇帳戶</option>
@@ -106,6 +124,22 @@ export default function TransactionPage() {
             ))}
           </select>
         </div>
+
+        {formData.type === TransactionType.Transfer && (
+          <div style={{ marginBottom: '10px' }}>
+            <label>轉入帳戶：</label>
+            <select
+              value={formData.toAccountId ?? ''}
+              onChange={(e) => setFormData({ ...formData, toAccountId: e.target.value })}
+              required
+            >
+              <option value="" disabled>請選擇轉入帳戶</option>
+              {(accounts || []).map(acc => (
+                <option key={acc.id} value={acc.id} disabled={acc.id === formData.accountId}>{acc.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div style={{ marginBottom: '10px' }}>
           <label>金額：</label>
@@ -154,9 +188,19 @@ export default function TransactionPage() {
                   <div style={{ fontSize: '0.85em', color: '#888' }}>{txDate}</div>
                   <strong>{getTypeName(tx?.type)}</strong>
                   <span style={{ margin: '0 10px' }}>{tx?.description || '無備註'}</span>
-                  <span style={{ fontSize: '0.85em', color: '#666', backgroundColor: '#f0f0f0', padding: '2px 6px', borderRadius: '4px' }}>
-                    {getAccountName(tx?.accountId)}
-                  </span>
+                  {tx?.type === TransactionType.Transfer ? (
+                    <span style={{ fontSize: '0.85em', color: '#666', backgroundColor: '#f0f0f0', padding: '2px 6px', borderRadius: '4px' }}>
+                      {getAccountName(tx.accountId)}
+                      <br />
+                      ↓
+                      <br />
+                      {tx.toAccountName || getAccountName(tx.toAccountId || '')}
+                    </span>
+                  ) : (
+                    <span style={{ fontSize: '0.85em', color: '#666', backgroundColor: '#f0f0f0', padding: '2px 6px', borderRadius: '4px' }}>
+                      {getAccountName(tx?.accountId)}
+                    </span>
+                  )}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                   <div style={{ color: tx?.type === TransactionType.Income ? 'green' : 'red', fontWeight: 'bold' }}>

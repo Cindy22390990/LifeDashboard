@@ -28,7 +28,7 @@ namespace LifeDashboard.Application.Services
                 Id = a.Id,
                 Name = a.Name,
                 Type = a.Type,
-                CurrentBalance = a.InitialBalance,
+                CurrentBalance = a.CurrentBalance,
                 IsSystemAccount = a.IsSystemAccount
             });
         }
@@ -59,7 +59,7 @@ namespace LifeDashboard.Application.Services
                 Id = account.Id,
                 Name = account.Name,
                 Type = account.Type,
-                CurrentBalance = account.InitialBalance,
+                CurrentBalance = account.CurrentBalance,
                 IsSystemAccount = account.IsSystemAccount
             };
         }

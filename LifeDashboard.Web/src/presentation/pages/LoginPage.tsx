@@ -1,82 +1,81 @@
-import { useState } from 'react';
-import type { FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import axios from 'axios';
-import { Navigate, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../../application/stores/useAuthStore';
-import { AuthRepository } from '../../infrastructure/api/AuthRepository';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../../application/stores/authStore';
+import http from '../../infrastructure/api/http';
 
-function getLoginErrorMessage(error: unknown): string {
-  if (axios.isAxiosError(error)) {
-    const data = error.response?.data as { message?: string } | undefined;
-    return data?.message ?? '登入失敗';
-  }
-
-  return '登入失敗';
+interface LoginResponse {
+  token: string;
+  username: string;
 }
 
-export function LoginPage() {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const setSession = useAuthStore((state) => state.setSession);
-  const navigate = useNavigate();
+export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const login = useAuthStore((state) => state.login);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const registrationSuccess = location.state?.registrationSuccess === true;
 
-  if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
-  const handleSubmit = async (event: FormEvent) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setError(null);
+    setErrorMessage('');
     setIsSubmitting(true);
 
     try {
-      const result = await AuthRepository.login(username, password);
-      setSession(result.token, result.userName);
+      const result = await http.post<LoginResponse>('/auth/login', {
+        username,
+        password,
+      });
+      login(result.token, result.username);
       navigate('/dashboard', { replace: true });
-    } catch (loginError) {
-      setError(getLoginErrorMessage(loginError));
+    } catch (error: unknown) {
+      if (axios.isAxiosError<{ message?: string }>(error)) {
+        setErrorMessage(error.response?.data?.message ?? '登入失敗，請稍後再試。');
+      } else {
+        setErrorMessage('登入時發生非預期錯誤。');
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div style={{ maxWidth: '420px', margin: '80px auto', fontFamily: 'sans-serif' }}>
-      <h2>登入</h2>
-      <form
-        onSubmit={handleSubmit}
-        style={{ display: 'flex', flexDirection: 'column', gap: '12px', border: '1px solid #ccc', padding: '20px', borderRadius: '8px' }}
-      >
-        <label>
-          帳號
-          <input
-            type="text"
-            value={username}
-            onChange={(event) => setUsername(event.target.value)}
-            required
-            autoComplete="username"
-            style={{ display: 'block', width: '100%', marginTop: '4px' }}
-          />
-        </label>
-        <label>
-          密碼
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-            autoComplete="current-password"
-            style={{ display: 'block', width: '100%', marginTop: '4px' }}
-          />
-        </label>
-        {error && <div style={{ color: 'red' }}>{error}</div>}
+    <main style={{ maxWidth: 360, margin: '10vh auto', padding: 24 }}>
+      <h1>登入 LifeDashboard</h1>
+      {registrationSuccess && <p role="status">註冊成功，請登入</p>}
+      <form onSubmit={handleSubmit}>
+        <label htmlFor="username">使用者名稱</label>
+        <input
+          id="username"
+          name="username"
+          autoComplete="username"
+          required
+          value={username}
+          onChange={(event) => setUsername(event.target.value)}
+          style={{ display: 'block', width: '100%', margin: '8px 0 16px' }}
+        />
+        <label htmlFor="password">密碼</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          autoComplete="current-password"
+          required
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          style={{ display: 'block', width: '100%', margin: '8px 0 16px' }}
+        />
+        {errorMessage && <p role="alert">{errorMessage}</p>}
         <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? '登入中...' : '登入'}
+          {isSubmitting ? '登入中…' : '登入'}
         </button>
       </form>
-    </div>
+      <p>
+        尚未有帳號？ <Link to="/register">註冊</Link>
+      </p>
+    </main>
   );
 }

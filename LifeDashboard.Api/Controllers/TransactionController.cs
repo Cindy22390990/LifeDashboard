@@ -1,4 +1,4 @@
-﻿using LifeDashboard.Api.Extensions;
+using LifeDashboard.Api.Extensions;
 using LifeDashboard.Application.Models.DTOs;
 using LifeDashboard.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -52,21 +52,20 @@ public async Task<ActionResult<IEnumerable<TransactionDto>>> GetTransactions()
 public async Task<ActionResult<TransactionDto>> CreateTransaction(
     CreateTransactionDto dto)
 {
-    var userId =
-        User.GetUserId();
+    try
+    {
+        var userId = User.GetUserId();
+        var result = await _transactionService.CreateTransactionAsync(userId, dto);
 
-
-    var result =
-        await _transactionService
-        .CreateTransactionAsync(
-            userId,
-            dto);
-
-
-    return CreatedAtAction(
-        nameof(GetTransactions),
-        new { id = result.Id },
-        result);
+        return CreatedAtAction(
+            nameof(GetTransactions),
+            new { id = result.Id },
+            result);
+    }
+    catch (ArgumentException ex)
+    {
+        return BadRequest(new { Message = ex.Message });
+    }
 }
 
 // DELETE: api/Transaction/{id}

@@ -1,4 +1,3 @@
-using LifeDashboard.Api.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -29,7 +28,9 @@ public class UserController : ControllerBase
 
 
         var userId =
-            User.GetUserId();
+            User.FindFirst(
+                ClaimTypes.NameIdentifier)
+            ?.Value;
 
 
         var username =

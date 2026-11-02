@@ -36,11 +36,15 @@ namespace LifeDashboard.Api
             // 2.註冊 Repository 與 Service(依賴注入)
             builder.Services.AddScoped<ISettingRepository, SettingRepository>();
             builder.Services.AddScoped<ISettingService, SettingService>();
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
             // 註冊 Account 服務
             builder.Services.AddScoped<IAccountRepository, AccountRepository>();
             builder.Services.AddScoped<IAccountService, AccountService>();
             builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
             builder.Services.AddScoped<ITransactionService, TransactionService>();
+            builder.Services.AddScoped<IReportRepository, ReportRepository>();
+            builder.Services.AddScoped<IReportService, ReportService>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             // 密碼加密
             builder.Services.AddScoped<IPasswordHasher,PasswordHasher>();

@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { SystemSettingPage } from './presentation/pages/SystemSettingPage';
 import AccountPage from './presentation/pages/AccountPage';
 import TransactionPage from './presentation/pages/TransactionPage';
+import MonthlyReportPage from './presentation/pages/MonthlyReportPage';
 
 export default function App() {
   // 使用狀態來控制目前顯示哪個頁面，預設先顯示「帳戶管理」
-  const [currentTab, setCurrentTab] = useState<'accounts' | 'settings' | 'transactions'>('transactions');
+  const [currentTab, setCurrentTab] = useState<'accounts' | 'settings' | 'transactions' | 'reports'>('transactions');
 
   // 輔助函式：用來統一按鈕的樣式，讓程式碼更簡潔
   const getTabStyle = (tabName: string) => ({
@@ -39,6 +40,12 @@ export default function App() {
         >
           ⚙️ 系統設定
         </button>
+        <button
+          onClick={() => setCurrentTab('reports')}
+          style={getTabStyle('reports')}
+        >
+          📊 月度報表
+        </button>
       </nav>
 
       {/* 主要內容區塊 */}
@@ -47,6 +54,7 @@ export default function App() {
         {currentTab === 'transactions' && <TransactionPage />}
         {currentTab === 'accounts' && <AccountPage />}
         {currentTab === 'settings' && <SystemSettingPage />}
+        {currentTab === 'reports' && <MonthlyReportPage />}
       </main>
     </div>
   );

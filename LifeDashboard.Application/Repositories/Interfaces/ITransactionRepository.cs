@@ -10,7 +10,9 @@ namespace LifeDashboard.Application.Repositories.Interfaces
             Guid id,
             Guid userId);
         Task<Transaction> AddAsync(Transaction transaction);
+        Task<Transaction> AddTransferAsync(Transaction transaction);
         Task UpdateAsync(Transaction transaction);
         Task DeleteAsync(Transaction transaction);
+        Task DeleteTransferAsync(Transaction transaction);
     }
 }

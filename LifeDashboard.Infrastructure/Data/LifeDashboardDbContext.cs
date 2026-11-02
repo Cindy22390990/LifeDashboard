@@ -18,6 +18,7 @@ namespace LifeDashboard.Infrastructure.Data
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<Goal> Goals { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Category> Categories { get; set; }
         // ====== 這是我們新增的 ======
         // 系統設定資料表
         public DbSet<SystemSetting> SystemSettings { get; set; }
@@ -26,64 +27,39 @@ namespace LifeDashboard.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<SystemSetting>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-
-
-            entity.HasOne<User>()
-                .WithOne(u => u.SystemSetting)
-                .HasForeignKey<SystemSetting>(s => s.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-
-            entity.OwnsOne(
-                e => e.Allocation,
-                allocation =>
-                {
-                    allocation.Property(p => p.Living)
-                        .HasColumnName("AllocLiving");
-
-                    allocation.Property(p => p.Savings)
-                        .HasColumnName("AllocSavings");
-
-                    allocation.Property(p => p.Investment)
-                        .HasColumnName("AllocInvestment");
-
-                    allocation.Property(p => p.Entertainment)
-                        .HasColumnName("AllocEntertainment");
-                });
-        });
-
-
-            modelBuilder.Entity<Transaction>(entity =>
+            modelBuilder.Entity<Category>(entity =>
             {
-                entity.Property(t => t.Amount)
-                    .HasPrecision(18,2);
+                entity.HasKey(category => category.Id);
 
-                entity.HasOne(t => t.Account)
-                    .WithMany(a => a.Transactions)
-                    .HasForeignKey(t => t.AccountId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                entity.Property(category => category.Name)
+                    .IsRequired()
+                    .HasMaxLength(50);
 
-                entity.HasOne(t => t.ToAccount)
+                entity.Property(category => category.Icon)
+                    .IsRequired()
+                    .HasMaxLength(10);
+
+                entity.HasIndex(category => new
+                {
+                    category.UserId,
+                    category.Name
+                });
+
+                entity.HasOne<User>()
                     .WithMany()
-                    .HasForeignKey(t => t.ToAccountId)
+                    .HasForeignKey(category => category.UserId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
-
-            modelBuilder.Entity<Goal>()
-                .Property(g => g.TargetAmount)
-                .HasPrecision(18,2);
-
-            modelBuilder.Entity<Goal>()
-                .Property(g => g.CurrentAmount)
-                .HasPrecision(18,2);
-
-
             modelBuilder.Entity<SystemSetting>(entity =>
             {
+                entity.HasKey(e => e.Id);
+
+                entity.HasOne<User>()
+                    .WithOne(u => u.SystemSetting)
+                    .HasForeignKey<SystemSetting>(s => s.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
                 entity.OwnsOne(
                     e => e.Allocation,
                     allocation =>
@@ -101,6 +77,50 @@ namespace LifeDashboard.Infrastructure.Data
                             .HasColumnName("AllocEntertainment");
                     });
             });
+
+            modelBuilder.Entity<Account>(entity =>
+            {
+                entity.Property(account => account.Name)
+                    .HasMaxLength(50);
+
+                entity.Property(account => account.InitialBalance)
+                    .HasPrecision(18, 2);
+
+                entity.Property(account => account.CurrentBalance)
+                    .HasPrecision(18, 2);
+            });
+
+            modelBuilder.Entity<Transaction>(entity =>
+            {
+                entity.Property(t => t.Amount)
+                    .HasPrecision(18,2);
+
+                entity.HasOne(t => t.Account)
+                    .WithMany(a => a.Transactions)
+                    .HasForeignKey(t => t.AccountId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(t => t.ToAccount)
+                    .WithMany()
+                    .HasForeignKey(t => t.ToAccountId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(t => t.CategoryEntity)
+                    .WithMany()
+                    .HasForeignKey(t => t.CategoryId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+
+            modelBuilder.Entity<Goal>()
+                .Property(g => g.TargetAmount)
+                .HasPrecision(18,2);
+
+            modelBuilder.Entity<Goal>()
+                .Property(g => g.CurrentAmount)
+                .HasPrecision(18,2);
+
+
         }
     }
 }

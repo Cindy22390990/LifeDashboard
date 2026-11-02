@@ -12,6 +12,8 @@ export type TransactionType = typeof TransactionType[keyof typeof TransactionTyp
 export interface ITransaction {
   id: string;
   accountId: string;       // 扣款/入帳的帳戶 ID
+  toAccountId?: string | null;
+  toAccountName?: string | null;
   amount: number;          // 金額
   type: TransactionType;   // 收支類型
   categoryId?: string;     // 分類 ID (選填，之後可擴充分類系統)
@@ -22,6 +24,7 @@ export interface ITransaction {
 // 傳送給後端的新增交易資料結構
 export interface ICreateTransactionPayload {
   accountId: string;       // 扣款/入帳的帳戶 ID
+  toAccountId?: string;
   amount: number;          // 金額
   type: TransactionType;   // 收支類型
   categoryId?: string;     // 分類 ID (選填，之後可擴充分類系統)

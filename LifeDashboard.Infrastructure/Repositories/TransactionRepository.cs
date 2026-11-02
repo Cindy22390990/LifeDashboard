@@ -18,6 +18,8 @@ namespace LifeDashboard.Infrastructure.Repositories
             Guid userId)
         {
             return await _context.Transactions
+                .Include(t => t.Account)
+                .Include(t => t.ToAccount)
                 .Where(t => t.UserId == userId)
                 .OrderByDescending(t => t.TransactionDate)
                 .ToListAsync();
@@ -41,6 +43,23 @@ namespace LifeDashboard.Infrastructure.Repositories
             return transaction;
         }
 
+        public async Task<Transaction> AddTransferAsync(Transaction transaction)
+        {
+            await using var dbTransaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                _context.Transactions.Add(transaction);
+                await _context.SaveChangesAsync();
+                await dbTransaction.CommitAsync();
+                return transaction;
+            }
+            catch
+            {
+                await dbTransaction.RollbackAsync();
+                throw;
+            }
+        }
+
         public async Task UpdateAsync(Transaction transaction)
         {
             _context.Transactions.Update(transaction);
@@ -51,6 +70,22 @@ namespace LifeDashboard.Infrastructure.Repositories
         {
             _context.Transactions.Remove(transaction);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteTransferAsync(Transaction transaction)
+        {
+            await using var dbTransaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                _context.Transactions.Remove(transaction);
+                await _context.SaveChangesAsync();
+                await dbTransaction.CommitAsync();
+            }
+            catch
+            {
+                await dbTransaction.RollbackAsync();
+                throw;
+            }
         }
     }
 }

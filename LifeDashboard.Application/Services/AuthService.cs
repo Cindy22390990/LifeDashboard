@@ -119,7 +119,7 @@ public class AuthService : IAuthService
         if(user == null)
         {
             throw new UnauthorizedAccessException(
-                "密碼錯誤");
+                "帳號或密碼錯誤");
         }
 
 
@@ -134,7 +134,7 @@ public class AuthService : IAuthService
         if(!valid)
         {
             throw new UnauthorizedAccessException(
-                "密碼錯誤");
+                "帳號或密碼錯誤");
         }
 
         var token =

@@ -1,4 +1,4 @@
-﻿using LifeDashboard.Domain.Enums;
+using LifeDashboard.Domain.Enums;
 
 namespace LifeDashboard.Domain.Entities;
 
@@ -19,7 +19,8 @@ public class Transaction
             decimal amount,
             TransactionType type,
             string note,
-            DateOnly transactionDate)
+            DateOnly transactionDate,
+            Guid? toAccountId = null)
         {
             Id = Guid.NewGuid();
 
@@ -34,6 +35,8 @@ public class Transaction
             Note = note;
 
             TransactionDate = transactionDate;
+
+            ToAccountId = toAccountId;
 
             CreatedAtUtc = DateTime.UtcNow;
 
@@ -54,6 +57,10 @@ public class Transaction
 
     // 分類，例如：飲食、交通、薪資
     public string Category { get; private set; } = string.Empty;
+
+    public Guid? CategoryId { get; set; }
+
+    public Category? CategoryEntity { get; set; }
 
     // 備註
     public string Note { get; private set; } = string.Empty;

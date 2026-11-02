@@ -87,7 +87,6 @@ namespace LifeDashboard.Api.Controllers
         public async Task<IActionResult> Login(
             LoginRequest request)
         {
-
             try
             {
                 var response =
