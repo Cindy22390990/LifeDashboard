@@ -5,6 +5,7 @@ using LifeDashboard.Infrastructure.Repositories;
 using LifeDashboard.Application.Services.Interfaces;
 using LifeDashboard.Application.Services;
 using LifeDashboard.Application.Interfaces.Security;
+using LifeDashboard.Application.Interfaces;
 using LifeDashboard.Infrastructure.Security;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -33,6 +34,7 @@ namespace LifeDashboard.Api
 
                 options.LogTo(Console.WriteLine);
             });
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             // 2.註冊 Repository 與 Service(依賴注入)
             builder.Services.AddScoped<ISettingRepository, SettingRepository>();
             builder.Services.AddScoped<ISettingService, SettingService>();

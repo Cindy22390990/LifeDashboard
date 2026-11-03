@@ -36,56 +36,14 @@ namespace LifeDashboard.Infrastructure.Repositories
                     t.UserId == userId);
         }
 
-        public async Task<Transaction> AddAsync(Transaction transaction)
+        public async Task AddAsync(Transaction transaction)
         {
-            _context.Transactions.Add(transaction);
-            await _context.SaveChangesAsync();
-            return transaction;
+            await _context.Transactions.AddAsync(transaction);
         }
 
-        public async Task<Transaction> AddTransferAsync(Transaction transaction)
-        {
-            await using var dbTransaction = await _context.Database.BeginTransactionAsync();
-            try
-            {
-                _context.Transactions.Add(transaction);
-                await _context.SaveChangesAsync();
-                await dbTransaction.CommitAsync();
-                return transaction;
-            }
-            catch
-            {
-                await dbTransaction.RollbackAsync();
-                throw;
-            }
-        }
-
-        public async Task UpdateAsync(Transaction transaction)
-        {
-            _context.Transactions.Update(transaction);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task DeleteAsync(Transaction transaction)
+        public void Delete(Transaction transaction)
         {
             _context.Transactions.Remove(transaction);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task DeleteTransferAsync(Transaction transaction)
-        {
-            await using var dbTransaction = await _context.Database.BeginTransactionAsync();
-            try
-            {
-                _context.Transactions.Remove(transaction);
-                await _context.SaveChangesAsync();
-                await dbTransaction.CommitAsync();
-            }
-            catch
-            {
-                await dbTransaction.RollbackAsync();
-                throw;
-            }
         }
     }
 }

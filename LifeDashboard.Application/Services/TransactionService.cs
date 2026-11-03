@@ -1,4 +1,6 @@
 using LifeDashboard.Application.Models.DTOs;
+using LifeDashboard.Application.Exceptions;
+using LifeDashboard.Application.Interfaces;
 using LifeDashboard.Application.Repositories.Interfaces;
 using LifeDashboard.Application.Services.Interfaces;
 using LifeDashboard.Domain.Entities;
@@ -11,15 +13,18 @@ namespace LifeDashboard.Application.Services
         private readonly ITransactionRepository _transactionRepository;
         private readonly IAccountRepository _accountRepository;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
         public TransactionService(
             ITransactionRepository transactionRepository,
             IAccountRepository accountRepository,
-            ICategoryRepository categoryRepository)
+            ICategoryRepository categoryRepository,
+            IUnitOfWork unitOfWork)
         {
             _transactionRepository = transactionRepository;
             _accountRepository = accountRepository;
             _categoryRepository = categoryRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<IEnumerable<TransactionDto>> GetAllTransactionsAsync(
@@ -50,188 +55,186 @@ namespace LifeDashboard.Application.Services
             Guid userId,
             CreateTransactionDto dto)
         {
-            var type = (TransactionType)dto.Type;
-            var account =
-                await _accountRepository
-                .GetByIdAsync(
-                    dto.AccountId,
-                    userId);
-
-
-            if(account == null)
-            {
-                if (type == TransactionType.Transfer)
-                {
-                    throw new ArgumentException("找不到指定的來源帳戶。", nameof(dto.AccountId));
-                }
-
-                throw new KeyNotFoundException(
-                    "找不到指定的帳戶");
-            }
-
-            Account? toAccount = null;
-            if (type == TransactionType.Transfer)
+            await _unitOfWork.BeginTransactionAsync();
+            try
             {
                 if (dto.Amount <= 0)
                 {
-                    throw new ArgumentException("轉帳金額必須大於 0。", nameof(dto.Amount));
+                    throw new ArgumentException("交易金額必須大於 0。", nameof(dto.Amount));
                 }
 
-                if (!dto.ToAccountId.HasValue)
+                var type = (TransactionType)dto.Type;
+                var account = await _accountRepository.GetByIdAsync(dto.AccountId, userId);
+                if (account == null)
                 {
-                    throw new ArgumentException("轉帳必須指定轉入帳戶。", nameof(dto.ToAccountId));
+                    if (type == TransactionType.Transfer)
+                    {
+                        throw new ArgumentException("找不到指定的來源帳戶。", nameof(dto.AccountId));
+                    }
+
+                    throw new KeyNotFoundException("找不到指定的帳戶");
                 }
 
-                if (dto.AccountId == dto.ToAccountId.Value)
+                Account? toAccount = null;
+                if (type == TransactionType.Transfer)
                 {
-                    throw new ArgumentException("來源帳戶與轉入帳戶不可相同。", nameof(dto.ToAccountId));
+                    if (!dto.ToAccountId.HasValue)
+                    {
+                        throw new ArgumentException("轉帳必須指定轉入帳戶。", nameof(dto.ToAccountId));
+                    }
+
+                    if (dto.AccountId == dto.ToAccountId.Value)
+                    {
+                        throw new ArgumentException("來源帳戶與轉入帳戶不可相同。", nameof(dto.ToAccountId));
+                    }
+
+                    toAccount = await _accountRepository.GetByIdAsync(dto.ToAccountId.Value, userId);
+                    if (toAccount == null)
+                    {
+                        throw new ArgumentException("找不到指定的轉入帳戶。", nameof(dto.ToAccountId));
+                    }
+
+                    if (account.CurrentBalance < dto.Amount)
+                    {
+                        throw new InsufficientFundsException("來源帳戶餘額不足，無法完成轉帳。");
+                    }
                 }
 
-                toAccount = await _accountRepository.GetByIdAsync(dto.ToAccountId.Value, userId);
-                if (toAccount == null)
+                Category? category = null;
+                if (dto.CategoryId.HasValue)
                 {
-                    throw new ArgumentException("找不到指定的轉入帳戶。", nameof(dto.ToAccountId));
+                    category = await _categoryRepository.GetByIdAsync(
+                        dto.CategoryId.Value,
+                        userId);
+
+                    if (category == null)
+                    {
+                        throw new KeyNotFoundException("找不到指定的分類。");
+                    }
                 }
-            }
 
-            Category? category = null;
-            if (dto.CategoryId.HasValue)
-            {
-                category = await _categoryRepository.GetByIdAsync(
-                    dto.CategoryId.Value,
-                    userId);
+                var transaction = new Transaction(
+                    userId,
+                    dto.AccountId,
+                    dto.Amount,
+                    type,
+                    dto.Description ?? string.Empty,
+                    dto.TransactionDate,
+                    toAccount?.Id
+                );
+                transaction.CategoryId = category?.Id;
+                transaction.CategoryEntity = category;
 
-                if (category == null)
+                if (type == TransactionType.Transfer)
                 {
-                    throw new KeyNotFoundException("找不到指定的分類。");
+                    account.CurrentBalance -= transaction.Amount;
+                    toAccount!.CurrentBalance += transaction.Amount;
                 }
+                else if (type == TransactionType.Expense)
+                {
+                    account.CurrentBalance -= transaction.Amount;
+                }
+                else if (type == TransactionType.Income)
+                {
+                    account.CurrentBalance += transaction.Amount;
+                }
+
+                await _transactionRepository.AddAsync(transaction);
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
+
+                return new TransactionDto
+                {
+                    Id = transaction.Id,
+
+                    AccountId = transaction.AccountId,
+
+                    AccountName = account.Name,
+
+                    ToAccountId = transaction.ToAccountId,
+
+                    ToAccountName = toAccount?.Name,
+
+                    Amount = transaction.Amount,
+
+                    Type = (int)transaction.Type,
+
+                    CategoryId = transaction.Category,
+
+                    CategoryEntityId = transaction.CategoryId,
+
+                    Description = transaction.Note,
+
+                    TransactionDate = transaction.TransactionDate
+                };
             }
-
-            var transaction = new Transaction(
-                userId,
-                dto.AccountId,
-                dto.Amount,
-                (TransactionType)dto.Type,
-                dto.Description ?? string.Empty,
-                dto.TransactionDate,
-                toAccount?.Id
-            );
-            transaction.CategoryId = category?.Id;
-            transaction.CategoryEntity = category;
-
-            if (transaction.Type == TransactionType.Transfer)
+            catch
             {
-                account.CurrentBalance -= transaction.Amount;
-                toAccount!.CurrentBalance += transaction.Amount;
+                await _unitOfWork.RollbackAsync();
+                throw;
             }
-            else if(transaction.Type == TransactionType.Expense)
-            {
-                account.CurrentBalance -= transaction.Amount;
-            }
-            else if(transaction.Type == TransactionType.Income)
-            {
-                account.CurrentBalance += transaction.Amount;
-            }
-
-            Transaction createdTx;
-            if (transaction.Type == TransactionType.Transfer)
-            {
-                createdTx = await _transactionRepository.AddTransferAsync(transaction);
-            }
-            else
-            {
-                await _accountRepository.UpdateAsync(account);
-                createdTx = await _transactionRepository.AddAsync(transaction);
-            }
-
-            return new TransactionDto
-            {
-                Id = createdTx.Id,
-
-                AccountId = createdTx.AccountId,
-
-                AccountName = account.Name,
-
-                ToAccountId = createdTx.ToAccountId,
-
-                ToAccountName = toAccount?.Name,
-
-                Amount = createdTx.Amount,
-
-                Type = (int)createdTx.Type,
-
-                CategoryId = createdTx.Category,
-
-                CategoryEntityId = createdTx.CategoryId,
-
-                Description = createdTx.Note,
-
-                TransactionDate = createdTx.TransactionDate
-            };
         }
 
         public async Task DeleteTransactionAsync(
             Guid userId,
             Guid id)
         {
-            var transaction =
-                await _transactionRepository.GetByIdAsync(
-                    id,
-                    userId);
-
-
-            if(transaction == null)
+            await _unitOfWork.BeginTransactionAsync();
+            try
             {
-                throw new KeyNotFoundException(
-                    "找不到交易紀錄");
-            }
+                var transaction =
+                    await _transactionRepository.GetByIdAsync(
+                        id,
+                        userId);
 
-
-            var account =
-                await _accountRepository
-                .GetByIdAsync(
-                    transaction.AccountId,
-                    userId);
-
-
-            if (transaction.Type == TransactionType.Transfer)
-            {
-                if (account == null || !transaction.ToAccountId.HasValue)
+                if (transaction == null)
                 {
-                    throw new InvalidOperationException("轉帳交易缺少有效的來源或轉入帳戶。");
+                    throw new KeyNotFoundException("找不到交易紀錄");
                 }
 
-                var toAccount = await _accountRepository.GetByIdAsync(
-                    transaction.ToAccountId.Value,
-                    userId);
-                if (toAccount == null)
-                {
-                    throw new InvalidOperationException("找不到轉帳的轉入帳戶。");
-                }
+                var account =
+                    await _accountRepository.GetByIdAsync(
+                        transaction.AccountId,
+                        userId);
 
-                account.CurrentBalance += transaction.Amount;
-                toAccount.CurrentBalance -= transaction.Amount;
-                await _transactionRepository.DeleteTransferAsync(transaction);
-            }
-            else
-            {
-                if(account != null)
+                if (transaction.Type == TransactionType.Transfer)
                 {
-                    if(transaction.Type == TransactionType.Expense)
+                    if (account == null || !transaction.ToAccountId.HasValue)
+                    {
+                        throw new InvalidOperationException("轉帳交易缺少有效的來源或轉入帳戶。");
+                    }
+
+                    var toAccount = await _accountRepository.GetByIdAsync(
+                        transaction.ToAccountId.Value,
+                        userId);
+                    if (toAccount == null)
+                    {
+                        throw new InvalidOperationException("找不到轉帳的轉入帳戶。");
+                    }
+
+                    account.CurrentBalance += transaction.Amount;
+                    toAccount.CurrentBalance -= transaction.Amount;
+                }
+                else if (account != null)
+                {
+                    if (transaction.Type == TransactionType.Expense)
                     {
                         account.CurrentBalance += transaction.Amount;
                     }
-                    else if(transaction.Type == TransactionType.Income)
+                    else if (transaction.Type == TransactionType.Income)
                     {
                         account.CurrentBalance -= transaction.Amount;
                     }
-
-
-                    await _accountRepository.UpdateAsync(account);
                 }
 
-                await _transactionRepository
-                    .DeleteAsync(transaction);
+                _transactionRepository.Delete(transaction);
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
             }
         }
     }
