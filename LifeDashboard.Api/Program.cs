@@ -40,6 +40,9 @@ namespace LifeDashboard.Api
             builder.Services.AddScoped<ISettingService, SettingService>();
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<IFixedCommitmentRepository, FixedCommitmentRepository>();
+            builder.Services.AddScoped<IFixedCommitmentService, FixedCommitmentService>();
+            builder.Services.AddScoped<IBudgetRadarService, BudgetRadarService>();
             // 註冊 Account 服務
             builder.Services.AddScoped<IAccountRepository, AccountRepository>();
             builder.Services.AddScoped<IAccountService, AccountService>();

@@ -1,5 +1,6 @@
 using LifeDashboard.Application.Repositories.Interfaces;
 using LifeDashboard.Domain.Entities;
+using LifeDashboard.Domain.Enums;
 using LifeDashboard.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,6 +35,45 @@ namespace LifeDashboard.Infrastructure.Repositories
                     t =>
                     t.Id == id &&
                     t.UserId == userId);
+        }
+
+        public async Task<decimal> GetTotalAmountAsync(
+            Guid userId,
+            DateOnly startDate,
+            DateOnly endDate,
+            TransactionType type,
+            BucketType? bucketType = null)
+        {
+            var query = _context.Transactions
+                .Where(transaction =>
+                    transaction.UserId == userId &&
+                    transaction.TransactionDate >= startDate &&
+                    transaction.TransactionDate <= endDate &&
+                    transaction.Type == type);
+
+            if (bucketType.HasValue)
+            {
+                query = query.Where(transaction =>
+                    transaction.CategoryEntity != null &&
+                    transaction.CategoryEntity.BucketType == bucketType.Value);
+            }
+
+            return await query.SumAsync(transaction => (decimal?)transaction.Amount) ?? 0m;
+        }
+
+        public async Task<decimal> GetUncategorizedExpenseTotalAsync(
+            Guid userId,
+            DateOnly startDate,
+            DateOnly endDate)
+        {
+            return await _context.Transactions
+                .Where(transaction =>
+                    transaction.UserId == userId &&
+                    transaction.TransactionDate >= startDate &&
+                    transaction.TransactionDate <= endDate &&
+                    transaction.Type == TransactionType.Expense &&
+                    transaction.CategoryId == null)
+                .SumAsync(transaction => (decimal?)transaction.Amount) ?? 0m;
         }
 
         public async Task AddAsync(Transaction transaction)

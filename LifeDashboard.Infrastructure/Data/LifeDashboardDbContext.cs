@@ -19,6 +19,7 @@ namespace LifeDashboard.Infrastructure.Data
         public DbSet<Goal> Goals { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<FixedCommitment> FixedCommitments { get; set; }
         // ====== 這是我們新增的 ======
         // 系統設定資料表
         public DbSet<SystemSetting> SystemSettings { get; set; }
@@ -48,6 +49,34 @@ namespace LifeDashboard.Infrastructure.Data
                 entity.HasOne<User>()
                     .WithMany()
                     .HasForeignKey(category => category.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<FixedCommitment>(entity =>
+            {
+                entity.HasKey(commitment => commitment.Id);
+
+                entity.Property(commitment => commitment.Name)
+                    .IsRequired();
+
+                entity.Property(commitment => commitment.MonthlyAmount)
+                    .HasPrecision(18, 2);
+
+                entity.Property(commitment => commitment.CommitmentType)
+                    .IsRequired();
+
+                entity.Property(commitment => commitment.StartMonth)
+                    .IsRequired();
+
+                entity.HasIndex(commitment => new
+                {
+                    commitment.UserId,
+                    commitment.StartMonth
+                });
+
+                entity.HasOne<User>()
+                    .WithMany()
+                    .HasForeignKey(commitment => commitment.UserId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
 

@@ -1,0 +1,52 @@
+.budget-radar-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.budget-radar-values {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.budget-radar-values > div {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid #eceaf1;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.budget-radar-values dt {
+  color: #777487;
+  font-size: 14px;
+}
+
+.budget-radar-values dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: #282536;
+  font-size: 22px;
+  font-weight: 650;
+}
+
+.budget-radar-warning,
+.budget-radar-uncategorized {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+}
+
+.budget-radar-warning {
+  border: 1px solid #f1bcbc;
+  background: #fff3f3;
+  color: #a52c2c;
+}
+
+.budget-radar-uncategorized {
+  border: 1px solid #f0d99b;
+  background: #fff9e8;
+  color: #765812;
+}

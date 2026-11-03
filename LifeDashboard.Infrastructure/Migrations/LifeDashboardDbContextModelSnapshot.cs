@@ -98,6 +98,39 @@ namespace LifeDashboard.Infrastructure.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("LifeDashboard.Domain.Entities.FixedCommitment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("CommitmentType")
+                        .HasColumnType("int");
+
+                    b.Property<DateOnly?>("EndMonth")
+                        .HasColumnType("date");
+
+                    b.Property<decimal>("MonthlyAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateOnly>("StartMonth")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "StartMonth");
+
+                    b.ToTable("FixedCommitments");
+                });
+
             modelBuilder.Entity("LifeDashboard.Domain.Entities.Goal", b =>
                 {
                     b.Property<int>("Id")
@@ -261,6 +294,15 @@ namespace LifeDashboard.Infrastructure.Migrations
                 });
 
             modelBuilder.Entity("LifeDashboard.Domain.Entities.Category", b =>
+                {
+                    b.HasOne("LifeDashboard.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("LifeDashboard.Domain.Entities.FixedCommitment", b =>
                 {
                     b.HasOne("LifeDashboard.Domain.Entities.User", null)
                         .WithMany()

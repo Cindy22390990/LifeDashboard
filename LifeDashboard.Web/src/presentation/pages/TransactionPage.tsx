@@ -1,16 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import { useTransactionStore } from '../../application/stores/transactionStore';
 import { useAccountStore } from '../../application/stores/accountStore';
+import { useCategoryStore } from '../../application/stores/categoryStore';
 import { TransactionType } from '../../domain/Transaction';
 import type { ICreateTransactionPayload } from '../../domain/Transaction';
 
-export default function TransactionPage() {
+interface TransactionPageProps {
+  onNavigateToCategories?: () => void;
+}
+
+function getLocalDateString(date: Date): string {
+  const year = String(date.getFullYear()).padStart(4, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+export default function TransactionPage({ onNavigateToCategories }: TransactionPageProps) {
   // 1. 同時引入兩個 Store 的狀態與方法
   const { transactions, isLoading: isTxLoading, fetchTransactions, addTransaction, removeTransaction } = useTransactionStore();
   const { accounts, fetchAccounts } = useAccountStore();
+  const {
+    categories,
+    isLoading: isCategoryLoading,
+    error: categoryError,
+    fetchCategories,
+  } = useCategoryStore();
 
   // 2. 初始化表單狀態 (日期預設為今天)
-  const today = new Date().toISOString().split('T')[0];
+  const today = getLocalDateString(new Date());
   const [formData, setFormData] = useState<ICreateTransactionPayload>({
     accountId: '',
     amount: 0,
@@ -23,7 +41,8 @@ export default function TransactionPage() {
   useEffect(() => {
     fetchTransactions();
     fetchAccounts();
-  }, [fetchTransactions, fetchAccounts]);
+    void fetchCategories().catch(() => undefined);
+  }, [fetchTransactions, fetchAccounts, fetchCategories]);
 
   // 當帳戶列表載入完成，且表單還沒有選定帳戶時，預設選擇第一個帳戶
   useEffect(() => {
@@ -39,7 +58,18 @@ export default function TransactionPage() {
       alert('請選擇帳戶並輸入大於 0 的金額');
       return;
     }
+    if (
+      formData.type === TransactionType.Expense &&
+      !formData.categoryId
+    ) {
+      alert('支出交易必須選擇分類');
+      return;
+    }
     if (formData.type === TransactionType.Transfer) {
+      if (accounts.length < 2) {
+        alert('轉帳需要至少兩個帳戶，請先新增第二個帳戶。');
+        return;
+      }
       if (!formData.toAccountId) {
         alert('請選擇轉入帳戶');
         return;
@@ -54,6 +84,11 @@ export default function TransactionPage() {
       const payload = { ...formData };
       if (payload.type !== TransactionType.Transfer) {
         delete payload.toAccountId;
+      } else {
+        delete payload.categoryId;
+      }
+      if (!payload.categoryId) {
+        delete payload.categoryId;
       }
       await addTransaction(payload);
       // 新增成功後清空表單 (保留日期與帳戶，方便連續記帳)
@@ -99,7 +134,15 @@ export default function TransactionPage() {
           <label>類型：</label>
           <select 
             value={formData.type} 
-            onChange={(e) => setFormData({ ...formData, type: Number(e.target.value) as typeof TransactionType[keyof typeof TransactionType] })}
+            onChange={(e) => {
+              const type = Number(e.target.value) as typeof TransactionType[keyof typeof TransactionType];
+              setFormData((previous) => ({
+                ...previous,
+                type,
+                categoryId: type === TransactionType.Transfer ? undefined : previous.categoryId,
+                toAccountId: type === TransactionType.Transfer ? previous.toAccountId : undefined,
+              }));
+            }}
           >
             <option value={TransactionType.Expense}>支出</option>
             <option value={TransactionType.Income}>收入</option>
@@ -108,7 +151,7 @@ export default function TransactionPage() {
         </div>
 
         <div style={{ marginBottom: '10px' }}>
-          <label>帳戶：</label>
+          <label>{formData.type === TransactionType.Transfer ? '來源帳戶：' : '帳戶：'}</label>
           <select 
             value={formData.accountId} 
             onChange={(e) => setFormData(prev => ({
@@ -141,6 +184,41 @@ export default function TransactionPage() {
           </div>
         )}
 
+        {formData.type !== TransactionType.Transfer && (
+          <div style={{ marginBottom: '10px' }}>
+            <label>分類：</label>
+            <select
+              value={formData.categoryId ?? ''}
+              required={formData.type === TransactionType.Expense}
+              onChange={(e) => setFormData({
+                ...formData,
+                categoryId: e.target.value || undefined,
+              })}
+            >
+              {formData.type === TransactionType.Expense ? (
+                <option value="" disabled>請選擇分類</option>
+              ) : (
+                <option value="">未分類（選填）</option>
+              )}
+              {(categories || []).map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.icon} {category.name}
+                </option>
+              ))}
+            </select>
+            {isCategoryLoading && <p>載入分類中…</p>}
+            {!isCategoryLoading && categories.length === 0 && (
+              <p>
+                尚未建立分類
+                {onNavigateToCategories && (
+                  <button type="button" onClick={onNavigateToCategories}>前往分類管理</button>
+                )}
+              </p>
+            )}
+            {categoryError && <p role="alert">{categoryError}</p>}
+          </div>
+        )}
+
         <div style={{ marginBottom: '10px' }}>
           <label>金額：</label>
           <input 
@@ -162,11 +240,21 @@ export default function TransactionPage() {
           />
         </div>
 
-        <button type="submit" disabled={isTxLoading || (accounts || []).length === 0}>
+        <button
+          type="submit"
+          disabled={
+            isTxLoading ||
+            (accounts || []).length === 0 ||
+            (formData.type === TransactionType.Transfer && (accounts || []).length < 2)
+          }
+        >
           {isTxLoading ? '儲存中...' : '新增紀錄'}
         </button>
         {(!accounts || accounts.length === 0) && (
           <p style={{ color: 'red', fontSize: '14px', marginTop: '5px' }}>請先至「帳戶管理」新增至少一個帳戶才能記帳。</p>
+        )}
+        {formData.type === TransactionType.Transfer && accounts.length < 2 && (
+          <p style={{ color: 'red', fontSize: '14px', marginTop: '5px' }}>轉帳需要至少兩個帳戶，請先新增第二個帳戶。</p>
         )}
       </form>
 

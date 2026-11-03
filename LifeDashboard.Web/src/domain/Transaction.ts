@@ -16,7 +16,7 @@ export interface ITransaction {
   toAccountName?: string | null;
   amount: number;          // 金額
   type: TransactionType;   // 收支類型
-  categoryId?: string;     // 分類 ID (選填，之後可擴充分類系統)
+  categoryId?: string | null;
   description: string;     // 備註說明
   transactionDate: string; // 交易日期
 }
@@ -27,7 +27,7 @@ export interface ICreateTransactionPayload {
   toAccountId?: string;
   amount: number;          // 金額
   type: TransactionType;   // 收支類型
-  categoryId?: string;     // 分類 ID (選填，之後可擴充分類系統)
+  categoryId?: string | null;
   description: string;     // 備註說明
   transactionDate: string; // 交易日期
 }
