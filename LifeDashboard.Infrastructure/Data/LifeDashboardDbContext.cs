@@ -117,6 +117,20 @@ namespace LifeDashboard.Infrastructure.Data
 
                 entity.Property(account => account.CurrentBalance)
                     .HasPrecision(18, 2);
+
+                entity.Property(account => account.AllowNegativeBalance)
+                    .HasDefaultValue(false)
+                    .IsRequired();
+
+                if (Database.IsSqlServer())
+                {
+                    entity.Property(account => account.RowVersion)
+                        .IsRowVersion();
+                }
+                else
+                {
+                    entity.Ignore(account => account.RowVersion);
+                }
             });
 
             modelBuilder.Entity<Transaction>(entity =>
@@ -138,16 +152,29 @@ namespace LifeDashboard.Infrastructure.Data
                     .WithMany()
                     .HasForeignKey(t => t.CategoryId)
                     .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(t => t.Goal)
+                    .WithMany()
+                    .HasForeignKey(t => t.GoalId)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
 
 
-            modelBuilder.Entity<Goal>()
-                .Property(g => g.TargetAmount)
-                .HasPrecision(18,2);
+            modelBuilder.Entity<Goal>(entity =>
+            {
+                entity.Property(goal => goal.TargetAmount)
+                    .HasPrecision(18, 2);
 
-            modelBuilder.Entity<Goal>()
-                .Property(g => g.CurrentAmount)
-                .HasPrecision(18,2);
+                entity.Property(goal => goal.CurrentAmount)
+                    .HasPrecision(18, 2);
+
+                entity.HasIndex(goal => goal.UserId);
+
+                entity.HasOne<User>()
+                    .WithMany()
+                    .HasForeignKey(goal => goal.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
 
 
         }

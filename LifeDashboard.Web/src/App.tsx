@@ -1,88 +1,84 @@
 import { useState } from 'react';
+import { Link, NavLink, Outlet } from 'react-router-dom';
 import { SystemSettingPage } from './presentation/pages/SystemSettingPage';
 import AccountPage from './presentation/pages/AccountPage';
-import TransactionPage from './presentation/pages/TransactionPage';
-import MonthlyReportPage from './presentation/pages/MonthlyReportPage';
-import DashboardPage from './presentation/pages/DashboardPage';
-import CategoryPage from './presentation/pages/CategoryPage';
-import FixedCommitmentPage from './presentation/pages/FixedCommitmentPage';
+import './AppShell.css';
+
+type SettingsModal = 'accounts' | 'system' | null;
+
+const primaryTabs = [
+  { to: '/dashboard', label: 'Dashboard', icon: '⌂' },
+  { to: '/responsibilities', label: 'Responsibilities', icon: '▣' },
+  { to: '/goals', label: 'Goal', icon: '◎' },
+  { to: '/stats', label: 'Stats', icon: '▤' },
+];
 
 export default function App() {
-  // 使用狀態來控制目前顯示哪個頁面，預設先顯示「帳戶管理」
-  const [currentTab, setCurrentTab] = useState<'dashboard' | 'transactions' | 'reports' | 'categories' | 'fixedCommitments' | 'accounts' | 'settings'>('transactions');
+  const [settingsModal, setSettingsModal] = useState<SettingsModal>(null);
 
-  // 輔助函式：用來統一按鈕的樣式，讓程式碼更簡潔
-  const getTabStyle = (tabName: string) => ({
-    padding: '8px 16px', 
-    cursor: 'pointer',
-    backgroundColor: currentTab === tabName ? '#007BFF' : '#ddd',
-    color: currentTab === tabName ? 'white' : 'black',
-    border: 'none',
-    borderRadius: '4px'
-  });
+  const closeModal = () => setSettingsModal(null);
+
   return (
-    <div style={{ fontFamily: 'sans-serif', color: '#333' }}>
-      {/* 頂部導覽列 */}
-      <nav style={{ padding: '15px 20px', background: '#f5f5f5', marginBottom: '20px', display: 'flex', gap: '15px' }}>
-        <button
-          onClick={() => setCurrentTab('dashboard')}
-          style={getTabStyle('dashboard')}
-        >
-          📈 Dashboard
+    <div className="app-shell">
+      <div className="app-utility-nav">
+        <Link to="/transactions">交易記錄／新增交易</Link>
+        <button type="button" onClick={() => setSettingsModal('accounts')}>
+          帳戶管理
         </button>
-        <button 
-          onClick={() => setCurrentTab('transactions')}
-          style={getTabStyle('transactions')}
-        >
-          📝 收支記帳
+        <button type="button" onClick={() => setSettingsModal('system')}>
+          系統設定
         </button>
-        <button
-          onClick={() => setCurrentTab('reports')}
-          style={getTabStyle('reports')}
-        >
-          📊 月度報表
-        </button>
-        <button
-          onClick={() => setCurrentTab('categories')}
-          style={getTabStyle('categories')}
-        >
-          🏷️ 分類管理
-        </button>
-        <button
-          onClick={() => setCurrentTab('fixedCommitments')}
-          style={getTabStyle('fixedCommitments')}
-        >
-          📌 固定責任
-        </button>
-        <button 
-          onClick={() => setCurrentTab('accounts')}
-          style={getTabStyle('accounts')}
-        >
-          💰 帳戶管理
-        </button>
-        <button 
-          onClick={() => setCurrentTab('settings')}
-          style={getTabStyle('settings')}
-        >
-          ⚙️ 系統設定
-        </button>
+      </div>
+
+      <main className="app-main">
+        <Outlet />
+      </main>
+
+      <nav className="bottom-tab-nav" aria-label="主要導覽">
+        {primaryTabs.map((tab) => (
+          <NavLink
+            key={tab.to}
+            to={tab.to}
+            end
+            className={({ isActive }) =>
+              `bottom-tab${isActive ? ' bottom-tab-active' : ''}`
+            }
+          >
+            <span className="bottom-tab-icon" aria-hidden="true">{tab.icon}</span>
+            <span>{tab.label}</span>
+          </NavLink>
+        ))}
       </nav>
 
-      {/* 主要內容區塊 */}
-      <main>
-        {/* 4. 根據狀態渲染對應的頁面 */}
-        {currentTab === 'dashboard' && (
-          <DashboardPage onNavigateToCategories={() => setCurrentTab('categories')} />
-        )}
-        {currentTab === 'transactions' && (
-          <TransactionPage onNavigateToCategories={() => setCurrentTab('categories')} />
-        )}
-        {currentTab === 'accounts' && <AccountPage />}
-        {currentTab === 'settings' && <SystemSettingPage />}
-        {currentTab === 'reports' && <MonthlyReportPage />}
-        {currentTab === 'categories' && <CategoryPage />}
-        {currentTab === 'fixedCommitments' && <FixedCommitmentPage />}
-      </main>
+      {settingsModal && (
+        <div
+          className="app-modal-backdrop"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              closeModal();
+            }
+          }}
+        >
+          <section
+            aria-labelledby="app-modal-title"
+            aria-modal="true"
+            className="app-modal"
+            role="dialog"
+          >
+            <header className="app-modal-header">
+              <h2 id="app-modal-title">
+                {settingsModal === 'accounts' ? '帳戶管理' : '系統設定'}
+              </h2>
+              <button type="button" onClick={closeModal} aria-label="關閉">
+                關閉
+              </button>
+            </header>
+            {settingsModal === 'accounts'
+              ? <AccountPage />
+              : <SystemSettingPage />}
+          </section>
+        </div>
+      )}
     </div>
   );
 }

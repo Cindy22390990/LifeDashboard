@@ -22,6 +22,8 @@ namespace LifeDashboard.Domain.Entities
         public decimal InitialBalance{ get; set; }
         
         public decimal CurrentBalance { get; set; }
+        public bool AllowNegativeBalance { get; set; } = false;
+        public byte[] RowVersion { get; private set; } = Array.Empty<byte>();
         // 系統帳戶標記：為 true 時前端將「隱藏刪除按鈕」，且後端禁止刪除
         public bool IsSystemAccount { get; private set; }
         
@@ -41,7 +43,8 @@ namespace LifeDashboard.Domain.Entities
             string name,
             AccountType type,
             decimal initialBalance,
-            bool isSystemAccount = false)
+            bool isSystemAccount = false,
+            bool allowNegativeBalance = false)
         {
             Id = Guid.NewGuid();
 
@@ -54,6 +57,7 @@ namespace LifeDashboard.Domain.Entities
             InitialBalance = initialBalance;
 
             IsSystemAccount = isSystemAccount;
+            AllowNegativeBalance = allowNegativeBalance;
 
             IsDeleted = false;
 

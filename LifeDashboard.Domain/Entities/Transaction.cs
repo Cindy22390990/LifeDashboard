@@ -62,6 +62,10 @@ public class Transaction
 
     public Category? CategoryEntity { get; set; }
 
+    public int? GoalId { get; private set; }
+
+    public Goal? Goal { get; private set; }
+
     // 備註
     public string Note { get; private set; } = string.Empty;
 
@@ -87,4 +91,11 @@ public class Transaction
     public DateTime CreatedAtUtc { get; private set; }
 
     public DateTime UpdatedAtUtc { get; private set; }
+
+    public void AssociateWithGoal(Goal goal)
+    {
+        ArgumentNullException.ThrowIfNull(goal);
+        Goal = goal;
+        GoalId = goal.Id;
+    }
 }

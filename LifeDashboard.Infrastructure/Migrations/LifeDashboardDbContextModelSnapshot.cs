@@ -28,6 +28,11 @@ namespace LifeDashboard.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<bool>("AllowNegativeBalance")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
 
@@ -49,6 +54,12 @@ namespace LifeDashboard.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -139,6 +150,9 @@ namespace LifeDashboard.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime?>("CompletedDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
 
@@ -146,8 +160,8 @@ namespace LifeDashboard.Infrastructure.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("bit");
+                    b.Property<int>("GoalType")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -157,6 +171,9 @@ namespace LifeDashboard.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("TargetAmount")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -164,13 +181,15 @@ namespace LifeDashboard.Infrastructure.Migrations
                     b.Property<int>("Tier")
                         .HasColumnType("int");
 
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("UpdatedAtUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Goals");
                 });
@@ -228,6 +247,9 @@ namespace LifeDashboard.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("GoalId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Note")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -252,6 +274,8 @@ namespace LifeDashboard.Infrastructure.Migrations
                     b.HasIndex("AccountId");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("GoalId");
 
                     b.HasIndex("ToAccountId");
 
@@ -303,6 +327,15 @@ namespace LifeDashboard.Infrastructure.Migrations
                 });
 
             modelBuilder.Entity("LifeDashboard.Domain.Entities.FixedCommitment", b =>
+                {
+                    b.HasOne("LifeDashboard.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("LifeDashboard.Domain.Entities.Goal", b =>
                 {
                     b.HasOne("LifeDashboard.Domain.Entities.User", null)
                         .WithMany()
@@ -365,6 +398,11 @@ namespace LifeDashboard.Infrastructure.Migrations
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("LifeDashboard.Domain.Entities.Goal", "Goal")
+                        .WithMany()
+                        .HasForeignKey("GoalId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("LifeDashboard.Domain.Entities.Account", "ToAccount")
                         .WithMany()
                         .HasForeignKey("ToAccountId")
@@ -379,6 +417,8 @@ namespace LifeDashboard.Infrastructure.Migrations
                     b.Navigation("Account");
 
                     b.Navigation("CategoryEntity");
+
+                    b.Navigation("Goal");
 
                     b.Navigation("ToAccount");
 

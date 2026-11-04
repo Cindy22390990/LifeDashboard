@@ -14,6 +14,7 @@ namespace LifeDashboard.Application.Models.DTOs
         
         // 供前端判斷是否隱藏「刪除按鈕」
         public bool IsSystemAccount { get; set; }
+        public bool AllowNegativeBalance { get; set; }
     }
 
     // 前端發送「新增帳戶」請求時的格式
@@ -22,6 +23,7 @@ namespace LifeDashboard.Application.Models.DTOs
         public string Name { get; set; } = string.Empty;
         public AccountType Type { get; set; }
         public decimal InitialBalance { get; set; }
+        public bool AllowNegativeBalance { get; set; }
     }
 
     // 前端發送「修改帳戶」請求時的格式
@@ -29,5 +31,6 @@ namespace LifeDashboard.Application.Models.DTOs
     {
         public string Name { get; set; } = string.Empty;
         public AccountType Type { get; set; }
+        public bool AllowNegativeBalance { get; set; }
     }
 }

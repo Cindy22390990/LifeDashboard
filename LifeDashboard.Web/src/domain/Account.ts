@@ -13,6 +13,7 @@ export interface IAccount {
   type: AccountType;
   currentBalance: number;
   isSystemAccount: boolean;
+  allowNegativeBalance: boolean;
 }
 
 // 建立帳戶時的 Payload
@@ -20,4 +21,11 @@ export interface ICreateAccountPayload {
   name: string;
   type: AccountType;
   initialBalance: number;
+  allowNegativeBalance: boolean;
+}
+
+export interface IUpdateAccountPayload {
+  name: string;
+  type: AccountType;
+  allowNegativeBalance: boolean;
 }

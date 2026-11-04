@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useAccountStore } from '../../application/stores/accountStore';
 import { AccountType } from '../../domain/Account';
-import type { ICreateAccountPayload } from '../../domain/Account';
+import type { ICreateAccountPayload, IUpdateAccountPayload } from '../../domain/Account';
 
 export default function AccountPage() {
-  const { accounts, isLoading, fetchAccounts, addAccount, removeAccount } = useAccountStore();
+  const { accounts, isLoading, fetchAccounts, addAccount, updateAccount, removeAccount } = useAccountStore();
   const [formData, setFormData] = useState<ICreateAccountPayload>({
     name: '',
     type: AccountType.Cashflow,
     initialBalance: 0,
+    allowNegativeBalance: false,
   });
+  const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
+  const editingAccount = accounts.find((account) => account.id === editingAccountId);
 
   // 元件載入時，自動抓取帳戶列表
   useEffect(() => {
@@ -22,12 +25,43 @@ export default function AccountPage() {
     if (!formData.name) return;
     
     try {
-      await addAccount(formData);
-      // 新增成功後清空表單
-      setFormData({ name: '', type: AccountType.Cashflow, initialBalance: 0 });
+      if (editingAccountId) {
+        const payload: IUpdateAccountPayload = {
+          name: formData.name,
+          type: formData.type,
+          allowNegativeBalance: formData.allowNegativeBalance,
+        };
+        await updateAccount(editingAccountId, payload);
+      } else {
+        await addAccount(formData);
+      }
+      resetForm();
     } catch (error) {
-      alert('新增失敗，請檢查網路連線');
+      alert(editingAccountId ? '更新失敗，請檢查網路連線' : '新增失敗，請檢查網路連線');
     }
+  };
+
+  const resetForm = () => {
+    setEditingAccountId(null);
+    setFormData({
+      name: '',
+      type: AccountType.Cashflow,
+      initialBalance: 0,
+      allowNegativeBalance: false,
+    });
+  };
+
+  const startEditing = (accountId: string) => {
+    const account = accounts.find((item) => item.id === accountId);
+    if (!account) return;
+
+    setEditingAccountId(account.id);
+    setFormData({
+      name: account.name,
+      type: account.type,
+      initialBalance: 0,
+      allowNegativeBalance: account.allowNegativeBalance,
+    });
   };
 
   // 將 Enum 轉換為可讀的中文標籤
@@ -46,7 +80,7 @@ export default function AccountPage() {
 
       {/* 新增帳戶表單 */}
       <form onSubmit={handleSubmit} style={{ marginBottom: '20px', padding: '15px', border: '1px solid #ccc', borderRadius: '8px' }}>
-        <h3>新增帳戶</h3>
+        <h3>{editingAccountId ? '編輯帳戶' : '新增帳戶'}</h3>
         <div style={{ marginBottom: '10px' }}>
           <label>帳戶名稱：</label>
           <input 
@@ -67,7 +101,7 @@ export default function AccountPage() {
             <option value={AccountType.Invest}>長期投資</option>
           </select>
         </div>
-        <div style={{ marginBottom: '10px' }}>
+        {!editingAccountId && <div style={{ marginBottom: '10px' }}>
           <label>初始餘額：</label>
           <input 
             type="number" 
@@ -75,8 +109,32 @@ export default function AccountPage() {
             onChange={(e) => setFormData({ ...formData, initialBalance: Number(e.target.value) })} 
             required 
           />
+        </div>}
+        <div style={{ marginBottom: '10px' }}>
+          <label>
+            <input
+              type="checkbox"
+              checked={formData.allowNegativeBalance}
+              onChange={(e) => setFormData({
+                ...formData,
+                allowNegativeBalance: e.target.checked,
+              })}
+            />
+            允許帳戶餘額為負數
+          </label>
         </div>
-        <button type="submit">新增帳戶</button>
+        {editingAccount &&
+          editingAccount.currentBalance < 0 &&
+          editingAccount.allowNegativeBalance &&
+          !formData.allowNegativeBalance && (
+            <p role="status">
+              目前帳戶餘額為負數，關閉此設定後，新的扣款將受到餘額限制。
+            </p>
+          )}
+        <button type="submit">{editingAccountId ? '儲存變更' : '新增帳戶'}</button>
+        {editingAccountId && (
+          <button type="button" onClick={resetForm}>取消</button>
+        )}
       </form>
 
       {/* 帳戶列表展示 */}
@@ -101,11 +159,19 @@ export default function AccountPage() {
                   <div style={{ color: 'green' }}>
                     $ {balance.toLocaleString()}
                   </div>
+                  <div style={{ fontSize: '0.85em', color: '#666' }}>
+                    {acc?.allowNegativeBalance ? '允許負餘額' : '不允許負餘額'}
+                  </div>
                 </div>
-                {!acc?.isSystemAccount && acc?.id && (
-                  <button onClick={() => removeAccount(acc.id)} style={{ color: 'red', cursor: 'pointer' }}>
-                    刪除
-                  </button>
+                {acc?.id && (
+                  <div>
+                    <button onClick={() => startEditing(acc.id)}>編輯</button>
+                    {!acc.isSystemAccount && (
+                      <button onClick={() => removeAccount(acc.id)} style={{ color: 'red', cursor: 'pointer' }}>
+                        刪除
+                      </button>
+                    )}
+                  </div>
                 )}
               </li>
             );

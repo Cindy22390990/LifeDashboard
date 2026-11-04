@@ -3,12 +3,18 @@ import {
   Navigate,
   Route,
   Routes,
+  useNavigate,
   useLocation,
 } from 'react-router-dom';
 import App from './App';
 import { useAuthStore } from './application/stores/authStore';
+import DashboardPage from './presentation/pages/DashboardPage';
+import FixedCommitmentPage from './presentation/pages/FixedCommitmentPage';
+import GoalPage from './presentation/pages/GoalPage';
 import LoginPage from './presentation/pages/LoginPage';
+import MonthlyReportPage from './presentation/pages/MonthlyReportPage';
 import RegisterPage from './presentation/pages/RegisterPage';
+import TransactionPage from './presentation/pages/TransactionPage';
 import RequireAuth from './presentation/RequireAuth';
 
 function Dashboard() {
@@ -36,6 +42,16 @@ function LoginRoute() {
     : <LoginPage />;
 }
 
+function DashboardRoute() {
+  const navigate = useNavigate();
+
+  return (
+    <DashboardPage
+      onNavigateToCategories={() => navigate('/transactions')}
+    />
+  );
+}
+
 export default function AuthApp() {
   return (
     <BrowserRouter>
@@ -43,8 +59,14 @@ export default function AuthApp() {
         <Route path="/login" element={<LoginRoute />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route element={<RequireAuth />}>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route element={<Dashboard />}>
+            <Route index element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<DashboardRoute />} />
+            <Route path="/responsibilities" element={<FixedCommitmentPage />} />
+            <Route path="/goals" element={<GoalPage />} />
+            <Route path="/stats" element={<MonthlyReportPage />} />
+            <Route path="/transactions" element={<TransactionPage />} />
+          </Route>
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

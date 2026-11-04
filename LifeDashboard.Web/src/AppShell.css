@@ -1,0 +1,117 @@
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  text-align: left;
+}
+
+.app-utility-nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.app-utility-nav a {
+  color: inherit;
+}
+
+.app-main {
+  flex: 1;
+  padding: 16px 16px 104px;
+}
+
+.bottom-tab-nav {
+  position: fixed;
+  z-index: 10;
+  right: 16px;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  left: 16px;
+  display: grid;
+  width: min(760px, calc(100% - 32px));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--bg);
+  box-shadow: var(--shadow);
+}
+
+.bottom-tab {
+  display: flex;
+  min-height: 60px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--text);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.bottom-tab-active {
+  color: var(--accent);
+  background: var(--accent-bg);
+  font-weight: 600;
+}
+
+.bottom-tab-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.app-modal-backdrop {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgb(0 0 0 / 45%);
+}
+
+.app-modal {
+  width: min(760px, 100%);
+  max-height: min(90vh, 900px);
+  overflow: auto;
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+.app-modal-header {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.app-modal-header h2 {
+  margin: 0;
+}
+
+@media (max-width: 520px) {
+  .app-utility-nav {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .app-main {
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+
+  .bottom-tab {
+    font-size: 11px;
+  }
+}

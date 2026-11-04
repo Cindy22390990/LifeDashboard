@@ -3,6 +3,8 @@ using LifeDashboard.Application.Models.DTOs;
 using LifeDashboard.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using LifeDashboard.Application.Exceptions;
+using Microsoft.EntityFrameworkCore;
 
 namespace LifeDashboard.Api.Controllers;
 
@@ -62,6 +64,17 @@ public async Task<ActionResult<TransactionDto>> CreateTransaction(
             new { id = result.Id },
             result);
     }
+    catch (InsufficientFundsException ex)
+    {
+        return Conflict(new { Message = ex.Message });
+    }
+    catch (DbUpdateConcurrencyException)
+    {
+        return Conflict(new
+        {
+            Message = "帳戶資料已由其他操作更新，請重新載入後再試。"
+        });
+    }
     catch (ArgumentException ex)
     {
         return BadRequest(new { Message = ex.Message });
@@ -78,12 +91,29 @@ public async Task<IActionResult> DeleteTransaction(
         User.GetUserId();
 
 
-    await _transactionService
-        .DeleteTransactionAsync(
-            userId,
-            id);
+    try
+    {
+        await _transactionService
+            .DeleteTransactionAsync(
+                userId,
+                id);
 
-
-    return NoContent();
+        return NoContent();
+    }
+    catch (InsufficientFundsException ex)
+    {
+        return Conflict(new { Message = ex.Message });
+    }
+    catch (DbUpdateConcurrencyException)
+    {
+        return Conflict(new
+        {
+            Message = "帳戶資料已由其他操作更新，請重新載入後再試。"
+        });
+    }
+    catch (InvalidOperationException ex)
+    {
+        return Conflict(new { Message = ex.Message });
+    }
 }
 }

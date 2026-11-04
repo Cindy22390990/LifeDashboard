@@ -43,10 +43,16 @@ namespace LifeDashboard.Api
             builder.Services.AddScoped<IFixedCommitmentRepository, FixedCommitmentRepository>();
             builder.Services.AddScoped<IFixedCommitmentService, FixedCommitmentService>();
             builder.Services.AddScoped<IBudgetRadarService, BudgetRadarService>();
+            builder.Services.AddScoped<IGoalRepository, GoalRepository>();
+            builder.Services.AddScoped<IGoalService, GoalService>();
+            builder.Services.AddScoped<IGoalDepositService, GoalDepositService>();
+            builder.Services.AddScoped<IGoalPurchaseService, GoalPurchaseService>();
             // 註冊 Account 服務
             builder.Services.AddScoped<IAccountRepository, AccountRepository>();
             builder.Services.AddScoped<IAccountService, AccountService>();
+            builder.Services.AddScoped<IAccountDebitService, AccountDebitService>();
             builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+            builder.Services.AddScoped<ITransferCore, TransferCore>();
             builder.Services.AddScoped<ITransactionService, TransactionService>();
             builder.Services.AddScoped<IReportRepository, ReportRepository>();
             builder.Services.AddScoped<IReportService, ReportService>();

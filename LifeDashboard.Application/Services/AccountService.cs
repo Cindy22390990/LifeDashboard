@@ -29,7 +29,8 @@ namespace LifeDashboard.Application.Services
                 Name = a.Name,
                 Type = a.Type,
                 CurrentBalance = a.CurrentBalance,
-                IsSystemAccount = a.IsSystemAccount
+                IsSystemAccount = a.IsSystemAccount,
+                AllowNegativeBalance = a.AllowNegativeBalance
             });
         }
 
@@ -46,7 +47,8 @@ namespace LifeDashboard.Application.Services
                     userId,
                     dto.Name,
                     dto.Type,
-                    dto.InitialBalance);
+                    dto.InitialBalance,
+                    allowNegativeBalance: dto.AllowNegativeBalance);
             
             Console.WriteLine($"UserId = {account.UserId}");
             await _accountRepo.AddAsync(account);
@@ -60,7 +62,8 @@ namespace LifeDashboard.Application.Services
                 Name = account.Name,
                 Type = account.Type,
                 CurrentBalance = account.CurrentBalance,
-                IsSystemAccount = account.IsSystemAccount
+                IsSystemAccount = account.IsSystemAccount,
+                AllowNegativeBalance = account.AllowNegativeBalance
             };
         }
 
@@ -85,6 +88,7 @@ namespace LifeDashboard.Application.Services
             account.UpdateDetails(
                 dto.Name,
                 dto.Type);
+            account.AllowNegativeBalance = dto.AllowNegativeBalance;
 
 
             await _accountRepo.SaveChangesAsync();

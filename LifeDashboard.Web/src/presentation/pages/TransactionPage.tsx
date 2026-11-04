@@ -4,10 +4,7 @@ import { useAccountStore } from '../../application/stores/accountStore';
 import { useCategoryStore } from '../../application/stores/categoryStore';
 import { TransactionType } from '../../domain/Transaction';
 import type { ICreateTransactionPayload } from '../../domain/Transaction';
-
-interface TransactionPageProps {
-  onNavigateToCategories?: () => void;
-}
+import CategoryManagementModal from '../components/CategoryManagementModal';
 
 function getLocalDateString(date: Date): string {
   const year = String(date.getFullYear()).padStart(4, '0');
@@ -16,7 +13,7 @@ function getLocalDateString(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-export default function TransactionPage({ onNavigateToCategories }: TransactionPageProps) {
+export default function TransactionPage() {
   // 1. 同時引入兩個 Store 的狀態與方法
   const { transactions, isLoading: isTxLoading, fetchTransactions, addTransaction, removeTransaction } = useTransactionStore();
   const { accounts, fetchAccounts } = useAccountStore();
@@ -36,6 +33,7 @@ export default function TransactionPage({ onNavigateToCategories }: TransactionP
     description: '',
     transactionDate: today,
   });
+  const [isCategoryManagerOpen, setIsCategoryManagerOpen] = useState(false);
 
   // 3. 元件載入時，同時拉取交易紀錄與帳戶列表
   useEffect(() => {
@@ -186,8 +184,12 @@ export default function TransactionPage({ onNavigateToCategories }: TransactionP
 
         {formData.type !== TransactionType.Transfer && (
           <div style={{ marginBottom: '10px' }}>
-            <label>分類：</label>
+            <div style={{ alignItems: 'center', display: 'flex', justifyContent: 'space-between' }}>
+              <label htmlFor="transaction-category">分類：</label>
+              <button type="button" onClick={() => setIsCategoryManagerOpen(true)}>編輯</button>
+            </div>
             <select
+              id="transaction-category"
               value={formData.categoryId ?? ''}
               required={formData.type === TransactionType.Expense}
               onChange={(e) => setFormData({
@@ -208,12 +210,7 @@ export default function TransactionPage({ onNavigateToCategories }: TransactionP
             </select>
             {isCategoryLoading && <p>載入分類中…</p>}
             {!isCategoryLoading && categories.length === 0 && (
-              <p>
-                尚未建立分類
-                {onNavigateToCategories && (
-                  <button type="button" onClick={onNavigateToCategories}>前往分類管理</button>
-                )}
-              </p>
+              <p>尚未建立分類</p>
             )}
             {categoryError && <p role="alert">{categoryError}</p>}
           </div>
@@ -302,6 +299,9 @@ export default function TransactionPage({ onNavigateToCategories }: TransactionP
             );
           })}
         </ul>
+      )}
+      {isCategoryManagerOpen && (
+        <CategoryManagementModal onClose={() => setIsCategoryManagerOpen(false)} />
       )}
     </div>
   );

@@ -1,5 +1,9 @@
 import { create } from 'zustand';
-import type { IAccount, ICreateAccountPayload } from '../../domain/Account';
+import type {
+  IAccount,
+  ICreateAccountPayload,
+  IUpdateAccountPayload,
+} from '../../domain/Account';
 import { AccountRepository } from '../../infrastructure/api/AccountRepository';
 
 interface AccountState {
@@ -11,7 +15,10 @@ interface AccountState {
   
   // 新增帳戶
   addAccount: (payload: ICreateAccountPayload) => Promise<void>;
-  
+
+  // 更新帳戶
+  updateAccount: (id: string, payload: IUpdateAccountPayload) => Promise<void>;
+
   // 刪除帳戶
   removeAccount: (id: string) => Promise<void>;
 }
@@ -38,6 +45,16 @@ export const useAccountStore = create<AccountState>((set, get) => ({
       await get().fetchAccounts();
     } catch (error) {
       console.error("新增帳戶失敗", error);
+      throw error;
+    }
+  },
+
+  updateAccount: async (id, payload) => {
+    try {
+      await AccountRepository.update(id, payload);
+      await get().fetchAccounts();
+    } catch (error) {
+      console.error("更新帳戶失敗", error);
       throw error;
     }
   },

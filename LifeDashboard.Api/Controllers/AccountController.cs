@@ -3,6 +3,7 @@ using LifeDashboard.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using LifeDashboard.Api.Extensions;
+using Microsoft.EntityFrameworkCore;
 
 namespace LifeDashboard.Api.Controllers
 {
@@ -79,6 +80,13 @@ namespace LifeDashboard.Api.Controllers
                     message = ex.Message
                 });
             }
+            catch(DbUpdateConcurrencyException)
+            {
+                return Conflict(new
+                {
+                    message = "帳戶資料已由其他操作更新，請重新載入後再試。"
+                });
+            }
         }
 
         // DELETE: api/Account/{id}
@@ -113,6 +121,13 @@ namespace LifeDashboard.Api.Controllers
                 return BadRequest(new
                 {
                     message = ex.Message
+                });
+            }
+            catch(DbUpdateConcurrencyException)
+            {
+                return Conflict(new
+                {
+                    message = "帳戶資料已由其他操作更新，請重新載入後再試。"
                 });
             }
         }

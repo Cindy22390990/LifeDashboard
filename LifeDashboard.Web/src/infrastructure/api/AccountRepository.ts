@@ -1,5 +1,9 @@
 import http from './http'; // 引入我們之前設定好代理 /api 的 axios 實體
-import type { IAccount, ICreateAccountPayload } from '../../domain/Account';
+import type {
+  IAccount,
+  ICreateAccountPayload,
+  IUpdateAccountPayload,
+} from '../../domain/Account';
 
 export const AccountRepository = {
 
@@ -12,6 +16,10 @@ export const AccountRepository = {
   // 新增帳戶
   create: async (data: ICreateAccountPayload): Promise<IAccount> => {
     return await http.post<IAccount>('/Account', data);
+  },
+
+  update: async (id: string, data: IUpdateAccountPayload): Promise<void> => {
+    await http.put<void>(`/Account/${id}`, data);
   },
 
   // 軟刪除帳戶

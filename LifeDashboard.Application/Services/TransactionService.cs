@@ -1,5 +1,4 @@
 using LifeDashboard.Application.Models.DTOs;
-using LifeDashboard.Application.Exceptions;
 using LifeDashboard.Application.Interfaces;
 using LifeDashboard.Application.Repositories.Interfaces;
 using LifeDashboard.Application.Services.Interfaces;
@@ -13,17 +12,23 @@ namespace LifeDashboard.Application.Services
         private readonly ITransactionRepository _transactionRepository;
         private readonly IAccountRepository _accountRepository;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IAccountDebitService _accountDebitService;
+        private readonly ITransferCore _transferCore;
         private readonly IUnitOfWork _unitOfWork;
 
         public TransactionService(
             ITransactionRepository transactionRepository,
             IAccountRepository accountRepository,
             ICategoryRepository categoryRepository,
+            IAccountDebitService accountDebitService,
+            ITransferCore transferCore,
             IUnitOfWork unitOfWork)
         {
             _transactionRepository = transactionRepository;
             _accountRepository = accountRepository;
             _categoryRepository = categoryRepository;
+            _accountDebitService = accountDebitService;
+            _transferCore = transferCore;
             _unitOfWork = unitOfWork;
         }
 
@@ -64,41 +69,6 @@ namespace LifeDashboard.Application.Services
                 }
 
                 var type = (TransactionType)dto.Type;
-                var account = await _accountRepository.GetByIdAsync(dto.AccountId, userId);
-                if (account == null)
-                {
-                    if (type == TransactionType.Transfer)
-                    {
-                        throw new ArgumentException("找不到指定的來源帳戶。", nameof(dto.AccountId));
-                    }
-
-                    throw new KeyNotFoundException("找不到指定的帳戶");
-                }
-
-                Account? toAccount = null;
-                if (type == TransactionType.Transfer)
-                {
-                    if (!dto.ToAccountId.HasValue)
-                    {
-                        throw new ArgumentException("轉帳必須指定轉入帳戶。", nameof(dto.ToAccountId));
-                    }
-
-                    if (dto.AccountId == dto.ToAccountId.Value)
-                    {
-                        throw new ArgumentException("來源帳戶與轉入帳戶不可相同。", nameof(dto.ToAccountId));
-                    }
-
-                    toAccount = await _accountRepository.GetByIdAsync(dto.ToAccountId.Value, userId);
-                    if (toAccount == null)
-                    {
-                        throw new ArgumentException("找不到指定的轉入帳戶。", nameof(dto.ToAccountId));
-                    }
-
-                    if (account.CurrentBalance < dto.Amount)
-                    {
-                        throw new InsufficientFundsException("來源帳戶餘額不足，無法完成轉帳。");
-                    }
-                }
 
                 Category? category = null;
                 if (dto.CategoryId.HasValue)
@@ -113,33 +83,58 @@ namespace LifeDashboard.Application.Services
                     }
                 }
 
-                var transaction = new Transaction(
-                    userId,
-                    dto.AccountId,
-                    dto.Amount,
-                    type,
-                    dto.Description ?? string.Empty,
-                    dto.TransactionDate,
-                    toAccount?.Id
-                );
-                transaction.CategoryId = category?.Id;
-                transaction.CategoryEntity = category;
+                Transaction transaction;
+                Account account;
+                Account? toAccount = null;
 
                 if (type == TransactionType.Transfer)
                 {
-                    account.CurrentBalance -= transaction.Amount;
-                    toAccount!.CurrentBalance += transaction.Amount;
+                    if (!dto.ToAccountId.HasValue)
+                    {
+                        throw new ArgumentException("轉帳必須指定轉入帳戶。", nameof(dto.ToAccountId));
+                    }
+
+                    var transfer = await _transferCore.CreateTransferAsync(
+                        userId,
+                        dto.AccountId,
+                        dto.ToAccountId.Value,
+                        dto.Amount,
+                        dto.TransactionDate,
+                        dto.Description ?? string.Empty);
+                    transaction = transfer.Transaction;
+                    account = transfer.SourceAccount;
+                    toAccount = transfer.DestinationAccount;
                 }
-                else if (type == TransactionType.Expense)
+                else
                 {
-                    account.CurrentBalance -= transaction.Amount;
+                    account = await _accountRepository.GetByIdAsync(dto.AccountId, userId)
+                        ?? throw new KeyNotFoundException("找不到指定的帳戶");
+
+                    transaction = new Transaction(
+                        userId,
+                        dto.AccountId,
+                        dto.Amount,
+                        type,
+                        dto.Description ?? string.Empty,
+                        dto.TransactionDate);
+                }
+
+                transaction.CategoryId = category?.Id;
+                transaction.CategoryEntity = category;
+
+                if (type == TransactionType.Expense)
+                {
+                    _accountDebitService.Debit(account, transaction.Amount);
                 }
                 else if (type == TransactionType.Income)
                 {
                     account.CurrentBalance += transaction.Amount;
                 }
 
-                await _transactionRepository.AddAsync(transaction);
+                if (type != TransactionType.Transfer)
+                {
+                    await _transactionRepository.AddAsync(transaction);
+                }
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitAsync();
 
@@ -192,6 +187,11 @@ namespace LifeDashboard.Application.Services
                     throw new KeyNotFoundException("找不到交易紀錄");
                 }
 
+                if (transaction.GoalId.HasValue)
+                {
+                    throw new InvalidOperationException("關聯目標的交易不可直接刪除。");
+                }
+
                 var account =
                     await _accountRepository.GetByIdAsync(
                         transaction.AccountId,
@@ -212,8 +212,8 @@ namespace LifeDashboard.Application.Services
                         throw new InvalidOperationException("找不到轉帳的轉入帳戶。");
                     }
 
+                    _accountDebitService.Debit(toAccount, transaction.Amount);
                     account.CurrentBalance += transaction.Amount;
-                    toAccount.CurrentBalance -= transaction.Amount;
                 }
                 else if (account != null)
                 {
@@ -223,7 +223,7 @@ namespace LifeDashboard.Application.Services
                     }
                     else if (transaction.Type == TransactionType.Income)
                     {
-                        account.CurrentBalance -= transaction.Amount;
+                        _accountDebitService.Debit(account, transaction.Amount);
                     }
                 }
 

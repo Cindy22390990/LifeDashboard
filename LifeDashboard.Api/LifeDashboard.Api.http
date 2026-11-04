@@ -4,3 +4,44 @@ GET {{LifeDashboard.Api_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+
+@token = replace-with-jwt
+@goalId = 1
+@fromAccountId = 00000000-0000-0000-0000-000000000001
+@toAccountId = 00000000-0000-0000-0000-000000000002
+
+### Deposit funds into a goal
+POST {{LifeDashboard.Api_HostAddress}}/api/goals/{{goalId}}/deposit
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "amount": 100.00,
+  "fromAccountId": "{{fromAccountId}}",
+  "toAccountId": "{{toAccountId}}",
+  "note": "Monthly savings deposit"
+}
+
+### Deposit into a goal that does not exist
+POST {{LifeDashboard.Api_HostAddress}}/api/goals/999999/deposit
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "amount": 100.00,
+  "fromAccountId": "{{fromAccountId}}",
+  "toAccountId": "{{toAccountId}}",
+  "note": "Monthly savings deposit"
+}
+
+### Complete a purchase goal
+POST {{LifeDashboard.Api_HostAddress}}/api/goals/{{goalId}}/purchase
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "actualAmount": 45000,
+  "accountId": "{{fromAccountId}}",
+  "categoryId": "replace-with-non-living-category-guid",
+  "note": "完成購買"
+}
