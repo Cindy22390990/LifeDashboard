@@ -70,11 +70,6 @@ public class Goal
             throw new InvalidOperationException("目標已完成，不可再次購買。");
         }
 
-        if (CurrentAmount < TargetAmount)
-        {
-            throw new InvalidOperationException("目標尚未達標，不可完成購買。");
-        }
-
         Status = GoalStatus.Completed;
         CompletedDate = DateTime.UtcNow;
         UpdatedAtUtc = DateTime.UtcNow;

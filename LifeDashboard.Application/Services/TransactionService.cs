@@ -60,12 +60,46 @@ namespace LifeDashboard.Application.Services
             Guid userId,
             CreateTransactionDto dto)
         {
-            await _unitOfWork.BeginTransactionAsync();
+            return await CreateTransactionAsync(userId, dto, goal: null, ownsTransaction: true);
+        }
+
+        public async Task<TransactionDto> CreateTransactionWithinExistingTransactionAsync(
+            Guid userId,
+            CreateTransactionDto dto,
+            Goal goal)
+        {
+            if (goal.UserId != userId)
+            {
+                throw new ArgumentException("目標不屬於目前使用者。", nameof(goal));
+            }
+
+            return await CreateTransactionAsync(userId, dto, goal, ownsTransaction: false);
+        }
+
+        private async Task<TransactionDto> CreateTransactionAsync(
+            Guid userId,
+            CreateTransactionDto dto,
+            Goal? goal,
+            bool ownsTransaction)
+        {
+            if (ownsTransaction)
+            {
+                await _unitOfWork.BeginTransactionAsync();
+            }
+
             try
             {
                 if (dto.Amount <= 0)
                 {
                     throw new ArgumentException("交易金額必須大於 0。", nameof(dto.Amount));
+                }
+
+                if (!Enum.IsDefined(typeof(TransactionType), dto.Type))
+                {
+                    throw new ArgumentOutOfRangeException(
+                        nameof(dto.Type),
+                        dto.Type,
+                        "不支援的交易類型。");
                 }
 
                 var type = (TransactionType)dto.Type;
@@ -121,6 +155,10 @@ namespace LifeDashboard.Application.Services
 
                 transaction.CategoryId = category?.Id;
                 transaction.CategoryEntity = category;
+                if (goal is not null)
+                {
+                    transaction.AssociateWithGoal(goal);
+                }
 
                 if (type == TransactionType.Expense)
                 {
@@ -136,7 +174,10 @@ namespace LifeDashboard.Application.Services
                     await _transactionRepository.AddAsync(transaction);
                 }
                 await _unitOfWork.SaveChangesAsync();
-                await _unitOfWork.CommitAsync();
+                if (ownsTransaction)
+                {
+                    await _unitOfWork.CommitAsync();
+                }
 
                 return new TransactionDto
                 {
@@ -165,7 +206,10 @@ namespace LifeDashboard.Application.Services
             }
             catch
             {
-                await _unitOfWork.RollbackAsync();
+                if (ownsTransaction)
+                {
+                    await _unitOfWork.RollbackAsync();
+                }
                 throw;
             }
         }

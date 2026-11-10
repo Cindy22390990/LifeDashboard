@@ -1,4 +1,6 @@
 using FluentAssertions;
+using LifeDashboard.Application.Models.DTOs;
+using LifeDashboard.Application.Models.Queries;
 using LifeDashboard.Domain.Enums;
 using LifeDashboard.Tests.Helpers;
 using Moq;
@@ -23,6 +25,17 @@ public class BudgetRadarServiceTests
                 TransactionType.Income,
                 null),
             Times.Once);
+        context.BudgetRadarQueryRepository.Verify(repository => repository.GetExpenseSummaryAsync(
+                UserId,
+                new DateOnly(2026, 10, 5),
+                new DateOnly(2026, 11, 4),
+                new DateOnly(2026, 11, 4)),
+            Times.Once);
+        context.BudgetRadarQueryRepository.Verify(repository => repository.GetGoalPurchaseAggregateAsync(
+                UserId,
+                new DateOnly(2026, 10, 5),
+                new DateOnly(2026, 11, 4)),
+            Times.Once);
         context.FixedCommitmentRepository.Verify(repository =>
                 repository.GetActiveForPayrollPeriodAsync(
                     UserId,
@@ -44,6 +57,12 @@ public class BudgetRadarServiceTests
                 TransactionType.Income,
                 null),
             Times.Once);
+            context.BudgetRadarQueryRepository.Verify(repository => repository.GetExpenseSummaryAsync(
+                UserId,
+                new DateOnly(2026, 11, 5),
+                new DateOnly(2026, 12, 4),
+                new DateOnly(2026, 11, 5)),
+                Times.Once);
         context.FixedCommitmentRepository.Verify(repository =>
                 repository.GetActiveForPayrollPeriodAsync(
                     UserId,
@@ -65,6 +84,12 @@ public class BudgetRadarServiceTests
                 TransactionType.Income,
                 null),
             Times.Once);
+            context.BudgetRadarQueryRepository.Verify(repository => repository.GetExpenseSummaryAsync(
+                UserId,
+                new DateOnly(2026, 11, 5),
+                new DateOnly(2026, 12, 4),
+                new DateOnly(2026, 11, 6)),
+                Times.Once);
     }
 
     [Fact]
@@ -169,52 +194,25 @@ public class BudgetRadarServiceTests
                 TransactionType.Income,
                 null))
             .ReturnsAsync(1_000m);
-        context.TransactionRepository
-            .Setup(repository => repository.GetTotalAmountAsync(
+        context.BudgetRadarQueryRepository
+            .Setup(repository => repository.GetExpenseSummaryAsync(
                 UserId,
                 new DateOnly(2026, 10, 5),
                 new DateOnly(2026, 11, 4),
-                TransactionType.Expense,
-                BucketType.Living))
-            .ReturnsAsync(300m);
+                new DateOnly(2026, 11, 2)))
+            .ReturnsAsync(new BudgetExpenseSummary(300m, 0m, 0m));
 
         var result = await context.Service.GetRadarStateAsync(
             UserId,
             new DateOnly(2026, 11, 2));
 
         result.DailySafeLimit.Should().Be(233.33m);
-        context.TransactionRepository.Verify(repository => repository.GetTotalAmountAsync(
+        context.BudgetRadarQueryRepository.Verify(repository => repository.GetExpenseSummaryAsync(
                 UserId,
                 new DateOnly(2026, 10, 5),
                 new DateOnly(2026, 11, 4),
-                TransactionType.Expense,
-                BucketType.Living),
+                new DateOnly(2026, 11, 2)),
             Times.Once);
-        foreach (var excludedBucket in new[]
-                 {
-                     BucketType.Responsibility,
-                     BucketType.Entertainment,
-                     BucketType.Savings,
-                     BucketType.Investment
-                 })
-        {
-            context.TransactionRepository.Verify(repository =>
-                    repository.GetTotalAmountAsync(
-                        It.IsAny<Guid>(),
-                        It.IsAny<DateOnly>(),
-                        It.IsAny<DateOnly>(),
-                        TransactionType.Expense,
-                        excludedBucket),
-                Times.Never);
-        }
-
-        context.TransactionRepository.Verify(repository => repository.GetTotalAmountAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<DateOnly>(),
-                It.IsAny<DateOnly>(),
-                TransactionType.Transfer,
-                It.IsAny<BucketType?>()),
-            Times.Never);
     }
 
     [Fact]
@@ -229,12 +227,13 @@ public class BudgetRadarServiceTests
                 TransactionType.Income,
                 null))
             .ReturnsAsync(300m);
-        context.TransactionRepository
-            .Setup(repository => repository.GetUncategorizedExpenseTotalAsync(
+        context.BudgetRadarQueryRepository
+            .Setup(repository => repository.GetExpenseSummaryAsync(
                 UserId,
                 new DateOnly(2026, 10, 5),
-                new DateOnly(2026, 11, 4)))
-            .ReturnsAsync(125m);
+                new DateOnly(2026, 11, 4),
+                new DateOnly(2026, 11, 2)))
+            .ReturnsAsync(new BudgetExpenseSummary(0m, 0m, 125m));
 
         var result = await context.Service.GetRadarStateAsync(
             UserId,
@@ -243,11 +242,12 @@ public class BudgetRadarServiceTests
         result.TotalLivingBudget.Should().Be(300m);
         result.DailySafeLimit.Should().Be(100m);
         result.UncategorizedExpenseAmount.Should().Be(125m);
-        context.TransactionRepository.Verify(repository =>
-                repository.GetUncategorizedExpenseTotalAsync(
+        context.BudgetRadarQueryRepository.Verify(repository =>
+            repository.GetExpenseSummaryAsync(
                     UserId,
                     new DateOnly(2026, 10, 5),
-                    new DateOnly(2026, 11, 4)),
+                new DateOnly(2026, 11, 4),
+                new DateOnly(2026, 11, 2)),
             Times.Once);
     }
 
@@ -263,14 +263,13 @@ public class BudgetRadarServiceTests
                 TransactionType.Income,
                 null))
             .ReturnsAsync(100m);
-        context.TransactionRepository
-            .Setup(repository => repository.GetTotalAmountAsync(
+        context.BudgetRadarQueryRepository
+            .Setup(repository => repository.GetExpenseSummaryAsync(
                 UserId,
                 new DateOnly(2026, 10, 5),
                 new DateOnly(2026, 11, 4),
-                TransactionType.Expense,
-                BucketType.Living))
-            .ReturnsAsync(200m);
+                new DateOnly(2026, 11, 2)))
+            .ReturnsAsync(new BudgetExpenseSummary(200m, 0m, 0m));
 
         var result = await context.Service.GetRadarStateAsync(
             UserId,
@@ -312,22 +311,13 @@ public class BudgetRadarServiceTests
                 TransactionType.Income,
                 null))
             .ReturnsAsync(1_575m);
-        context.TransactionRepository
-            .Setup(repository => repository.GetTotalAmountAsync(
+        context.BudgetRadarQueryRepository
+            .Setup(repository => repository.GetExpenseSummaryAsync(
                 UserId,
                 new DateOnly(2026, 11, 5),
                 new DateOnly(2026, 12, 4),
-                TransactionType.Expense,
-                BucketType.Living))
-            .ReturnsAsync(75m);
-        context.TransactionRepository
-            .Setup(repository => repository.GetTotalAmountAsync(
-                UserId,
-                new DateOnly(2026, 11, 5),
-                new DateOnly(2026, 11, 5),
-                TransactionType.Expense,
-                BucketType.Living))
-            .ReturnsAsync(75m);
+                new DateOnly(2026, 11, 5)))
+            .ReturnsAsync(new BudgetExpenseSummary(75m, 75m, 0m));
 
         var result = await context.Service.GetRadarStateAsync(
             UserId,
@@ -336,5 +326,76 @@ public class BudgetRadarServiceTests
         result.DailySafeLimit.Should().Be(50m);
         result.TodaySpent.Should().Be(75m);
         result.TodayRemaining.Should().Be(-25m);
+    }
+
+    [Fact]
+    public async Task GoalPurchaseUnavailable_RemainsNullAndDoesNotChangeExistingRadarResponse()
+    {
+        var context = TestDataFactory.CreateBudgetRadarService(payday: 5);
+        context.TransactionRepository
+            .Setup(repository => repository.GetTotalAmountAsync(
+                UserId,
+                new DateOnly(2026, 10, 5),
+                new DateOnly(2026, 11, 4),
+                TransactionType.Income,
+                null))
+            .ReturnsAsync(900m);
+        context.BudgetRadarQueryRepository
+            .Setup(repository => repository.GetGoalPurchaseAggregateAsync(
+                UserId,
+                new DateOnly(2026, 10, 5),
+                new DateOnly(2026, 11, 4)))
+            .ReturnsAsync((GoalPurchaseAggregate?)null);
+
+        var result = await context.Service.GetRadarStateAsync(
+            UserId,
+            new DateOnly(2026, 11, 2));
+
+        result.TotalLivingBudget.Should().Be(900m);
+        result.DailySafeLimit.Should().Be(300m);
+        context.BudgetRadarQueryRepository.Verify(repository => repository.GetGoalPurchaseAggregateAsync(
+                UserId,
+                new DateOnly(2026, 10, 5),
+                new DateOnly(2026, 11, 4)),
+            Times.Once);
+    }
+
+    [Theory]
+    [InlineData(0, 0)]
+    [InlineData(75, 1)]
+    public async Task GoalPurchaseAggregate_WhenAvailableDoesNotChangeExistingRadarResponse(
+        decimal expenseTotal,
+        int transactionCount)
+    {
+        var context = TestDataFactory.CreateBudgetRadarService(payday: 5);
+        context.TransactionRepository
+            .Setup(repository => repository.GetTotalAmountAsync(
+                UserId,
+                new DateOnly(2026, 10, 5),
+                new DateOnly(2026, 11, 4),
+                TransactionType.Income,
+                null))
+            .ReturnsAsync(900m);
+        context.BudgetRadarQueryRepository
+            .Setup(repository => repository.GetGoalPurchaseAggregateAsync(
+                UserId,
+                new DateOnly(2026, 10, 5),
+                new DateOnly(2026, 11, 4)))
+            .ReturnsAsync(new GoalPurchaseAggregate(expenseTotal, transactionCount));
+
+        var result = await context.Service.GetRadarStateAsync(
+            UserId,
+            new DateOnly(2026, 11, 2));
+
+        result.TotalLivingBudget.Should().Be(900m);
+        result.DailySafeLimit.Should().Be(300m);
+        result.GetType().GetProperties().Select(property => property.Name)
+            .Should().Equal(
+                "DailySafeLimit",
+                "TodaySpent",
+                "TodayRemaining",
+                "RemainingDays",
+                "TotalLivingBudget",
+                "UncategorizedExpenseAmount");
     }
 }

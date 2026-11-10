@@ -141,6 +141,31 @@ public class AccountNegativeBalanceApiTests
         await AssertAccountAndTransactionsAsync(factory, account.Id, -5m, expectedCount: 1);
     }
 
+    [Theory]
+    [InlineData(0)]
+    [InlineData(4)]
+    public async Task Creating_transaction_with_undefined_type_returns_bad_request_without_changes(
+        int type)
+    {
+        using var factory = new CustomWebApplicationFactory();
+        var account = await SeedAccountAsync(factory, balance: 100m);
+        using var client = CreateAuthenticatedClient(factory, account.UserId);
+
+        var response = await client.PostAsJsonAsync(
+            "/api/Transaction",
+            new CreateTransactionDto
+            {
+                AccountId = account.Id,
+                Amount = 25m,
+                Type = type,
+                Description = "Invalid transaction type",
+                TransactionDate = new DateOnly(2026, 11, 4)
+            });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await AssertAccountAndTransactionsAsync(factory, account.Id, 100m, expectedCount: 0);
+    }
+
     [Fact]
     public async Task Deleting_income_is_rejected_atomically_when_it_would_make_account_negative()
     {

@@ -4,7 +4,6 @@ import {
   Route,
   Routes,
   useNavigate,
-  useLocation,
 } from 'react-router-dom';
 import App from './App';
 import { useAuthStore } from './application/stores/authStore';
@@ -18,13 +17,13 @@ import TransactionPage from './presentation/pages/TransactionPage';
 import RequireAuth from './presentation/RequireAuth';
 
 function Dashboard() {
-  const userName = useAuthStore((state) => state.userName);
+  const username = useAuthStore((state) => state.username);
   const logout = useAuthStore((state) => state.logout);
 
   return (
     <>
       <header style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, padding: 12 }}>
-        <span>{userName}</span>
+        <span>{username}</span>
         <button onClick={logout}>登出</button>
       </header>
       <App />
@@ -34,10 +33,8 @@ function Dashboard() {
 
 function LoginRoute() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const location = useLocation();
-  const registrationSuccess = location.state?.registrationSuccess === true;
 
-  return isAuthenticated && !registrationSuccess
+  return isAuthenticated
     ? <Navigate to="/dashboard" replace />
     : <LoginPage />;
 }

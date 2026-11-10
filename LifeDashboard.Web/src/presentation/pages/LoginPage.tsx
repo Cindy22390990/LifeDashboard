@@ -2,12 +2,7 @@ import { useState, type FormEvent } from 'react';
 import axios from 'axios';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../application/stores/authStore';
-import http from '../../infrastructure/api/http';
-
-interface LoginResponse {
-  token: string;
-  username: string;
-}
+import { AuthRepository } from '../../infrastructure/api/AuthRepository';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -25,11 +20,8 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      const result = await http.post<LoginResponse>('/auth/login', {
-        username,
-        password,
-      });
-      login(result.token, result.username);
+      const result = await AuthRepository.login(username, password);
+      login(result.token, result.userName);
       navigate('/dashboard', { replace: true });
     } catch (error: unknown) {
       if (axios.isAxiosError<{ message?: string }>(error)) {

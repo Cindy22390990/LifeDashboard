@@ -99,7 +99,7 @@ public class GoalPurchaseApiTests
     }
 
     [Fact]
-    public async Task Purchase_for_goal_below_target_returns_conflict_without_changes()
+    public async Task Purchase_for_goal_below_target_creates_expense_and_completes_goal()
     {
         using var factory = new PurchaseTestFactory();
         var seeded = await factory.SeedAsync(userAGoalCurrentAmount: 50m);
@@ -111,8 +111,23 @@ public class GoalPurchaseApiTests
             seeded.UserASource.Id,
             seeded.UserACategory.Id);
 
-        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
-        await AssertNoPurchaseChangesAsync(factory, seeded);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        await using var scope = factory.Services.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<LifeDashboardDbContext>();
+        var goal = await dbContext.Goals
+            .AsNoTracking()
+            .SingleAsync(entity => entity.Id == seeded.UserAGoal.Id);
+        var account = await dbContext.Accounts
+            .AsNoTracking()
+            .SingleAsync(entity => entity.Id == seeded.UserASource.Id);
+
+        Assert.Equal(50m, goal.CurrentAmount);
+        Assert.Equal(GoalStatus.Completed, goal.Status);
+        Assert.Equal(25m, account.CurrentBalance);
+        Assert.Single(await dbContext.Transactions
+            .AsNoTracking()
+            .Where(transaction => transaction.GoalId == seeded.UserAGoal.Id)
+            .ToListAsync());
     }
 
     [Fact]

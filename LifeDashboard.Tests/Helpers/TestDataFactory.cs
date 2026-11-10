@@ -1,4 +1,5 @@
 using LifeDashboard.Application.Models.DTOs;
+using LifeDashboard.Application.Models.Queries;
 using LifeDashboard.Application.Repositories.Interfaces;
 using LifeDashboard.Application.Services;
 using LifeDashboard.Application.Services.Interfaces;
@@ -44,12 +45,20 @@ public static class TestDataFactory
                 It.IsAny<TransactionType>(),
                 It.IsAny<BucketType?>()))
             .ReturnsAsync(0m);
-        transactionRepository
-            .Setup(repository => repository.GetUncategorizedExpenseTotalAsync(
+        var budgetRadarQueryRepository = new Mock<IBudgetRadarQueryRepository>();
+        budgetRadarQueryRepository
+            .Setup(repository => repository.GetExpenseSummaryAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<DateOnly>(),
+                It.IsAny<DateOnly>(),
+                It.IsAny<DateOnly>()))
+            .ReturnsAsync(new BudgetExpenseSummary(0m, 0m, 0m));
+        budgetRadarQueryRepository
+            .Setup(repository => repository.GetGoalPurchaseAggregateAsync(
                 It.IsAny<Guid>(),
                 It.IsAny<DateOnly>(),
                 It.IsAny<DateOnly>()))
-            .ReturnsAsync(0m);
+            .ReturnsAsync((GoalPurchaseAggregate?)null);
 
         var fixedCommitmentRepository = new Mock<IFixedCommitmentRepository>();
         fixedCommitmentRepository
@@ -65,12 +74,15 @@ public static class TestDataFactory
 
         var service = new BudgetRadarService(
             transactionRepository.Object,
+            budgetRadarQueryRepository.Object,
             fixedCommitmentRepository.Object,
-            settingService.Object);
+            settingService.Object,
+            new BudgetRadarAssembler());
 
         return new BudgetRadarTestContext(
             service,
             transactionRepository,
+            budgetRadarQueryRepository,
             fixedCommitmentRepository,
             settingService);
     }
@@ -78,6 +90,7 @@ public static class TestDataFactory
     public sealed record BudgetRadarTestContext(
         BudgetRadarService Service,
         Mock<ITransactionRepository> TransactionRepository,
+        Mock<IBudgetRadarQueryRepository> BudgetRadarQueryRepository,
         Mock<IFixedCommitmentRepository> FixedCommitmentRepository,
         Mock<ISettingService> SettingService);
 }

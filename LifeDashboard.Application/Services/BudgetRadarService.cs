@@ -8,17 +8,23 @@ namespace LifeDashboard.Application.Services;
 public class BudgetRadarService : IBudgetRadarService
 {
     private readonly ITransactionRepository _transactionRepository;
+    private readonly IBudgetRadarQueryRepository _budgetRadarQueryRepository;
     private readonly IFixedCommitmentRepository _fixedCommitmentRepository;
     private readonly ISettingService _settingService;
+    private readonly BudgetRadarAssembler _budgetRadarAssembler;
 
     public BudgetRadarService(
         ITransactionRepository transactionRepository,
+        IBudgetRadarQueryRepository budgetRadarQueryRepository,
         IFixedCommitmentRepository fixedCommitmentRepository,
-        ISettingService settingService)
+        ISettingService settingService,
+        BudgetRadarAssembler budgetRadarAssembler)
     {
         _transactionRepository = transactionRepository;
+        _budgetRadarQueryRepository = budgetRadarQueryRepository;
         _fixedCommitmentRepository = fixedCommitmentRepository;
         _settingService = settingService;
+        _budgetRadarAssembler = budgetRadarAssembler;
     }
 
     public async Task<RadarStateDto> GetRadarStateAsync(
@@ -34,48 +40,32 @@ public class BudgetRadarService : IBudgetRadarService
             period.EndDate,
             TransactionType.Income);
 
-        var livingExpenses = await _transactionRepository.GetTotalAmountAsync(
+        var expenseSummary = await _budgetRadarQueryRepository.GetExpenseSummaryAsync(
             userId,
             period.StartDate,
             period.EndDate,
-            TransactionType.Expense,
-            BucketType.Living);
+            currentDate);
 
-        var todaySpent = await _transactionRepository.GetTotalAmountAsync(
+        var goalPurchaseAggregate = await _budgetRadarQueryRepository.GetGoalPurchaseAggregateAsync(
             userId,
-            currentDate,
-            currentDate,
-            TransactionType.Expense,
-            BucketType.Living);
-
-        var uncategorizedExpenseAmount =
-            await _transactionRepository.GetUncategorizedExpenseTotalAsync(
-                userId,
-                period.StartDate,
-                period.EndDate);
+            period.StartDate,
+            period.EndDate);
 
         var commitments =
             await _fixedCommitmentRepository.GetActiveForPayrollPeriodAsync(
                 userId,
                 period.PayrollPeriodMonth);
 
-        var totalLivingBudget = income - commitments.Sum(commitment => commitment.MonthlyAmount);
-        var remainingLivingBudget = totalLivingBudget - livingExpenses;
-        var remainingDays = period.EndDate.DayNumber - currentDate.DayNumber + 1;
-        var dailySafeLimit = decimal.Round(
-            remainingLivingBudget / remainingDays,
-            2,
-            MidpointRounding.AwayFromZero);
+        var readModel = _budgetRadarAssembler.Assemble(
+            currentDate,
+            period.StartDate,
+            period.EndDate,
+            income,
+            expenseSummary,
+            goalPurchaseAggregate,
+            commitments);
 
-        return new RadarStateDto
-        {
-            DailySafeLimit = dailySafeLimit,
-            TodaySpent = todaySpent,
-            TodayRemaining = dailySafeLimit - todaySpent,
-            RemainingDays = remainingDays,
-            TotalLivingBudget = totalLivingBudget,
-            UncategorizedExpenseAmount = uncategorizedExpenseAmount
-        };
+        return _budgetRadarAssembler.ToRadarStateDto(readModel);
     }
 
     private static BudgetPeriod GetBudgetPeriod(DateOnly currentDate, int payday)

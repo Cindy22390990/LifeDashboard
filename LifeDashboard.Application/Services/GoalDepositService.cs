@@ -10,16 +10,16 @@ namespace LifeDashboard.Application.Services;
 public sealed class GoalDepositService : IGoalDepositService
 {
     private readonly IGoalRepository _goalRepository;
-    private readonly ITransferCore _transferCore;
+    private readonly ITransactionService _transactionService;
     private readonly IUnitOfWork _unitOfWork;
 
     public GoalDepositService(
         IGoalRepository goalRepository,
-        ITransferCore transferCore,
+        ITransactionService transactionService,
         IUnitOfWork unitOfWork)
     {
         _goalRepository = goalRepository;
-        _transferCore = transferCore;
+        _transactionService = transactionService;
         _unitOfWork = unitOfWork;
     }
 
@@ -29,29 +29,43 @@ public sealed class GoalDepositService : IGoalDepositService
         GoalDepositRequest request,
         CancellationToken cancellationToken)
     {
+        var goal = await _goalRepository.GetByIdAsync(
+            goalId,
+            userId,
+            cancellationToken)
+            ?? throw new KeyNotFoundException("找不到指定的目標。");
+
+        if (goal.Status == GoalStatus.Completed)
+        {
+            throw new InvalidOperationException("已完成的目標不可再存入資金。");
+        }
+
+        if (request.Amount <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(request.Amount), "存入金額必須大於 0。");
+        }
+
+        if (request.FromAccountId == request.ToAccountId)
+        {
+            throw new ArgumentException("來源帳戶與轉入帳戶不可相同。", nameof(request.ToAccountId));
+        }
+
         await _unitOfWork.BeginTransactionAsync();
         try
         {
-            var goal = await _goalRepository.GetByIdAsync(
-                goalId,
+            await _transactionService.CreateTransactionWithinExistingTransactionAsync(
                 userId,
-                cancellationToken)
-                ?? throw new KeyNotFoundException("找不到指定的目標。");
+                new CreateTransactionDto
+                {
+                    AccountId = request.FromAccountId,
+                    ToAccountId = request.ToAccountId,
+                    Amount = request.Amount,
+                    Type = (int)TransactionType.Transfer,
+                    Description = request.Note,
+                    TransactionDate = DateOnly.FromDateTime(DateTime.UtcNow)
+                },
+                goal);
 
-            if (goal.Status == GoalStatus.Completed)
-            {
-                throw new InvalidOperationException("已完成的目標不可再存入資金。");
-            }
-
-            var transfer = await _transferCore.CreateTransferAsync(
-                userId,
-                request.FromAccountId,
-                request.ToAccountId,
-                request.Amount,
-                DateOnly.FromDateTime(DateTime.UtcNow),
-                request.Note);
-
-            transfer.Transaction.AssociateWithGoal(goal);
             goal.ApplyDeposit(request.Amount);
 
             await _unitOfWork.SaveChangesAsync();

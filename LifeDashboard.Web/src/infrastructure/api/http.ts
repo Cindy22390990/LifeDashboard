@@ -30,6 +30,7 @@ interface HttpClient extends Omit<AxiosInstance, 'get' | 'post' | 'put' | 'delet
     ): Promise<T>;
 }
 
+let redirectingToLogin = false;
 
 const axiosInstance = axios.create({
     baseURL: '/api',
@@ -46,10 +47,9 @@ axiosInstance.interceptors.request.use(
         const token = useAuthStore.getState().token;
 
         if (token) {
-
-            config.headers.Authorization =
-                `Bearer ${token}`;
-
+            config.headers.set('Authorization', `Bearer ${token}`);
+        } else {
+            config.headers.delete('Authorization');
         }
 
         return config;
@@ -69,10 +69,15 @@ axiosInstance.interceptors.response.use(
         const requestUrl = error.config?.url ?? '';
         const isLoginRequest = requestUrl.toLowerCase().includes('/auth/login');
 
-        if (error.response?.status === 401 && !isLoginRequest) {
+        if (error.response?.status === 401) {
             useAuthStore.getState().logout();
 
-            if (window.location.pathname !== '/login') {
+            if (
+                !isLoginRequest &&
+                window.location.pathname !== '/login' &&
+                !redirectingToLogin
+            ) {
+                redirectingToLogin = true;
                 window.location.assign('/login');
             }
         }
@@ -84,10 +89,6 @@ axiosInstance.interceptors.response.use(
                 error.response.data?.message ||
                 '未知錯誤'
             );
-
-            if (error.response.status === 401) {
-                useAuthStore.getState().logout();
-            }
 
         }
         else {
