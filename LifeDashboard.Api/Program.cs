@@ -22,6 +22,15 @@ namespace LifeDashboard.Api
             // Add services to the container.
 
             builder.Services.AddControllers();
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("Frontend", policy =>
+                {
+                    policy.WithOrigins("http://localhost:5173")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             // 1.註冊資料庫(這裡先使用 InMemory 記憶體資料庫方便你馬上測 Swagger)
             // 1. 註冊資料庫 (使用你 appsettings.json 中的 DefaultConnection)
@@ -163,6 +172,8 @@ namespace LifeDashboard.Api
                 app.UseSwaggerUI();
 
             app.UseHttpsRedirection();
+
+            app.UseCors("Frontend");
 
             app.UseAuthentication();
 

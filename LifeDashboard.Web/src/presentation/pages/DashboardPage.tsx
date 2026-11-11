@@ -4,6 +4,7 @@ import { useDashboardSummaryStore } from '../../application/stores/dashboardSumm
 import { useCategoryStore } from '../../application/stores/categoryStore';
 import { useTransactionStore } from '../../application/stores/transactionStore';
 import BudgetRadarPanel from '../components/BudgetRadarPanel';
+import GoalPyramid from '../components/dashboard/GoalPyramid';
 import { TransactionType } from '../../domain/Transaction';
 import type { ICreateTransactionPayload } from '../../domain/Transaction';
 
@@ -133,6 +134,9 @@ export default function DashboardPage({ onNavigateToCategories }: DashboardPageP
 
       {!loading && !error && radarState && (
         <BudgetRadarPanel radarState={radarState} />
+      )}
+      {!loading && !error && summary && (
+        <GoalPyramid goals={summary.goals} />
       )}
 
       <section>
