@@ -45,6 +45,7 @@ namespace LifeDashboard.Api
             builder.Services.AddScoped<IBudgetRadarService, BudgetRadarService>();
             builder.Services.AddScoped<IBudgetRadarQueryRepository, BudgetRadarQueryRepository>();
             builder.Services.AddScoped<BudgetRadarAssembler>();
+            builder.Services.AddScoped<IDashboardService, DashboardService>();
             builder.Services.AddScoped<IGoalRepository, GoalRepository>();
             builder.Services.AddScoped<IGoalService, GoalService>();
             builder.Services.AddScoped<IGoalDepositService, GoalDepositService>();

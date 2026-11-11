@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { useAccountStore } from '../../application/stores/accountStore';
-import { useBudgetRadarStore } from '../../application/stores/budgetRadarStore';
+import { useDashboardSummaryStore } from '../../application/stores/dashboardSummaryStore';
 import { useCategoryStore } from '../../application/stores/categoryStore';
 import { useTransactionStore } from '../../application/stores/transactionStore';
 import BudgetRadarPanel from '../components/BudgetRadarPanel';
@@ -27,8 +26,14 @@ interface DashboardPageProps {
 
 export default function DashboardPage({ onNavigateToCategories }: DashboardPageProps) {
   const [currentDate] = useState(() => getLocalDateString(new Date()));
-  const { radarState, loading, error, fetchRadar } = useBudgetRadarStore();
-  const { accounts, fetchAccounts } = useAccountStore();
+  const {
+    summary,
+    loading,
+    error,
+    fetchDashboardSummary,
+  } = useDashboardSummaryStore();
+  const radarState = summary?.budget ?? null;
+  const accounts = summary?.accounts ?? [];
   const {
     categories,
     isLoading: isCategoryLoading,
@@ -46,13 +51,12 @@ export default function DashboardPage({ onNavigateToCategories }: DashboardPageP
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
-    void fetchRadar(currentDate).catch(() => undefined);
-  }, [currentDate, fetchRadar]);
+    void fetchDashboardSummary(currentDate).catch(() => undefined);
+  }, [currentDate, fetchDashboardSummary]);
 
   useEffect(() => {
-    fetchAccounts();
     void fetchCategories().catch(() => undefined);
-  }, [fetchAccounts, fetchCategories]);
+  }, [fetchCategories]);
 
   const isTransfer = formData.type === TransactionType.Transfer;
   const hasSameTransferAccounts =
@@ -109,7 +113,7 @@ export default function DashboardPage({ onNavigateToCategories }: DashboardPageP
         description: '',
         categoryId: undefined,
       }));
-      await fetchRadar(currentDate).catch(() => undefined);
+      await fetchDashboardSummary(currentDate).catch(() => undefined);
     } catch (requestError) {
       const message = axios.isAxiosError<ApiError>(requestError)
         ? requestError.response?.data?.message
