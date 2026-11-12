@@ -5,8 +5,10 @@ import { useCategoryStore } from '../../application/stores/categoryStore';
 import { useTransactionStore } from '../../application/stores/transactionStore';
 import BudgetRadarPanel from '../components/BudgetRadarPanel';
 import GoalPyramid from '../components/dashboard/GoalPyramid';
+import { AccountType } from '../../domain/Account';
 import { TransactionType } from '../../domain/Transaction';
 import type { ICreateTransactionPayload } from '../../domain/Transaction';
+import './DashboardPage.css';
 
 interface ApiError {
   message?: string;
@@ -19,6 +21,27 @@ function getLocalDateString(date: Date): string {
   const day = String(date.getDate()).padStart(2, '0');
 
   return `${year}-${month}-${day}`;
+}
+
+const currencyFormatter = new Intl.NumberFormat('zh-TW', {
+  style: 'currency',
+  currency: 'TWD',
+  maximumFractionDigits: 0,
+});
+
+function formatCurrency(amount: number): string {
+  return currencyFormatter.format(amount);
+}
+
+function getAccountTypeLabel(type: AccountType): string {
+  switch (type) {
+    case AccountType.Cashflow:
+      return '日常現金流';
+    case AccountType.Saving:
+      return '儲備帳戶';
+    case AccountType.Invest:
+      return '投資帳戶';
+  }
 }
 
 interface DashboardPageProps {
@@ -35,6 +58,16 @@ export default function DashboardPage({ onNavigateToCategories }: DashboardPageP
   } = useDashboardSummaryStore();
   const radarState = summary?.budget ?? null;
   const accounts = summary?.accounts ?? [];
+  const accountBalanceTotal = accounts.reduce(
+    (total, account) => total + account.currentBalance,
+    0,
+  );
+  const displayDate = new Date(`${currentDate}T00:00:00`).toLocaleDateString('zh-TW', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    weekday: 'long',
+  });
   const {
     categories,
     isLoading: isCategoryLoading,
@@ -126,21 +159,91 @@ export default function DashboardPage({ onNavigateToCategories }: DashboardPageP
   };
 
   return (
-    <section>
-      <h1>生活閒錢雷達</h1>
+    <div className="dashboard-page">
+      <header className="dashboard-header">
+        <div>
+          <p className="dashboard-header__eyebrow">LIFE DASHBOARD</p>
+          <h1>生活財務總覽</h1>
+          <p className="dashboard-header__subtitle">目標、預算與帳戶狀態，一頁掌握。</p>
+        </div>
+        <time className="dashboard-header__date" dateTime={currentDate}>{displayDate}</time>
+      </header>
 
       {loading && <p>載入中…</p>}
-      {!loading && error && <p role="alert">{error}</p>}
+      {!loading && error && <p className="dashboard-feedback" role="alert">{error}</p>}
 
-      {!loading && !error && radarState && (
-        <BudgetRadarPanel radarState={radarState} />
-      )}
       {!loading && !error && summary && (
-        <GoalPyramid goals={summary.goals} />
+        <>
+          <section className="dashboard-overview" aria-labelledby="dashboard-overview-title">
+            <div className="dashboard-section-heading">
+              <div>
+                <p className="dashboard-section-heading__eyebrow">FINANCIAL SNAPSHOT</p>
+                <h2 id="dashboard-overview-title">財務總覽</h2>
+              </div>
+              <span className="dashboard-overview__period">截至 {displayDate}</span>
+            </div>
+            <div className="dashboard-overview__metrics">
+              <div className="dashboard-overview__balance">
+                <span>帳戶餘額合計</span>
+                <strong>{formatCurrency(accountBalanceTotal)}</strong>
+              </div>
+              <div className="dashboard-overview__account-count">
+                <span>管理中的帳戶</span>
+                <strong>{accounts.length}<small> 個</small></strong>
+              </div>
+            </div>
+          </section>
+
+          <section className="dashboard-primary" aria-label="人生目標">
+            <GoalPyramid goals={summary.goals} />
+          </section>
+
+          {radarState && (
+            <section className="dashboard-secondary" aria-labelledby="dashboard-budget-title">
+              <div className="dashboard-section-heading">
+                <div>
+                  <p className="dashboard-section-heading__eyebrow">TODAY</p>
+                  <h2 id="dashboard-budget-title">今日預算安全額度</h2>
+                </div>
+              </div>
+              <BudgetRadarPanel radarState={radarState} />
+            </section>
+          )}
+
+          <section className="dashboard-details" aria-labelledby="dashboard-accounts-title">
+            <div className="dashboard-section-heading">
+              <div>
+                <p className="dashboard-section-heading__eyebrow">ACCOUNTS</p>
+                <h2 id="dashboard-accounts-title">帳戶總覽</h2>
+              </div>
+              <span className="dashboard-details__count">{accounts.length} 個帳戶</span>
+            </div>
+            {accounts.length === 0 ? (
+              <p className="dashboard-empty">目前沒有帳戶資料。</p>
+            ) : (
+              <ul className="dashboard-account-list">
+                {accounts.map((account) => (
+                  <li className="dashboard-account" key={account.id}>
+                    <div className="dashboard-account__identity">
+                      <h3>{account.name}</h3>
+                      <span>{getAccountTypeLabel(account.type)}</span>
+                    </div>
+                    <strong>{formatCurrency(account.currentBalance)}</strong>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </>
       )}
 
-      <section>
-        <h2>Quick Add</h2>
+      <section className="dashboard-quick-add" aria-labelledby="dashboard-quick-add-title">
+        <div className="dashboard-section-heading">
+          <div>
+            <p className="dashboard-section-heading__eyebrow">QUICK ENTRY</p>
+            <h2 id="dashboard-quick-add-title">快速記帳</h2>
+          </div>
+        </div>
         <form onSubmit={handleSubmit}>
           <p>
             <label>
@@ -336,6 +439,6 @@ export default function DashboardPage({ onNavigateToCategories }: DashboardPageP
           </button>
         </form>
       </section>
-    </section>
+    </div>
   );
 }

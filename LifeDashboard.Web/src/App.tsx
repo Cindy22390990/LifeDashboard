@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, NavLink, Outlet } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { SystemSettingPage } from './presentation/pages/SystemSettingPage';
 import AccountPage from './presentation/pages/AccountPage';
 import './AppShell.css';
@@ -15,6 +15,8 @@ const primaryTabs = [
 
 export default function App() {
   const [settingsModal, setSettingsModal] = useState<SettingsModal>(null);
+  const location = useLocation();
+  const isResponsibilitiesPage = location.pathname === '/responsibilities';
 
   const closeModal = () => setSettingsModal(null);
 
@@ -22,16 +24,21 @@ export default function App() {
     <div className="app-shell">
       <div className="app-utility-nav">
         <Link to="/transactions">交易記錄／新增交易</Link>
-        <button type="button" onClick={() => setSettingsModal('accounts')}>
-          帳戶管理
-        </button>
+        {!isResponsibilitiesPage && (
+          <button type="button" onClick={() => setSettingsModal('accounts')}>
+            帳戶管理
+          </button>
+        )}
         <button type="button" onClick={() => setSettingsModal('system')}>
           系統設定
         </button>
       </div>
 
       <main className="app-main">
-        <Outlet />
+        <Outlet context={{
+          openAccountManagement: () => setSettingsModal('accounts'),
+          openSystemSettings: () => setSettingsModal('system'),
+        }} />
       </main>
 
       <nav className="bottom-tab-nav" aria-label="主要導覽">

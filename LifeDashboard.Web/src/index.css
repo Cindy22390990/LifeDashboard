@@ -15,11 +15,40 @@
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
+  --color-canvas: #fff;
+  --color-surface: #fff;
+  --color-surface-elevated: #fff;
+  --color-text-primary: #08060d;
+  --color-text-secondary: #514f5d;
+  --color-text-muted: #6b6375;
+  --color-border-subtle: #e5e4e7;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  --color-success: #2f7252;
+  --color-warning: #765812;
+  --color-danger: #a52c2c;
+
+  --color-tier-safety: #327456;
+  --color-tier-growth: #36748b;
+  --color-tier-dream: #a05269;
+
+  --font-number-family: var(--mono);
+
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
   color-scheme: light dark;
   color: var(--text);
-  background: var(--bg);
+  background: var(--color-canvas);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -43,6 +72,22 @@
     --social-bg: rgba(47, 48, 58, 0.5);
     --shadow:
       rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+
+    --color-canvas: #16171d;
+    --color-surface: #16171d;
+    --color-surface-elevated: #1f2028;
+    --color-text-primary: #f3f4f6;
+    --color-text-secondary: #d1d5db;
+    --color-text-muted: #9ca3af;
+    --color-border-subtle: #2e303a;
+
+    --color-success: #86c99f;
+    --color-warning: #e6c477;
+    --color-danger: #f0a29b;
+
+    --color-tier-safety: #86c99f;
+    --color-tier-growth: #78b9ce;
+    --color-tier-dream: #d18ba1;
   }
 
   #social .button-icon {
@@ -55,7 +100,7 @@
   max-width: 100%;
   margin: 0 auto;
   text-align: center;
-  border-inline: 1px solid var(--border);
+  border-inline: 1px solid var(--color-border-subtle);
   min-height: 100svh;
   display: flex;
   flex-direction: column;
@@ -70,7 +115,7 @@ h1,
 h2 {
   font-family: var(--heading);
   font-weight: 500;
-  color: var(--text-h);
+  color: var(--color-text-primary);
 }
 
 h1 {
