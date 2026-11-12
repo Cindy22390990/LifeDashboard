@@ -1,0 +1,461 @@
+.responsibilities-page {
+  display: grid;
+  width: min(100%, 1040px);
+  gap: var(--space-5);
+  margin-inline: auto;
+  padding: var(--space-2) 0 var(--space-6);
+  color: var(--color-text-primary);
+  box-sizing: border-box;
+}
+
+.responsibilities-header {
+  display: grid;
+  gap: var(--space-2);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.responsibilities-header h1 {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 32px;
+  font-weight: 650;
+  letter-spacing: 0;
+  line-height: 1.2;
+}
+
+.responsibilities-subtitle {
+  color: var(--color-text-muted);
+  font-size: 15px;
+}
+
+.responsibilities-eyebrow {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.responsibilities-section {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-4);
+}
+
+.responsibilities-section + .responsibilities-section {
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.responsibilities-section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.responsibilities-section-heading h2,
+.account-management h2 {
+  margin: var(--space-1) 0 0;
+  color: var(--color-text-primary);
+  font-size: 21px;
+  font-weight: 650;
+  letter-spacing: 0;
+  line-height: 1.3;
+}
+
+.surface-card {
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.income-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-5);
+}
+
+.income-summary > div {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-1);
+}
+
+.summary-label,
+.summary-note {
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.income-value {
+  color: var(--color-text-primary);
+  font-size: 36px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+}
+
+.section-count {
+  flex: 0 0 auto;
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.responsibility-list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--color-border-subtle);
+  list-style: none;
+}
+
+.responsibility-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(110px, 160px) auto;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-3) var(--space-1);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.responsibility-identity {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-1);
+}
+
+.responsibility-identity h3 {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.responsibility-identity span {
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.responsibility-amount {
+  color: var(--color-text-primary);
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.row-actions,
+.editor-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.text-action {
+  border: 0;
+  padding: var(--space-1);
+  color: var(--color-text-secondary);
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.text-action:hover {
+  color: var(--color-text-primary);
+}
+
+.text-action:focus-visible,
+.primary-action:focus-visible,
+.secondary-action:focus-visible,
+.commitment-editor summary:focus-visible {
+  outline: 2px solid var(--color-text-primary);
+  outline-offset: 2px;
+}
+
+.responsibility-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  color: var(--color-text-secondary);
+}
+
+.responsibility-total strong {
+  color: var(--color-text-primary);
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+.responsibility-total small {
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.commitment-editor {
+  border-top: 1px solid var(--color-border-subtle);
+  padding-top: var(--space-3);
+}
+
+.commitment-editor summary {
+  width: fit-content;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.commitment-editor form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3) var(--space-4);
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.commitment-editor form h3,
+.commitment-editor .editor-actions {
+  grid-column: 1 / -1;
+}
+
+.commitment-editor form h3 {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.commitment-editor label {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-1);
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
+.commitment-editor input,
+.commitment-editor select {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  padding: var(--space-2) 10px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  font: inherit;
+  box-sizing: border-box;
+}
+
+.primary-action,
+.secondary-action {
+  min-height: 40px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primary-action {
+  border-color: var(--color-success);
+  color: var(--color-surface);
+  background: var(--color-success);
+}
+
+.secondary-action {
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+}
+
+.primary-action:disabled,
+.secondary-action:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.empty-message {
+  margin: 0;
+  padding: var(--space-3) 0;
+  color: var(--color-text-muted);
+}
+
+.page-error {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid color-mix(in srgb, var(--color-danger) 28%, var(--color-border-subtle));
+  border-radius: var(--radius-md);
+  color: var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 7%, var(--color-surface));
+}
+
+.allocation-equation {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.equation-item {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-2);
+}
+
+.equation-item span {
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.equation-item strong {
+  color: var(--color-text-primary);
+  font-size: 17px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.equation-result strong {
+  font-size: 20px;
+}
+
+.equation-operator {
+  color: var(--color-text-muted);
+  font-size: 20px;
+}
+
+.ratio-grid,
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+}
+
+.ratio-card,
+.preview-card {
+  display: grid;
+  align-content: start;
+  min-width: 0;
+  gap: var(--space-2);
+  padding: var(--space-4);
+}
+
+.ratio-card dt,
+.preview-card > span {
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.ratio-card dd,
+.preview-card strong {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 20px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.ratio-card > span,
+.preview-card small {
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
+.account-management {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.account-management .responsibilities-eyebrow {
+  margin-bottom: var(--space-1);
+}
+
+.account-management h2 {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .responsibility-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .responsibility-amount {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .row-actions {
+    grid-column: 1 / -1;
+  }
+
+  .ratio-grid,
+  .preview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .responsibilities-header h1 {
+    font-size: 27px;
+  }
+
+  .income-summary {
+    padding: var(--space-4);
+  }
+
+  .income-value {
+    font-size: 30px;
+  }
+
+  .responsibility-total {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: var(--space-2);
+  }
+
+  .commitment-editor form {
+    grid-template-columns: minmax(0, 1fr);
+    padding: var(--space-3);
+  }
+
+  .commitment-editor form h3,
+  .commitment-editor .editor-actions {
+    grid-column: auto;
+  }
+
+  .allocation-equation {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2);
+  }
+
+  .equation-operator {
+    line-height: 1;
+  }
+
+  .account-management {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

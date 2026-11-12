@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "skills": {
+    "analyzing-dotnet-performance": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-diag/skills/analyzing-dotnet-performance/SKILL.md",
+      "computedHash": "54439c853c77eb28c3ed44c12e2405d53409d37496b55b17fe386f0adc2ab85d"
+    },
+    "dotnet-backend-patterns": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-contribution/skills/dotnet-backend-patterns/SKILL.md",
+      "computedHash": "afad41d2d4878462a6d49dfc9ef7844e413f58d797ecbe9fd998b84d4e68d342"
+    },
+    "dotnet-best-practices": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/dotnet-best-practices/SKILL.md",
+      "computedHash": "2e386d6bb04d6e0c706faa8755059d961c57d9319dab2ce19c41d28198cc7be9"
+    },
+    "dotnet-webapi": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-aspnetcore/skills/dotnet-webapi/SKILL.md",
+      "computedHash": "2aedc615b14b3027800a556a4bf0c28f28f21b09ffc7a546c3865f08a26b79b0"
+    }
+  }
+}
