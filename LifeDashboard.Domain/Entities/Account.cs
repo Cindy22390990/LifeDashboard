@@ -55,6 +55,7 @@ namespace LifeDashboard.Domain.Entities
             Type = type;
 
             InitialBalance = initialBalance;
+            CurrentBalance = initialBalance;
 
             IsSystemAccount = isSystemAccount;
             AllowNegativeBalance = allowNegativeBalance;

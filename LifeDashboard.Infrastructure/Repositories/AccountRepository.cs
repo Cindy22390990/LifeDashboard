@@ -20,7 +20,7 @@ namespace LifeDashboard.Infrastructure.Repositories;
     Guid userId)
     {
         return await _context.Accounts
-            .Where(a => a.UserId == userId)
+            .Where(a => a.UserId == userId && !a.IsDeleted)
             .OrderByDescending(a => a.CreatedAtUtc)
             .ToListAsync();
     }
