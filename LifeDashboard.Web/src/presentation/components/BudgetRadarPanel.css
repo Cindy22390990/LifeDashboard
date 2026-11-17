@@ -20,6 +20,7 @@
   border-left: 4px solid currentColor;
   border-radius: var(--radius-md);
   background: var(--color-surface);
+  color: var(--color-text-primary);
 }
 
 .budget-radar-primary dt {
@@ -28,16 +29,6 @@
   color: var(--color-text-secondary);
   font-size: 15px;
   font-weight: 550;
-}
-
-.budget-radar-state {
-  color: var(--color-success);
-  font-size: 13px;
-  font-weight: 650;
-}
-
-.budget-radar-primary--warning .budget-radar-state {
-  color: var(--color-warning);
 }
 
 .budget-radar-primary dd {
@@ -53,17 +44,9 @@
   overflow-wrap: anywhere;
 }
 
-.budget-radar-primary--safe {
-  color: var(--color-success);
-}
-
-.budget-radar-primary--warning {
-  color: var(--color-warning);
-}
-
 .budget-radar-supporting {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: var(--space-3);
   margin: 0;
 }
@@ -90,25 +73,6 @@
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
-}
-
-.budget-radar-warning,
-.budget-radar-uncategorized {
-  margin: 0;
-  padding: var(--space-3) 14px;
-  border-radius: var(--radius-md);
-}
-
-.budget-radar-warning {
-  border: 1px solid color-mix(in srgb, var(--color-warning) 32%, var(--color-border-subtle));
-  background: color-mix(in srgb, var(--color-warning) 12%, var(--color-surface));
-  color: var(--color-warning);
-}
-
-.budget-radar-uncategorized {
-  border: 1px solid color-mix(in srgb, var(--color-warning) 32%, var(--color-border-subtle));
-  background: color-mix(in srgb, var(--color-warning) 12%, var(--color-surface));
-  color: var(--color-warning);
 }
 
 @media (max-width: 700px) {

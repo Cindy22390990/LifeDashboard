@@ -44,6 +44,19 @@ function getAccountTypeLabel(type: AccountType): string {
   }
 }
 
+function getTransactionTypeLabel(type: number): string {
+  switch (type) {
+    case TransactionType.Income:
+      return '收入';
+    case TransactionType.Expense:
+      return '支出';
+    case TransactionType.Transfer:
+      return '轉帳';
+    default:
+      return '交易';
+  }
+}
+
 interface DashboardPageProps {
   onNavigateToCategories?: () => void;
 }
@@ -58,10 +71,6 @@ export default function DashboardPage({ onNavigateToCategories }: DashboardPageP
   } = useDashboardSummaryStore();
   const radarState = summary?.budget ?? null;
   const accounts = summary?.accounts ?? [];
-  const accountBalanceTotal = accounts.reduce(
-    (total, account) => total + account.currentBalance,
-    0,
-  );
   const displayDate = new Date(`${currentDate}T00:00:00`).toLocaleDateString('zh-TW', {
     year: 'numeric',
     month: 'long',
@@ -184,14 +193,54 @@ export default function DashboardPage({ onNavigateToCategories }: DashboardPageP
             </div>
             <div className="dashboard-overview__metrics">
               <div className="dashboard-overview__balance">
-                <span>帳戶餘額合計</span>
-                <strong>{formatCurrency(accountBalanceTotal)}</strong>
+                <span>總資產</span>
+                <strong>{formatCurrency(summary.totalAssets)}</strong>
+              </div>
+              <div className="dashboard-overview__metric">
+                <span>本月收入</span>
+                <strong>{formatCurrency(summary.monthlyIncome)}</strong>
+              </div>
+              <div className="dashboard-overview__metric">
+                <span>本月支出</span>
+                <strong>{formatCurrency(summary.monthlyExpense)}</strong>
               </div>
               <div className="dashboard-overview__account-count">
                 <span>管理中的帳戶</span>
                 <strong>{accounts.length}<small> 個</small></strong>
               </div>
             </div>
+          </section>
+
+          <section className="dashboard-details" aria-labelledby="dashboard-transactions-title">
+            <div className="dashboard-section-heading">
+              <div>
+                <p className="dashboard-section-heading__eyebrow">RECENT ACTIVITY</p>
+                <h2 id="dashboard-transactions-title">最近交易</h2>
+              </div>
+            </div>
+            {summary.recentTransactions.length === 0 ? (
+              <p className="dashboard-empty">目前沒有交易資料。</p>
+            ) : (
+              <ul className="dashboard-recent-list">
+                {summary.recentTransactions.map((transaction) => (
+                  <li className="dashboard-recent-item" key={transaction.id}>
+                    <div className="dashboard-recent-item__details">
+                      <strong>{transaction.description || getTransactionTypeLabel(transaction.type)}</strong>
+                      <span>
+                        {transaction.transactionDate}
+                        {' · '}
+                        {getTransactionTypeLabel(transaction.type)}
+                        {transaction.accountName && ` · ${transaction.accountName}`}
+                        {transaction.type === TransactionType.Transfer && transaction.toAccountName
+                          ? ` → ${transaction.toAccountName}`
+                          : ''}
+                      </span>
+                    </div>
+                    <strong>{formatCurrency(transaction.amount)}</strong>
+                  </li>
+                ))}
+              </ul>
+            )}
           </section>
 
           <section className="dashboard-primary" aria-label="人生目標">

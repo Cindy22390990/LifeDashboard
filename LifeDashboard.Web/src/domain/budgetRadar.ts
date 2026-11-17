@@ -4,5 +4,6 @@ export interface RadarStateDto {
   todayRemaining: number;
   remainingDays: number;
   totalLivingBudget: number;
+  remainingLivingBudget: number;
   uncategorizedExpenseAmount: number;
 }

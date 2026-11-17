@@ -1,4 +1,5 @@
 using LifeDashboard.Application.Models.DTOs;
+using LifeDashboard.Application.Repositories.Interfaces;
 using LifeDashboard.Application.Services;
 using LifeDashboard.Application.Services.Interfaces;
 using LifeDashboard.Domain.Enums;
@@ -18,6 +19,7 @@ public class DashboardServiceTests
         var budgetService = new Mock<IBudgetRadarService>(MockBehavior.Strict);
         var accountService = new Mock<IAccountService>(MockBehavior.Strict);
         var goalService = new Mock<IGoalService>(MockBehavior.Strict);
+        var (reportRepository, transactionService) = CreateAdditionalServiceMocks();
         var budget = new RadarStateDto { DailySafeLimit = 125.50m };
         var account = new AccountDto
         {
@@ -52,7 +54,9 @@ public class DashboardServiceTests
         var service = new DashboardService(
             budgetService.Object,
             accountService.Object,
-            goalService.Object);
+            goalService.Object,
+            reportRepository.Object,
+            transactionService.Object);
 
         var result = await service.GetSummaryAsync(
             UserId,
@@ -77,6 +81,7 @@ public class DashboardServiceTests
         var budgetService = new Mock<IBudgetRadarService>(MockBehavior.Strict);
         var accountService = new Mock<IAccountService>(MockBehavior.Strict);
         var goalService = new Mock<IGoalService>(MockBehavior.Strict);
+        var (reportRepository, transactionService) = CreateAdditionalServiceMocks();
         budgetService
             .Setup(service => service.GetRadarStateAsync(UserId, CurrentDate))
             .ThrowsAsync(expectedException);
@@ -84,7 +89,9 @@ public class DashboardServiceTests
         var service = new DashboardService(
             budgetService.Object,
             accountService.Object,
-            goalService.Object);
+            goalService.Object,
+            reportRepository.Object,
+            transactionService.Object);
 
         var actualException = await Assert.ThrowsAsync<InvalidOperationException>(() =>
             service.GetSummaryAsync(UserId, CurrentDate, CancellationToken.None));
@@ -103,6 +110,7 @@ public class DashboardServiceTests
         var budgetService = new Mock<IBudgetRadarService>(MockBehavior.Strict);
         var accountService = new Mock<IAccountService>(MockBehavior.Strict);
         var goalService = new Mock<IGoalService>(MockBehavior.Strict);
+        var (reportRepository, transactionService) = CreateAdditionalServiceMocks();
         budgetService
             .Setup(service => service.GetRadarStateAsync(UserId, CurrentDate))
             .ReturnsAsync(new RadarStateDto());
@@ -113,7 +121,9 @@ public class DashboardServiceTests
         var service = new DashboardService(
             budgetService.Object,
             accountService.Object,
-            goalService.Object);
+            goalService.Object,
+            reportRepository.Object,
+            transactionService.Object);
 
         var actualException = await Assert.ThrowsAsync<InvalidOperationException>(() =>
             service.GetSummaryAsync(UserId, CurrentDate, CancellationToken.None));
@@ -131,6 +141,7 @@ public class DashboardServiceTests
         var budgetService = new Mock<IBudgetRadarService>(MockBehavior.Strict);
         var accountService = new Mock<IAccountService>(MockBehavior.Strict);
         var goalService = new Mock<IGoalService>(MockBehavior.Strict);
+        var (reportRepository, transactionService) = CreateAdditionalServiceMocks();
         budgetService
             .Setup(service => service.GetRadarStateAsync(UserId, CurrentDate))
             .ReturnsAsync(new RadarStateDto { DailySafeLimit = 200m });
@@ -153,7 +164,9 @@ public class DashboardServiceTests
         var service = new DashboardService(
             budgetService.Object,
             accountService.Object,
-            goalService.Object);
+            goalService.Object,
+            reportRepository.Object,
+            transactionService.Object);
 
         var actualException = await Assert.ThrowsAsync<InvalidOperationException>(() =>
             service.GetSummaryAsync(UserId, CurrentDate, CancellationToken.None));
@@ -168,5 +181,97 @@ public class DashboardServiceTests
         goalService.Verify(
             goal => goal.GetAllAsync(UserId, CancellationToken.None),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task GetSummaryAsync_aggregates_approved_dashboard_fields()
+    {
+        var budgetService = new Mock<IBudgetRadarService>(MockBehavior.Strict);
+        var accountService = new Mock<IAccountService>(MockBehavior.Strict);
+        var goalService = new Mock<IGoalService>(MockBehavior.Strict);
+        var (reportRepository, transactionService) = CreateAdditionalServiceMocks();
+        var expectedTransactions = Enumerable.Range(0, 6)
+            .Select(index => new TransactionDto
+            {
+                Id = Guid.NewGuid(),
+                TransactionDate = CurrentDate.AddDays(-index),
+                Description = $"Transaction {index}"
+            })
+            .ToArray();
+
+        budgetService
+            .Setup(service => service.GetRadarStateAsync(UserId, CurrentDate))
+            .ReturnsAsync(new RadarStateDto());
+        accountService
+            .Setup(service => service.GetAllAccountsAsync(UserId))
+            .ReturnsAsync(new[]
+            {
+                new AccountDto
+                {
+                    CurrentBalance = 1_000m,
+                    IsSystemAccount = false
+                },
+                new AccountDto
+                {
+                    CurrentBalance = 9_000m,
+                    IsSystemAccount = true
+                }
+            });
+        goalService
+            .Setup(service => service.GetAllAsync(UserId, CancellationToken.None))
+            .ReturnsAsync(Array.Empty<GoalDto>());
+        reportRepository
+            .Setup(repository => repository.GetMonthlyTotalsAsync(
+                UserId,
+                new DateOnly(2026, 11, 1),
+                new DateOnly(2026, 12, 1)))
+            .ReturnsAsync((1_500m, 725m));
+        transactionService
+            .Setup(service => service.GetAllTransactionsAsync(UserId))
+            .ReturnsAsync(expectedTransactions);
+
+        var service = new DashboardService(
+            budgetService.Object,
+            accountService.Object,
+            goalService.Object,
+            reportRepository.Object,
+            transactionService.Object);
+
+        var result = await service.GetSummaryAsync(
+            UserId,
+            CurrentDate,
+            CancellationToken.None);
+
+        Assert.Equal(1_000m, result.TotalAssets);
+        Assert.Equal(1_500m, result.MonthlyIncome);
+        Assert.Equal(725m, result.MonthlyExpense);
+        Assert.Equal(
+            expectedTransactions.Take(5).Select(transaction => transaction.Id),
+            result.RecentTransactions.Select(transaction => transaction.Id));
+        reportRepository.Verify(repository => repository.GetMonthlyTotalsAsync(
+                UserId,
+                new DateOnly(2026, 11, 1),
+                new DateOnly(2026, 12, 1)),
+            Times.Once);
+    }
+
+    private static (
+        Mock<IReportRepository> ReportRepository,
+        Mock<ITransactionService> TransactionService) CreateAdditionalServiceMocks()
+    {
+        var reportRepository = new Mock<IReportRepository>(MockBehavior.Strict);
+        reportRepository
+            .Setup(repository => repository.GetMonthlyTotalsAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<DateOnly>(),
+                It.IsAny<DateOnly?>()))
+            .ReturnsAsync((0m, 0m));
+
+        var transactionService = new Mock<ITransactionService>(MockBehavior.Strict);
+        transactionService
+            .Setup(service => service.GetAllTransactionsAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(Array.Empty<TransactionDto>());
+
+        return (reportRepository, transactionService);
     }
 }
