@@ -92,10 +92,27 @@ public class Transaction
 
     public DateTime UpdatedAtUtc { get; private set; }
 
+    public bool IsDeleted { get; private set; }
+
+    public DateTime? DeletedAt { get; private set; }
+
+    public string? DeletedReason { get; private set; }
+
     public void AssociateWithGoal(Goal goal)
     {
         ArgumentNullException.ThrowIfNull(goal);
         Goal = goal;
         GoalId = goal.Id;
+    }
+
+    public void MarkAsDeleted(string reason)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(reason);
+
+        var deletedAt = DateTime.UtcNow;
+        IsDeleted = true;
+        DeletedAt = deletedAt;
+        DeletedReason = reason;
+        UpdatedAtUtc = deletedAt;
     }
 }

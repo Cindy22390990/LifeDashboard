@@ -1,4 +1,5 @@
 using LifeDashboard.Application.Models.DTOs;
+using LifeDashboard.Application.Exceptions;
 using LifeDashboard.Application.Interfaces;
 using LifeDashboard.Application.Repositories.Interfaces;
 using LifeDashboard.Application.Services.Interfaces;
@@ -241,6 +242,11 @@ namespace LifeDashboard.Application.Services
                         transaction.AccountId,
                         userId);
 
+                if (transaction.Type != TransactionType.Transfer && account == null)
+                {
+                    throw new AccountNotFoundException("找不到交易所屬的帳戶。");
+                }
+
                 if (transaction.Type == TransactionType.Transfer)
                 {
                     if (account == null || !transaction.ToAccountId.HasValue)
@@ -271,6 +277,7 @@ namespace LifeDashboard.Application.Services
                     }
                 }
 
+                transaction.MarkAsDeleted("User deleted transaction");
                 _transactionRepository.Delete(transaction);
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitAsync();

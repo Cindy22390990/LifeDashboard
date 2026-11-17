@@ -136,7 +136,13 @@ namespace LifeDashboard.Infrastructure.Data
             modelBuilder.Entity<Transaction>(entity =>
             {
                 entity.Property(t => t.Amount)
-                    .HasPrecision(18,2);
+                    .HasPrecision(18, 2);
+
+                entity.Property(t => t.IsDeleted)
+                    .HasDefaultValue(false)
+                    .IsRequired();
+
+                entity.HasQueryFilter(t => !t.IsDeleted);
 
                 entity.HasOne(t => t.Account)
                     .WithMany(a => a.Transactions)

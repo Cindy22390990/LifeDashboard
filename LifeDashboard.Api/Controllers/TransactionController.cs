@@ -100,6 +100,10 @@ public async Task<IActionResult> DeleteTransaction(
 
         return NoContent();
     }
+    catch (KeyNotFoundException)
+    {
+        return NotFound();
+    }
     catch (InsufficientFundsException ex)
     {
         return Conflict(new { Message = ex.Message });

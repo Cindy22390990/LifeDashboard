@@ -83,7 +83,7 @@ namespace LifeDashboard.Infrastructure.Repositories
 
         public void Delete(Transaction transaction)
         {
-            _context.Transactions.Remove(transaction);
+            _context.Transactions.Update(transaction);
         }
     }
 }
