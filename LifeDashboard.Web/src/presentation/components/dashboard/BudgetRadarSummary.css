@@ -1,0 +1,45 @@
+.budget-radar-summary {
+  display: grid;
+  align-content: start;
+  gap: var(--space-4);
+}
+
+.budget-radar-summary__period {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.budget-radar-summary__remaining {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-2);
+}
+
+.budget-radar-summary__remaining {
+  padding: var(--space-4);
+  border-left: 3px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-elevated);
+}
+
+.budget-radar-summary__remaining span,
+.budget-radar-summary__today span {
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.budget-radar-summary__remaining strong {
+  color: var(--color-text-primary);
+  font-size: 26px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 480px) {
+  .budget-radar-summary__remaining strong {
+    font-size: 23px;
+  }
+}

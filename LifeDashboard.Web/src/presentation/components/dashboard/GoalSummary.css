@@ -1,0 +1,118 @@
+.goal-summary {
+  display: grid;
+  align-content: start;
+  gap: var(--space-4);
+}
+
+.goal-summary__list {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.goal-summary__item {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-2);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.goal-summary__item:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.goal-summary__heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.goal-summary__heading > strong {
+  min-width: 0;
+  color: var(--color-text-primary);
+  font-size: 14px;
+  font-weight: 620;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.goal-summary__status {
+  flex: 0 0 auto;
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.goal-summary__amounts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-2);
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.goal-summary__amounts strong {
+  margin-left: auto;
+  color: var(--color-text-primary);
+  font-weight: 620;
+}
+
+.goal-summary__progress {
+  display: block;
+  width: 100%;
+  height: 6px;
+  appearance: none;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-border-subtle);
+  color: var(--color-tier-safety);
+}
+
+.goal-summary__progress::-webkit-progress-bar {
+  border-radius: 999px;
+  background: var(--color-border-subtle);
+}
+
+.goal-summary__progress::-webkit-progress-value {
+  border-radius: 999px;
+  background: var(--color-tier-safety);
+}
+
+.goal-summary__progress::-moz-progress-bar {
+  border-radius: 999px;
+  background: var(--color-tier-safety);
+}
+
+.goal-summary__empty {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+@media (max-width: 700px) {
+  .goal-summary {
+    gap: var(--space-3);
+  }
+
+  .goal-summary__list {
+    gap: var(--space-2);
+  }
+
+  .goal-summary__item {
+    gap: var(--space-1);
+    padding-bottom: var(--space-2);
+  }
+
+  .goal-summary__heading > strong {
+    flex: 1 1 auto;
+    overflow-wrap: anywhere;
+  }
+}

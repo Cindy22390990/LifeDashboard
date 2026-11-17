@@ -1,0 +1,100 @@
+.recent-activity {
+  align-content: start;
+}
+
+.recent-activity__list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recent-activity__content {
+  display: grid;
+}
+
+.recent-activity__content[hidden] {
+  display: none;
+}
+
+.recent-activity__preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-width: 0;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.recent-activity__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.recent-activity__details {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-1);
+}
+
+.recent-activity__details strong {
+  color: var(--color-text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.recent-activity__details span {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.recent-activity__amount {
+  flex: 0 1 auto;
+  max-width: 45%;
+  color: var(--color-text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.recent-activity__empty {
+  margin: 0;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border-subtle);
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+@media (max-width: 700px) {
+  .recent-activity__toggle {
+    flex: 0 0 auto;
+    min-height: 36px;
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-sm);
+    color: var(--color-text-primary);
+    background: var(--color-surface);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  .recent-activity__toggle:focus-visible {
+    outline: 2px solid var(--color-success);
+    outline-offset: 2px;
+  }
+
+  .recent-activity__item {
+    align-items: flex-start;
+  }
+}
