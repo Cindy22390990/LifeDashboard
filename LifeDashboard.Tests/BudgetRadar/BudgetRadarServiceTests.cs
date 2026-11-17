@@ -396,6 +396,7 @@ public class BudgetRadarServiceTests
                 "TodayRemaining",
                 "RemainingDays",
                 "TotalLivingBudget",
+                "RemainingLivingBudget",
                 "UncategorizedExpenseAmount");
     }
 }

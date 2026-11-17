@@ -56,9 +56,15 @@ public class BudgetRadarAssemblerTests
                 nameof(RadarStateDto.TodayRemaining),
                 nameof(RadarStateDto.RemainingDays),
                 nameof(RadarStateDto.TotalLivingBudget),
+                nameof(RadarStateDto.RemainingLivingBudget),
                 nameof(RadarStateDto.UncategorizedExpenseAmount)
             },
             typeof(RadarStateDto).GetProperties().Select(property => property.Name));
+        Assert.Equal(
+            typeof(decimal),
+            typeof(RadarStateDto)
+                .GetProperty(nameof(RadarStateDto.RemainingLivingBudget))!
+                .PropertyType);
     }
 
     [Fact]

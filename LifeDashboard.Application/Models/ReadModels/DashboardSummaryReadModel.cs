@@ -5,4 +5,8 @@ namespace LifeDashboard.Application.Models.ReadModels;
 public sealed record DashboardSummaryReadModel(
     RadarStateDto Budget,
     IReadOnlyList<AccountDto> Accounts,
-    IReadOnlyList<GoalDto> Goals);
+    IReadOnlyList<GoalDto> Goals,
+    decimal TotalAssets,
+    decimal MonthlyIncome,
+    decimal MonthlyExpense,
+    IReadOnlyList<TransactionDto> RecentTransactions);

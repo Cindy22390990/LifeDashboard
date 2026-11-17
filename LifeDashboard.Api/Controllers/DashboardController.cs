@@ -37,7 +37,11 @@ public sealed class DashboardController : ControllerBase
         {
             Budget = readModel.Budget,
             Accounts = readModel.Accounts,
-            Goals = readModel.Goals
+            Goals = readModel.Goals,
+            TotalAssets = readModel.TotalAssets,
+            MonthlyIncome = readModel.MonthlyIncome,
+            MonthlyExpense = readModel.MonthlyExpense,
+            RecentTransactions = readModel.RecentTransactions
         });
     }
 }

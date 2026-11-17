@@ -7,5 +7,6 @@ public class RadarStateDto
     public decimal TodayRemaining { get; set; }
     public int RemainingDays { get; set; }
     public decimal TotalLivingBudget { get; set; }
+    public decimal RemainingLivingBudget { get; set; }
     public decimal UncategorizedExpenseAmount { get; set; }
 }

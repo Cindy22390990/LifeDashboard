@@ -53,6 +53,14 @@ public class DashboardControllerApiTests
             Note = "Reserve",
             CompletedDate = null
         };
+        var recentTransaction = new TransactionDto
+        {
+            Id = Guid.NewGuid(),
+            Amount = 75m,
+            Type = (int)TransactionType.Expense,
+            Description = "Groceries",
+            TransactionDate = new DateOnly(2026, 11, 9)
+        };
         var dashboardService = new Mock<IDashboardService>();
         dashboardService
             .Setup(service => service.GetSummaryAsync(
@@ -62,7 +70,11 @@ public class DashboardControllerApiTests
             .ReturnsAsync(new DashboardSummaryReadModel(
                 budget,
                 new[] { account },
-                new[] { goal }));
+                new[] { goal },
+                500m,
+                2_500m,
+                750m,
+                new[] { recentTransaction }));
         using var factory = CreateFactory(dashboardService.Object);
         using var client = CreateAuthenticatedClient(factory, userId);
 
@@ -78,6 +90,12 @@ public class DashboardControllerApiTests
         Assert.Equal(500m, root.GetProperty("accounts")[0].GetProperty("currentBalance").GetDecimal());
         Assert.Equal("Emergency fund", root.GetProperty("goals")[0].GetProperty("name").GetString());
         Assert.Equal(800m, root.GetProperty("goals")[0].GetProperty("currentAmount").GetDecimal());
+        Assert.Equal(500m, root.GetProperty("totalAssets").GetDecimal());
+        Assert.Equal(2_500m, root.GetProperty("monthlyIncome").GetDecimal());
+        Assert.Equal(750m, root.GetProperty("monthlyExpense").GetDecimal());
+        Assert.Equal(
+            "Groceries",
+            root.GetProperty("recentTransactions")[0].GetProperty("description").GetString());
 
         dashboardService.Verify(service => service.GetSummaryAsync(
                 userId,
@@ -119,7 +137,18 @@ public class DashboardControllerApiTests
             .OrderBy(name => name)
             .ToArray();
 
-        Assert.Equal(new[] { "Accounts", "Budget", "Goals" }, properties);
+        Assert.Equal(
+            new[]
+            {
+                "Accounts",
+                "Budget",
+                "Goals",
+                "MonthlyExpense",
+                "MonthlyIncome",
+                "RecentTransactions",
+                "TotalAssets"
+            },
+            properties);
         Assert.Equal(typeof(RadarStateDto), typeof(DashboardSummaryDto).GetProperty("Budget")!.PropertyType);
         Assert.Equal(
             typeof(IReadOnlyList<AccountDto>),
@@ -127,6 +156,18 @@ public class DashboardControllerApiTests
         Assert.Equal(
             typeof(IReadOnlyList<GoalDto>),
             typeof(DashboardSummaryDto).GetProperty("Goals")!.PropertyType);
+        Assert.Equal(
+            typeof(decimal),
+            typeof(DashboardSummaryDto).GetProperty("TotalAssets")!.PropertyType);
+        Assert.Equal(
+            typeof(decimal),
+            typeof(DashboardSummaryDto).GetProperty("MonthlyIncome")!.PropertyType);
+        Assert.Equal(
+            typeof(decimal),
+            typeof(DashboardSummaryDto).GetProperty("MonthlyExpense")!.PropertyType);
+        Assert.Equal(
+            typeof(IReadOnlyList<TransactionDto>),
+            typeof(DashboardSummaryDto).GetProperty("RecentTransactions")!.PropertyType);
     }
 
     private static HttpClient CreateAuthenticatedClient(

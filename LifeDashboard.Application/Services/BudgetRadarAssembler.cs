@@ -54,6 +54,7 @@ public sealed class BudgetRadarAssembler
             TodayRemaining = snapshot.TodayRemaining,
             RemainingDays = snapshot.RemainingDays,
             TotalLivingBudget = snapshot.TotalLivingBudget,
+            RemainingLivingBudget = snapshot.RemainingLivingBudget,
             UncategorizedExpenseAmount = snapshot.UncategorizedExpenseTotal
         };
     }
