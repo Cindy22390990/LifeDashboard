@@ -46,8 +46,10 @@ These uses of “Phase 0” describe related but distinct milestones.
 
 The current approved Phase 5 API contract remains authoritative until the
 proposed [Dashboard V2 API Contract](./DashboardV2ApiContract.md) and any
-related decisions are approved. Privacy Mode and Spendable Amount remain
-blocked by their respective Proposed ADRs.
+related decisions are approved. Privacy Mode and Spendable Amount remain open
+future product decisions documented in their respective Proposed ADRs and are
+outside the approved Phase 0 scope; these decisions do not affect Phase 0
+completion.
 
 ## Current State Analysis
 
