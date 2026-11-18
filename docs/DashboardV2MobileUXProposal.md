@@ -5,18 +5,17 @@
 **Approved Direction — 2026-11-17**
 
 The product owner approved Summary First, with Recent Activity and Account
-Details collapsed in mobile mode. This document records that direction;
-implementation remains subject to the approved Phase 0 scope.
+Details collapsed in mobile mode. This document records the approved
+direction, which has been implemented within the Phase 0 frontend scope.
 
 ## 1. Current Problem
 
 At a 390px viewport, the Dashboard uses a single-column layout. Its content
 is presented in this order:
 
-1. **Financial Overview** — Total Assets, Monthly Income, and Monthly
-   Expense.
-2. **Budget Radar Summary** — Payday-period remaining budget and today's
-   remaining allowance.
+1. **Financial Overview** — Total Assets, Monthly Income, Monthly Expense,
+   and today's remaining budget allowance.
+2. **Budget Radar Summary** — Payday-period remaining budget.
 3. **Goal Summary** — a list of all existing Goals and their progress.
 4. **Recent Activity** — recent transaction rows.
 5. **Account Details** — account names, types, and balances.
@@ -49,9 +48,11 @@ progressive disclosure or existing feature areas.
 
 ### Preserve financial meaning
 
-- The existing `todayRemaining` is a Budget Radar daily allowance. It may
-  be summarized as today's remaining budget allowance, but must not be
-  described as cash available to spend or Spendable Amount.
+- The existing `todayRemaining` comes from the Dashboard summary's Budget
+  data and is displayed in Financial Overview as today's remaining budget
+  allowance. Budget Radar Summary does not repeat this value.
+- Do not describe the daily allowance as cash available to spend or
+  Spendable Amount.
 - `remainingLivingBudget` belongs to the Payday period. Do not label it as
   a calendar-month budget value.
 - Monthly Income and Monthly Expense remain calendar-month values.
@@ -71,19 +72,17 @@ remain comparison alternatives and are not selected.
 
 ### Option A — Summary First
 
-Prioritize a compact status summary before detailed lists.
+Use this summary priority order before secondary details:
 
-**First screen**
+1. Financial Overview: Total Assets (masked by default), Monthly Income,
+   Monthly Expense, and today's remaining budget allowance.
+2. Budget Radar Summary: Payday-period remaining budget.
+3. Goal Summary: all existing Goals, using existing data.
 
-- Total Assets, masked by default, with the existing reveal control.
-- Budget Radar's Payday-period remaining budget and today's remaining
-  allowance, with their meanings and period labels.
-- The complete Goal Summary, showing all existing Goals using existing data.
+The mobile first viewport is not required to show all three Summary areas.
+Vertical scrolling through them is expected UX, not a defect.
 
-**Following content**
-
-- Monthly Income and Monthly Expense remain part of Financial Overview and
-  retain calendar-month context.
+After the three Summary areas:
 - Recent Activity and Account Details remain available in collapsed
   sections.
 - Quick Add remains an entry button, not an embedded form.

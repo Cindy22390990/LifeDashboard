@@ -2,15 +2,47 @@
 
 ## Status
 
-Draft — Phase 0 product decisions are approved; this roadmap does not
-authorize future API, Domain, Privacy Mode, Spendable Amount, or Goal
-funding work.
+Draft roadmap. The approved Phase 0 Dashboard frontend implementation is
+complete; this plan does not authorize future API, Domain, Privacy Mode,
+Spendable Amount, or Goal funding work.
 
 ## Purpose
 
 This document proposes an implementation roadmap for Dashboard V2. It
 describes scope, sequencing, dependencies, risks, and validation; it does not
 authorize or perform implementation.
+
+## Phase 0 Implementation Completion Record
+
+The approved Dashboard V2 frontend UI scope has been implemented and
+validated using the existing Dashboard summary data:
+
+- Financial Overview displays today's remaining budget allowance.
+- Budget Radar Summary no longer repeats today's remaining allowance.
+- Recent Activity collapses by default on mobile.
+- Account Details collapses by default on mobile.
+- Goal Summary improves long-name wrapping on mobile while retaining all
+  existing Goals.
+- Added the shared `useMobileViewport` hook.
+- Updated the `dashboardFormatting` helper.
+- Removed the legacy `BudgetRadarPanel` component and its stylesheet.
+
+The implementation was frontend-only. No API, DTO, Domain, Infrastructure,
+or database migration changes were made.
+
+### Phase naming clarification
+
+- In [DashboardV2Phase0ApprovedScope.md](./DashboardV2Phase0ApprovedScope.md),
+  “Phase 0” refers to the approved product scope and its boundary.
+- The phases in this implementation plan describe the implementation
+  workflow: the product-decision phase is complete, and the frontend
+  information-architecture work is the implementation phase.
+- In
+  [DashboardV2Phase0CompletionChecklist.md](./DashboardV2Phase0CompletionChecklist.md),
+  “complete” means the approved product scope has been implemented and its
+  stated validation has been completed.
+
+These uses of “Phase 0” describe related but distinct milestones.
 
 The current approved Phase 5 API contract remains authoritative until the
 proposed [Dashboard V2 API Contract](./DashboardV2ApiContract.md) and any
@@ -50,8 +82,8 @@ blocked by their respective Proposed ADRs.
 - Goal Summary displays all existing Goals. Mobile presentation must not
   truncate this list to Top 3.
 - The approved mobile decision is to keep Recent Activity and Account
-  Details available but collapsed by default; this is a target presentation
-  behavior, not a claim that the current components already implement it.
+  Details available but collapsed by default; this behavior is implemented
+  in the current frontend.
 - Existing stores and API services provide the current response data. Their
   responsibilities should remain unchanged unless an approved contract
   requires additional data.
@@ -201,6 +233,8 @@ propose a DTO shape or endpoint change.
   Radar read model where applicable.
 
 ### Phase 2 — Frontend information-architecture refactor
+
+**Status: Complete** for the approved existing-data Dashboard UI scope.
 
 **Goal**
 

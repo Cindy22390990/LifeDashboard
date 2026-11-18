@@ -1,5 +1,41 @@
 # Dashboard V2 Phase 0 Completion Checklist
 
+## 實作範圍與修改檔案
+
+本次核准範圍的實作為 **Frontend only**。
+
+### 修改或新增
+
+- `LifeDashboard.Web/src/presentation/pages/DashboardPage.tsx`
+- `LifeDashboard.Web/src/presentation/pages/DashboardPage.css`
+- `LifeDashboard.Web/src/presentation/components/dashboard/AccountDetails.tsx`
+- `LifeDashboard.Web/src/presentation/components/dashboard/AccountDetails.css`
+- `LifeDashboard.Web/src/presentation/components/dashboard/BudgetRadarSummary.tsx`
+- `LifeDashboard.Web/src/presentation/components/dashboard/BudgetRadarSummary.css`
+- `LifeDashboard.Web/src/presentation/components/dashboard/FinancialOverview.tsx`
+- `LifeDashboard.Web/src/presentation/components/dashboard/FinancialOverview.css`
+- `LifeDashboard.Web/src/presentation/components/dashboard/GoalSummary.tsx`
+- `LifeDashboard.Web/src/presentation/components/dashboard/GoalSummary.css`
+- `LifeDashboard.Web/src/presentation/components/dashboard/QuickAddEntry.tsx`
+- `LifeDashboard.Web/src/presentation/components/dashboard/QuickAddEntry.css`
+- `LifeDashboard.Web/src/presentation/components/dashboard/RecentActivity.tsx`
+- `LifeDashboard.Web/src/presentation/components/dashboard/RecentActivity.css`
+- `LifeDashboard.Web/src/presentation/components/dashboard/dashboardFormatting.ts`
+- `LifeDashboard.Web/src/presentation/hooks/useMobileViewport.ts`
+
+### 移除
+
+- `LifeDashboard.Web/src/presentation/components/BudgetRadarPanel.tsx`
+- `LifeDashboard.Web/src/presentation/components/BudgetRadarPanel.css`
+
+### 未修改
+
+- API
+- DTO
+- Domain
+- Infrastructure
+- Database Migration
+
 ## 已完成項目
 
 - [x] Dashboard 以 Financial Overview、Budget Radar Summary、Goal Summary
