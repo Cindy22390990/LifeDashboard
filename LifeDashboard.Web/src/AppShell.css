@@ -1,11 +1,27 @@
 .app-shell {
-  --bottom-nav-height: 62px;
+  --bottom-nav-height: 70px;
   --bottom-nav-inset: max(12px, env(safe-area-inset-bottom));
-  --bottom-nav-clearance: 32px;
+  --bottom-nav-clearance: 24px;
+  --color-canvas: #f8fafc;
+  --color-surface: #fff;
+  --color-surface-elevated: #f1f5f9;
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #334155;
+  --color-text-muted: #64748b;
+  --color-border-subtle: #e2e8f0;
+  --color-success: #059669;
+  --color-warning: #d97706;
+  --color-danger: #e11d48;
+  --accent: #047857;
+  --accent-bg: #d1fae5;
+  --radius-md: 20px;
+  --shadow: 0 4px 16px rgb(15 23 42 / 6%);
 
   display: flex;
   min-height: 100vh;
   flex-direction: column;
+  background: var(--color-canvas);
+  color: var(--color-text-primary);
   text-align: left;
 }
 
@@ -22,6 +38,16 @@
   color: inherit;
 }
 
+.app-user-nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 8px 16px;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
 .app-main {
   flex: 1;
   padding: 16px 16px calc(
@@ -36,7 +62,7 @@
   bottom: var(--bottom-nav-inset);
   left: 16px;
   display: grid;
-  width: min(760px, calc(100% - 32px));
+  width: min(940px, calc(100% - 32px));
   grid-template-columns: repeat(4, minmax(0, 1fr));
   margin: 0 auto;
   overflow: hidden;
@@ -49,13 +75,16 @@
 .bottom-tab {
   display: flex;
   min-height: 60px;
+  min-width: 0;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 2px;
+  padding: 4px 2px;
   color: var(--color-text-muted);
   font-size: 13px;
   text-decoration: none;
+  transition: background-color 140ms ease, color 140ms ease;
 }
 
 .bottom-tab-active {
@@ -64,9 +93,25 @@
   font-weight: 600;
 }
 
+.bottom-tab:hover {
+  background: var(--color-surface-elevated);
+}
+
+.bottom-tab:focus-visible {
+  z-index: 1;
+  outline: 2px solid var(--color-success);
+  outline-offset: -3px;
+}
+
 .bottom-tab-icon {
   font-size: 20px;
   line-height: 1;
+}
+
+.bottom-tab-label {
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+  text-align: center;
 }
 
 .app-modal-backdrop {
@@ -83,9 +128,9 @@
   width: min(760px, 100%);
   max-height: min(90vh, 900px);
   overflow: auto;
-  border-radius: 12px;
+  border-radius: 20px;
   background: var(--color-surface);
-  color: var(--text);
+  color: var(--color-text-primary);
   box-shadow: var(--shadow);
 }
 
@@ -112,12 +157,16 @@
     justify-content: center;
   }
 
+  .app-user-nav {
+    justify-content: center;
+  }
+
   .app-main {
     padding-right: 8px;
     padding-left: 8px;
   }
 
   .bottom-tab {
-    font-size: 11px;
+    font-size: 10px;
   }
 }

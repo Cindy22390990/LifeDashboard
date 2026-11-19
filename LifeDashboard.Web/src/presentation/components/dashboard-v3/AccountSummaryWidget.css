@@ -1,0 +1,60 @@
+.v3-account-summary {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+}
+
+.v3-account-summary__list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.v3-account-summary__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 14px 0;
+  border-top: 1px solid var(--v3-border);
+}
+
+.v3-account-summary__icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  place-items: center;
+  border-radius: 11px;
+  color: var(--v3-accent);
+  background: var(--v3-accent-soft);
+}
+
+.v3-account-summary__identity {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 2px;
+}
+
+.v3-account-summary__identity strong {
+  color: var(--v3-text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.v3-account-summary__identity small {
+  color: var(--v3-text-muted);
+  font-size: 11px;
+}
+
+.v3-account-summary__balance {
+  flex: 0 1 auto;
+  color: var(--v3-text-primary);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  overflow-wrap: anywhere;
+}

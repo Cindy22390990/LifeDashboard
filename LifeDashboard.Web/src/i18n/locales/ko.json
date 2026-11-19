@@ -1,0 +1,146 @@
+{
+  "privacy": {
+    "display": "금액 보호 표시",
+    "hideAmounts": "금액 숨기기",
+    "showAmounts": "금액 표시"
+  },
+  "common": {
+    "viewAll": "모두 보기",
+    "mockData": "샘플 데이터",
+    "previewOnly": "UI 미리보기 전용입니다. 이 양식은 거래 데이터를 저장하지 않습니다.",
+    "close": "닫기",
+    "closePreview": "미리보기 닫기"
+  },
+  "navigation": {
+    "ariaLabel": "기본 탐색",
+    "close": "탐색 메뉴 닫기",
+    "sections": {
+      "overview": "개요",
+      "management": "관리",
+      "system": "시스템"
+    },
+    "items": {
+      "dashboard": "대시보드",
+      "ledger": "거래 내역",
+      "accounts": "계정",
+      "goals": "목표",
+      "reports": "보고서",
+      "budgets": "예산",
+      "fixedCommitments": "고정 지출",
+      "categories": "카테고리",
+      "settings": "설정",
+      "darkMode": "다크 모드",
+      "dataExport": "데이터 내보내기",
+      "security": "보안",
+      "logout": "로그아웃"
+    },
+    "language": "언어",
+    "personalAccount": "개인 계정"
+  },
+  "dashboard": {
+    "title": "대시보드",
+    "openNavigation": "탐색 메뉴 열기",
+    "greeting": "안녕하세요, {{name}}님.",
+    "summary": "오늘의 재정 현황을 확인하세요.",
+    "hero": {
+      "ariaLabel": "재정 개요",
+      "totalAssets": "총자산",
+      "netWorth": "순자산",
+      "spentToday": "오늘 지출",
+      "today": "오늘",
+      "leftToSpend": "사용 가능 금액",
+      "budgetCycle": "이번 예산 주기"
+    }
+  },
+  "calendar": {
+    "activity": "활동",
+    "title": "캘린더",
+    "income": "수입",
+    "expense": "지출",
+    "closeDetails": "일별 상세 정보 닫기",
+    "dayDetails": "일별 상세 정보",
+    "total": "합계",
+    "empty": "이 날짜에는 거래가 없습니다.",
+    "addTransaction": "거래 추가",
+    "collapseMonth": "월간 보기 접기",
+    "expandMonth": "월간 보기 펼치기",
+    "dayAriaLabel": "{{date}}, {{activity}}",
+    "markers": {
+      "income": "수입",
+      "expense": "지출",
+      "transfer": "이체",
+      "none": "활동 없음"
+    }
+  },
+  "transactions": {
+    "add": "거래 추가",
+    "recentTitle": "최근 거래",
+    "date": "날짜",
+    "type": "유형",
+    "title": "제목",
+    "amount": "금액",
+    "closePreview": "거래 미리보기 닫기",
+    "types": {
+      "income": "수입",
+      "expense": "지출",
+      "transfer": "이체"
+    },
+    "categories": {
+      "income": "수입",
+      "dining": "식비",
+      "groceries": "식료품",
+      "transfer": "이체"
+    }
+  },
+  "budget": {
+    "eyebrow": "예산 현황",
+    "title": "예산 현황",
+    "safe": "안전",
+    "leftToSpend": "사용 가능 금액",
+    "currentCycle": "현재 예산 주기",
+    "used": "예산 사용률",
+    "progressAria": "예산 사용률: {{percent}}% (샘플 데이터)",
+    "mockStatus": "샘플 상태 및 비율"
+  },
+  "goals": {
+    "eyebrow": "나의 목표",
+    "title": "목표 진행 상황",
+    "saved": "저축 {{saved}} / {{target}}",
+    "left": "남은 금액 {{amount}}",
+    "deadline": "기한: {{date}}",
+    "progressAria": "{{name}}: {{percent}}% (샘플 데이터)"
+  },
+  "accounts": {
+    "eyebrow": "유동성",
+    "title": "계정 요약",
+    "types": {
+      "checking": "당좌예금",
+      "cash": "현금",
+      "savings": "저축예금"
+    }
+  },
+  "reports": {
+    "eyebrow": "보고서",
+    "title": "보고서",
+    "comingSoon": "준비 중",
+    "phaseNote": "1단계 미리보기입니다. 보고서는 아직 데이터나 차트에 연결되지 않았습니다.",
+    "sections": {
+      "spendingTrend": {
+        "title": "지출 추이",
+        "description": "일별 지출 분석이 여기에 표시됩니다."
+      },
+      "incomeExpense": {
+        "title": "수입과 지출",
+        "description": "월별 수입과 지출을 비교합니다."
+      },
+      "categorySpending": {
+        "title": "카테고리별 지출",
+        "description": "카테고리별 지출을 확인합니다."
+      },
+      "netWorthTrend": {
+        "title": "순자산 추이",
+        "description": "시간에 따른 자산 변화를 확인합니다."
+      }
+    }
+  }
+}

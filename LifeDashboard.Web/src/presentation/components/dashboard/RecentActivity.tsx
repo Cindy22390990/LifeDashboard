@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { TransactionType } from '../../../domain/Transaction';
 import type { DashboardTransactionReadModel } from '../../../domain/dashboardSummary';
-import { useMobileViewport } from '../../hooks/useMobileViewport';
+import type { ICategory } from '../../../domain/Category';
 import { formatCurrency } from './dashboardFormatting';
 import './RecentActivity.css';
 
 interface RecentActivityProps {
+  categories: readonly ICategory[];
   transactions: readonly DashboardTransactionReadModel[];
 }
 
@@ -22,82 +23,95 @@ function getTransactionTypeLabel(type: number): string {
   }
 }
 
-export default function RecentActivity({ transactions }: RecentActivityProps) {
-  const isMobile = useMobileViewport();
-  const [isExpanded, setIsExpanded] = useState(false);
-  const latestTransaction = transactions[0];
+function getTransactionTitle(transaction: DashboardTransactionReadModel): string {
+  return transaction.description?.trim() || getTransactionTypeLabel(transaction.type);
+}
+
+function getCategoryLabel(
+  transaction: DashboardTransactionReadModel,
+  categories: readonly ICategory[],
+): string | null {
+  const category = categories.find((item) => item.id === transaction.categoryEntityId);
+  return category
+    ? `${category.icon} ${category.name}`
+    : transaction.categoryId?.trim() || null;
+}
+
+function formatTransactionDate(value: string): string {
+  const date = new Date(`${value.slice(0, 10)}T00:00:00`);
+  return Number.isNaN(date.getTime())
+    ? value
+    : date.toLocaleDateString('zh-TW', { month: 'short', day: 'numeric' });
+}
+
+function getAmountClass(type: number): string {
+  if (type === TransactionType.Income) {
+    return 'recent-activity__amount recent-activity__amount--income';
+  }
+
+  if (type === TransactionType.Expense) {
+    return 'recent-activity__amount recent-activity__amount--expense';
+  }
+
+  return 'recent-activity__amount';
+}
+
+function getAmountSign(type: number): string {
+  if (type === TransactionType.Income) return '+';
+  if (type === TransactionType.Expense) return '−';
+  return '';
+}
+
+export default function RecentActivity({ categories, transactions }: RecentActivityProps) {
+  const displayedTransactions = transactions.slice(0, 5);
 
   return (
     <section className="recent-activity dashboard-card" aria-labelledby="recent-activity-title">
       <div className="dashboard-card__heading">
         <div>
-          <p className="dashboard-card__eyebrow">RECENT ACTIVITY</p>
+          <p className="dashboard-card__eyebrow">TRANSACTIONS</p>
           <h2 id="recent-activity-title">最近交易</h2>
         </div>
-        {isMobile && transactions.length > 0 && (
-          <button
-            className="recent-activity__toggle"
-            type="button"
-            aria-expanded={isExpanded}
-            aria-controls="recent-activity-list"
-            onClick={() => setIsExpanded((expanded) => !expanded)}
-          >
-            {isExpanded ? '收合' : '展開'}
-          </button>
-        )}
+        <Link className="recent-activity__view-all" to="/transactions">
+          查看全部
+        </Link>
       </div>
 
-      {isMobile && (
-        <div className="recent-activity__preview">
-          {latestTransaction ? (
-            <>
-              <div className="recent-activity__details">
-                <strong>
-                  {latestTransaction.description
-                    || getTransactionTypeLabel(latestTransaction.type)}
-                </strong>
-                <span>
-                  {latestTransaction.transactionDate}
-                  {' · '}
-                  {getTransactionTypeLabel(latestTransaction.type)}
-                </span>
-              </div>
-              <strong className="recent-activity__amount">
-                {formatCurrency(latestTransaction.amount)}
-              </strong>
-            </>
-          ) : (
-            <p className="recent-activity__empty">目前沒有交易資料。</p>
-          )}
-        </div>
-      )}
-
-      <div
-        id="recent-activity-list"
-        className="recent-activity__content"
-        hidden={isMobile && !isExpanded}
-      >
-        {transactions.length === 0 ? (
+      <div className="recent-activity__content">
+        {displayedTransactions.length === 0 ? (
           <p className="recent-activity__empty">目前沒有交易資料。</p>
         ) : (
           <ul className="recent-activity__list">
-            {transactions.map((transaction) => (
-              <li className="recent-activity__item" key={transaction.id}>
-                <div className="recent-activity__details">
-                  <strong>{transaction.description || getTransactionTypeLabel(transaction.type)}</strong>
-                  <span>
-                    {transaction.transactionDate}
-                    {' · '}
-                    {getTransactionTypeLabel(transaction.type)}
-                    {transaction.accountName && ` · ${transaction.accountName}`}
-                    {transaction.type === TransactionType.Transfer && transaction.toAccountName
-                      ? ` → ${transaction.toAccountName}`
-                      : ''}
-                  </span>
-                </div>
-                <strong className="recent-activity__amount">{formatCurrency(transaction.amount)}</strong>
-              </li>
-            ))}
+            {displayedTransactions.map((transaction) => {
+              const categoryLabel = getCategoryLabel(transaction, categories);
+
+              return (
+                <li className="recent-activity__item" key={transaction.id}>
+                  <div className="recent-activity__details">
+                    <strong>{getTransactionTitle(transaction)}</strong>
+                    <div className="recent-activity__metadata">
+                      {categoryLabel && (
+                        <span className="recent-activity__category">{categoryLabel}</span>
+                      )}
+                      {transaction.type === TransactionType.Transfer ? (
+                        <span>
+                          {transaction.accountName || '帳戶'}
+                          {transaction.toAccountName && ` → ${transaction.toAccountName}`}
+                        </span>
+                      ) : transaction.accountName ? (
+                        <span>{transaction.accountName}</span>
+                      ) : null}
+                    </div>
+                    <time dateTime={transaction.transactionDate}>
+                      {formatTransactionDate(transaction.transactionDate)}
+                    </time>
+                  </div>
+                  <strong className={getAmountClass(transaction.type)}>
+                    {getAmountSign(transaction.type)}{formatCurrency(transaction.amount)}
+                  </strong>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>

@@ -1,0 +1,146 @@
+{
+  "privacy": {
+    "display": "Privacy display",
+    "hideAmounts": "Hide amounts",
+    "showAmounts": "Show amounts"
+  },
+  "common": {
+    "viewAll": "View all",
+    "mockData": "Mock data",
+    "previewOnly": "UI preview only. This form does not save transaction data.",
+    "close": "Close",
+    "closePreview": "Close preview"
+  },
+  "navigation": {
+    "ariaLabel": "Main navigation",
+    "close": "Close navigation",
+    "sections": {
+      "overview": "Overview",
+      "management": "Management",
+      "system": "System"
+    },
+    "items": {
+      "dashboard": "Dashboard",
+      "ledger": "Ledger",
+      "accounts": "Accounts",
+      "goals": "Goals",
+      "reports": "Reports",
+      "budgets": "Budgets",
+      "fixedCommitments": "Fixed commitments",
+      "categories": "Categories",
+      "settings": "Settings",
+      "darkMode": "Dark mode",
+      "dataExport": "Data export",
+      "security": "Security",
+      "logout": "Log out"
+    },
+    "language": "Language",
+    "personalAccount": "Personal account"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "openNavigation": "Open navigation",
+    "greeting": "Hello, {{name}}.",
+    "summary": "Here’s your financial pulse for today.",
+    "hero": {
+      "ariaLabel": "Financial overview",
+      "totalAssets": "Total assets",
+      "netWorth": "Net worth",
+      "spentToday": "Spent today",
+      "today": "Today",
+      "leftToSpend": "Left to spend",
+      "budgetCycle": "This budget cycle"
+    }
+  },
+  "calendar": {
+    "activity": "Activity",
+    "title": "Calendar",
+    "income": "Income",
+    "expense": "Expense",
+    "closeDetails": "Close day details",
+    "dayDetails": "Day details",
+    "total": "Total",
+    "empty": "Your ledger is clean for this day.",
+    "addTransaction": "Add transaction",
+    "collapseMonth": "Collapse month",
+    "expandMonth": "Expand to month",
+    "dayAriaLabel": "{{date}}, {{activity}}",
+    "markers": {
+      "income": "income",
+      "expense": "expense",
+      "transfer": "transfer",
+      "none": "no activity"
+    }
+  },
+  "transactions": {
+    "add": "Add transaction",
+    "recentTitle": "Recent transactions",
+    "date": "Date",
+    "type": "Type",
+    "title": "Title",
+    "amount": "Amount",
+    "closePreview": "Close transaction preview",
+    "types": {
+      "income": "Income",
+      "expense": "Expense",
+      "transfer": "Transfer"
+    },
+    "categories": {
+      "income": "Income",
+      "dining": "Dining",
+      "groceries": "Groceries",
+      "transfer": "Transfer"
+    }
+  },
+  "budget": {
+    "eyebrow": "Budget radar",
+    "title": "Budget radar",
+    "safe": "Safe",
+    "leftToSpend": "Left to spend",
+    "currentCycle": "Current budget cycle",
+    "used": "Budget used",
+    "progressAria": "Budget used: {{percent}}% (mock data)",
+    "mockStatus": "Mock status and percentage"
+  },
+  "goals": {
+    "eyebrow": "Your goals",
+    "title": "Goal progress",
+    "saved": "Saved {{saved}} / {{target}}",
+    "left": "Left {{amount}}",
+    "deadline": "Deadline: {{date}}",
+    "progressAria": "{{name}}: {{percent}}% (mock data)"
+  },
+  "accounts": {
+    "eyebrow": "Liquidity",
+    "title": "Account summary",
+    "types": {
+      "checking": "Checking",
+      "cash": "Cash",
+      "savings": "Savings"
+    }
+  },
+  "reports": {
+    "eyebrow": "Reports",
+    "title": "Reports",
+    "comingSoon": "Coming soon",
+    "phaseNote": "Phase 1 preview only. Reports are not connected to data or charts.",
+    "sections": {
+      "spendingTrend": {
+        "title": "Spending trend",
+        "description": "Daily spending insights will appear here."
+      },
+      "incomeExpense": {
+        "title": "Income vs expense",
+        "description": "Compare income and expenses by month."
+      },
+      "categorySpending": {
+        "title": "Category spending",
+        "description": "Review spending by category."
+      },
+      "netWorthTrend": {
+        "title": "Net worth trend",
+        "description": "Track your assets over time."
+      }
+    }
+  }
+}

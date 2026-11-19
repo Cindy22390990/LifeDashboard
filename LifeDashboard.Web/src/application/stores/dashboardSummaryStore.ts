@@ -16,7 +16,7 @@ interface DashboardSummaryState {
 
 function getErrorMessage(error: unknown): string {
   if (!axios.isAxiosError<ApiError>(error)) {
-    return '載入預算雷達時發生未預期錯誤。';
+    return '載入儀表板資料時發生未預期錯誤。';
   }
 
   if (error.response?.status === 400) {
@@ -31,7 +31,7 @@ function getErrorMessage(error: unknown): string {
     return '系統發生錯誤，請稍後再試。';
   }
 
-  return error.response?.data?.message ?? '無法載入預算雷達，請稍後再試。';
+  return error.response?.data?.message ?? '無法載入儀表板資料，請稍後再試。';
 }
 
 export const useDashboardSummaryStore = create<DashboardSummaryState>((set) => ({

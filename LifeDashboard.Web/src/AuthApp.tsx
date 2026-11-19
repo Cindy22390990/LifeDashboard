@@ -7,7 +7,9 @@ import {
 } from 'react-router-dom';
 import App from './App';
 import { useAuthStore } from './application/stores/authStore';
+import AccountPage from './presentation/pages/AccountPage';
 import DashboardPage from './presentation/pages/DashboardPage';
+import DashboardV3Page from './presentation/pages/DashboardV3Page';
 import FixedCommitmentPage from './presentation/pages/FixedCommitmentPage';
 import GoalPage from './presentation/pages/GoalPage';
 import LoginPage from './presentation/pages/LoginPage';
@@ -22,9 +24,9 @@ function Dashboard() {
 
   return (
     <>
-      <header style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, padding: 12 }}>
+      <header className="app-user-nav">
         <span>{username}</span>
-        <button onClick={logout}>登出</button>
+        <button onClick={logout}>Logout</button>
       </header>
       <App />
     </>
@@ -44,7 +46,7 @@ function DashboardRoute() {
 
   return (
     <DashboardPage
-      onNavigateToCategories={() => navigate('/transactions')}
+      onNavigateToTransactions={() => navigate('/transactions')}
     />
   );
 }
@@ -63,7 +65,9 @@ export default function AuthApp() {
             <Route path="/goals" element={<GoalPage />} />
             <Route path="/stats" element={<MonthlyReportPage />} />
             <Route path="/transactions" element={<TransactionPage />} />
+            <Route path="/accounts" element={<AccountPage />} />
           </Route>
+          <Route path="/dashboard-v3" element={<DashboardV3Page />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

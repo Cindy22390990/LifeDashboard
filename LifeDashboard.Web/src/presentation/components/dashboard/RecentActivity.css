@@ -2,6 +2,22 @@
   align-content: start;
 }
 
+.recent-activity__view-all {
+  flex: 0 0 auto;
+  color: var(--color-success);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.recent-activity__view-all:hover {
+  text-decoration: underline;
+}
+
+.recent-activity__view-all:focus-visible {
+  outline: 2px solid var(--color-success);
+  outline-offset: 3px;
+}
+
 .recent-activity__list {
   display: grid;
   margin: 0;
@@ -13,23 +29,9 @@
   display: grid;
 }
 
-.recent-activity__content[hidden] {
-  display: none;
-}
-
-.recent-activity__preview {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  min-width: 0;
-  padding-top: var(--space-3);
-  border-top: 1px solid var(--color-border-subtle);
-}
-
 .recent-activity__item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-3);
   min-width: 0;
@@ -50,10 +52,26 @@
   overflow-wrap: anywhere;
 }
 
-.recent-activity__details span {
+.recent-activity__details time {
   color: var(--color-text-muted);
   font-size: 12px;
   overflow-wrap: anywhere;
+}
+
+.recent-activity__metadata {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.recent-activity__category {
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: #475569;
+  background: #f1f5f9;
 }
 
 .recent-activity__amount {
@@ -67,6 +85,14 @@
   overflow-wrap: anywhere;
 }
 
+.recent-activity__amount--income {
+  color: var(--color-success);
+}
+
+.recent-activity__amount--expense {
+  color: var(--color-text-primary);
+}
+
 .recent-activity__empty {
   margin: 0;
   padding-top: var(--space-3);
@@ -75,26 +101,13 @@
   font-size: 14px;
 }
 
-@media (max-width: 700px) {
-  .recent-activity__toggle {
-    flex: 0 0 auto;
-    min-height: 36px;
-    padding: var(--space-1) var(--space-3);
-    border: 1px solid var(--color-border-subtle);
-    border-radius: var(--radius-sm);
-    color: var(--color-text-primary);
-    background: var(--color-surface);
-    font: inherit;
-    font-size: 13px;
-    cursor: pointer;
-  }
-
-  .recent-activity__toggle:focus-visible {
-    outline: 2px solid var(--color-success);
-    outline-offset: 2px;
-  }
-
+@media (max-width: 420px) {
   .recent-activity__item {
-    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .recent-activity__amount {
+    max-width: 42%;
+    font-size: 13px;
   }
 }

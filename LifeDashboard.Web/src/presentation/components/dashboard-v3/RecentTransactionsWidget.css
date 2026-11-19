@@ -1,0 +1,34 @@
+.v3-recent-transactions {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+}
+
+.v3-text-button {
+  align-self: center;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 8px;
+  color: var(--v3-accent);
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.v3-text-button:hover {
+  background: var(--v3-accent-soft);
+}
+
+.v3-text-button:focus-visible {
+  outline: 2px solid var(--v3-accent);
+  outline-offset: 2px;
+}
+
+.v3-recent-transactions__list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

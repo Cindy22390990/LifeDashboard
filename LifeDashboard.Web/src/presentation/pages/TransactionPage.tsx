@@ -5,6 +5,7 @@ import { useCategoryStore } from '../../application/stores/categoryStore';
 import { TransactionType } from '../../domain/Transaction';
 import type { ICreateTransactionPayload } from '../../domain/Transaction';
 import CategoryManagementModal from '../components/CategoryManagementModal';
+import './TransactionPage.css';
 
 function getLocalDateString(date: Date): string {
   const year = String(date.getFullYear()).padStart(4, '0');
@@ -98,10 +99,39 @@ export default function TransactionPage() {
 
   // 輔助方法：將交易類型轉為中文
   const getTypeName = (type: number) => {
-    if (type === TransactionType.Expense) return '🔴 支出';
-    if (type === TransactionType.Income) return '🟢 收入';
-    if (type === TransactionType.Transfer) return '🔵 轉帳';
+    if (type === TransactionType.Expense) return '支出';
+    if (type === TransactionType.Income) return '收入';
+    if (type === TransactionType.Transfer) return '轉帳';
     return '未知';
+  };
+
+  const getTransactionTitle = (tx: (typeof transactions)[number]) =>
+    tx.description?.trim() || getTypeName(tx.type);
+
+  const getCategoryName = (tx: (typeof transactions)[number]) => {
+    const category = categories.find((item) => item.id === tx.categoryEntityId);
+    return category
+      ? `${category.icon} ${category.name}`
+      : tx.categoryId?.trim() || null;
+  };
+
+  const formatTransactionDate = (value: string) => {
+    const date = new Date(`${value.slice(0, 10)}T00:00:00`);
+    return Number.isNaN(date.getTime())
+      ? value
+      : date.toLocaleDateString('zh-TW', { month: 'short', day: 'numeric' });
+  };
+
+  const getAmountSign = (type: number) => {
+    if (type === TransactionType.Income) return '+';
+    if (type === TransactionType.Expense) return '−';
+    return '';
+  };
+
+  const getAmountClass = (type: number) => {
+    if (type === TransactionType.Income) return 'transaction-item__amount transaction-item__amount--income';
+    if (type === TransactionType.Expense) return 'transaction-item__amount transaction-item__amount--expense';
+    return 'transaction-item__amount';
   };
 
   // 輔助方法：根據 ID 找帳戶名稱
@@ -111,12 +141,16 @@ export default function TransactionPage() {
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
-      <h2>📝 收支記帳</h2>
+    <div className="transaction-page">
+      <header className="transaction-page__header">
+        <p className="transaction-page__eyebrow">TRANSACTIONS</p>
+        <h1>交易明細</h1>
+        <p>檢視並記錄每一筆實際發生的收支。</p>
+      </header>
 
       {/* 記帳表單 */}
-      <form onSubmit={handleSubmit} style={{ marginBottom: '20px', padding: '15px', border: '1px solid #ccc', borderRadius: '8px' }}>
-        <h3>新增一筆紀錄</h3>
+      <form className="transaction-form" onSubmit={handleSubmit}>
+        <h2>新增交易</h2>
         
         <div style={{ marginBottom: '10px' }}>
           <label>日期：</label>
@@ -256,50 +290,68 @@ export default function TransactionPage() {
       </form>
 
       {/* 交易紀錄列表 */}
-      <h3>近期紀錄</h3>
-      {isTxLoading && transactions.length === 0 ? (
-        <p>載入中...</p>
-      ) : !Array.isArray(transactions) || transactions.length === 0 ? (
-        <p>目前還沒有任何紀錄，開始記帳吧！</p>
-      ) : (
-        <ul style={{ listStyleType: 'none', padding: 0 }}>
-          {transactions.map((tx, index) => {
-            const amount = tx?.amount ?? 0;
-            const txDate = tx?.transactionDate ? new Date(tx.transactionDate).toLocaleDateString() : '未知日期';
-            
-            return (
-              <li key={tx?.id || index} style={{ padding: '10px', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontSize: '0.85em', color: '#888' }}>{txDate}</div>
-                  <strong>{getTypeName(tx?.type)}</strong>
-                  <span style={{ margin: '0 10px' }}>{tx?.description || '無備註'}</span>
-                  {tx?.type === TransactionType.Transfer ? (
-                    <span style={{ fontSize: '0.85em', color: '#666', backgroundColor: '#f0f0f0', padding: '2px 6px', borderRadius: '4px' }}>
-                      {getAccountName(tx.accountId)}
-                      <br />
-                      ↓
-                      <br />
-                      {tx.toAccountName || getAccountName(tx.toAccountId || '')}
-                    </span>
-                  ) : (
-                    <span style={{ fontSize: '0.85em', color: '#666', backgroundColor: '#f0f0f0', padding: '2px 6px', borderRadius: '4px' }}>
-                      {getAccountName(tx?.accountId)}
-                    </span>
-                  )}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                  <div style={{ color: tx?.type === TransactionType.Income ? 'green' : 'red', fontWeight: 'bold' }}>
-                    {tx?.type === TransactionType.Income ? '+' : '-'}$ {amount.toLocaleString()}
+      <section className="transaction-list-section" aria-labelledby="transaction-list-title">
+        <div className="transaction-list-section__heading">
+          <div>
+            <p className="transaction-page__eyebrow">LEDGER</p>
+            <h2 id="transaction-list-title">所有交易</h2>
+          </div>
+        </div>
+        {isTxLoading && transactions.length === 0 ? (
+          <p>載入中...</p>
+        ) : !Array.isArray(transactions) || transactions.length === 0 ? (
+          <p>目前還沒有任何紀錄，開始記帳吧！</p>
+        ) : (
+          <ul className="transaction-list">
+            {transactions.map((tx, index) => {
+              const amount = tx?.amount ?? 0;
+              const txDate = tx?.transactionDate
+                ? formatTransactionDate(tx.transactionDate)
+                : '未知日期';
+              const categoryName = getCategoryName(tx);
+
+              return (
+                <li className="transaction-item" key={tx?.id || index}>
+                  <div className="transaction-item__details">
+                    <strong className="transaction-item__title">{getTransactionTitle(tx)}</strong>
+                    <div className="transaction-item__metadata">
+                      {tx?.type === TransactionType.Transfer ? (
+                        <span>
+                          {getAccountName(tx.accountId)}
+                          {' → '}
+                          {tx.toAccountName || getAccountName(tx.toAccountId || '')}
+                        </span>
+                      ) : (
+                        <>
+                          {categoryName && (
+                            <span className="transaction-item__category">{categoryName}</span>
+                          )}
+                          <span>{getAccountName(tx.accountId)}</span>
+                        </>
+                      )}
+                    </div>
+                    <time className="transaction-item__date" dateTime={tx.transactionDate}>
+                      {txDate}
+                    </time>
                   </div>
-                  <button onClick={() => removeTransaction(tx.id)} style={{ color: 'red', cursor: 'pointer', background: 'none', border: 'none' }}>
-                    刪除
-                  </button>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+                  <div className="transaction-item__actions">
+                    <strong className={getAmountClass(tx?.type)}>
+                      {getAmountSign(tx?.type)}$ {amount.toLocaleString()}
+                    </strong>
+                    <button
+                      className="transaction-item__delete"
+                      type="button"
+                      onClick={() => removeTransaction(tx.id)}
+                    >
+                      刪除
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
       {isCategoryManagerOpen && (
         <CategoryManagementModal onClose={() => setIsCategoryManagerOpen(false)} />
       )}

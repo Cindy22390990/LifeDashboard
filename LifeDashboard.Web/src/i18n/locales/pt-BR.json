@@ -1,0 +1,146 @@
+{
+  "privacy": {
+    "display": "Exibição privada",
+    "hideAmounts": "Ocultar valores",
+    "showAmounts": "Mostrar valores"
+  },
+  "common": {
+    "viewAll": "Ver tudo",
+    "mockData": "Dados de demonstração",
+    "previewOnly": "Apenas pré-visualização. Este formulário não salva transações.",
+    "close": "Fechar",
+    "closePreview": "Fechar pré-visualização"
+  },
+  "navigation": {
+    "ariaLabel": "Navegação principal",
+    "close": "Fechar navegação",
+    "sections": {
+      "overview": "Visão geral",
+      "management": "Gerenciamento",
+      "system": "Sistema"
+    },
+    "items": {
+      "dashboard": "Painel",
+      "ledger": "Transações",
+      "accounts": "Contas",
+      "goals": "Metas",
+      "reports": "Relatórios",
+      "budgets": "Orçamentos",
+      "fixedCommitments": "Despesas fixas",
+      "categories": "Categorias",
+      "settings": "Configurações",
+      "darkMode": "Modo escuro",
+      "dataExport": "Exportar dados",
+      "security": "Segurança",
+      "logout": "Sair"
+    },
+    "language": "Idioma",
+    "personalAccount": "Conta pessoal"
+  },
+  "dashboard": {
+    "title": "Painel",
+    "openNavigation": "Abrir navegação",
+    "greeting": "Olá, {{name}}.",
+    "summary": "Veja um resumo das suas finanças hoje.",
+    "hero": {
+      "ariaLabel": "Visão financeira",
+      "totalAssets": "Patrimônio total",
+      "netWorth": "Patrimônio líquido",
+      "spentToday": "Gasto hoje",
+      "today": "Hoje",
+      "leftToSpend": "Disponível para gastar",
+      "budgetCycle": "Ciclo orçamentário atual"
+    }
+  },
+  "calendar": {
+    "activity": "Atividade",
+    "title": "Calendário",
+    "income": "Receita",
+    "expense": "Despesa",
+    "closeDetails": "Fechar detalhes do dia",
+    "dayDetails": "Detalhes do dia",
+    "total": "Total",
+    "empty": "Nenhuma transação neste dia.",
+    "addTransaction": "Adicionar transação",
+    "collapseMonth": "Recolher mês",
+    "expandMonth": "Expandir para o mês",
+    "dayAriaLabel": "{{date}}, {{activity}}",
+    "markers": {
+      "income": "receita",
+      "expense": "despesa",
+      "transfer": "transferência",
+      "none": "sem atividade"
+    }
+  },
+  "transactions": {
+    "add": "Adicionar transação",
+    "recentTitle": "Transações recentes",
+    "date": "Data",
+    "type": "Tipo",
+    "title": "Título",
+    "amount": "Valor",
+    "closePreview": "Fechar pré-visualização da transação",
+    "types": {
+      "income": "Receita",
+      "expense": "Despesa",
+      "transfer": "Transferência"
+    },
+    "categories": {
+      "income": "Receita",
+      "dining": "Alimentação",
+      "groceries": "Compras",
+      "transfer": "Transferência"
+    }
+  },
+  "budget": {
+    "eyebrow": "Radar do orçamento",
+    "title": "Radar do orçamento",
+    "safe": "Dentro do limite",
+    "leftToSpend": "Disponível para gastar",
+    "currentCycle": "Ciclo orçamentário atual",
+    "used": "Orçamento utilizado",
+    "progressAria": "Orçamento utilizado: {{percent}}% (dados de demonstração)",
+    "mockStatus": "Status e percentual de demonstração"
+  },
+  "goals": {
+    "eyebrow": "Suas metas",
+    "title": "Progresso das metas",
+    "saved": "Guardado {{saved}} / {{target}}",
+    "left": "Faltam {{amount}}",
+    "deadline": "Prazo: {{date}}",
+    "progressAria": "{{name}}: {{percent}}% (dados de demonstração)"
+  },
+  "accounts": {
+    "eyebrow": "Liquidez",
+    "title": "Resumo das contas",
+    "types": {
+      "checking": "Conta corrente",
+      "cash": "Dinheiro",
+      "savings": "Poupança"
+    }
+  },
+  "reports": {
+    "eyebrow": "Relatórios",
+    "title": "Relatórios",
+    "comingSoon": "Em breve",
+    "phaseNote": "Prévia da Fase 1. Os relatórios ainda não estão conectados a dados ou gráficos.",
+    "sections": {
+      "spendingTrend": {
+        "title": "Tendência de gastos",
+        "description": "As análises diárias de gastos aparecerão aqui."
+      },
+      "incomeExpense": {
+        "title": "Receitas e despesas",
+        "description": "Compare receitas e despesas por mês."
+      },
+      "categorySpending": {
+        "title": "Gastos por categoria",
+        "description": "Confira os gastos por categoria."
+      },
+      "netWorthTrend": {
+        "title": "Tendência do patrimônio",
+        "description": "Acompanhe seus ativos ao longo do tempo."
+      }
+    }
+  }
+}

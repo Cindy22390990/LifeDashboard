@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import { SystemSettingPage } from './presentation/pages/SystemSettingPage';
 import AccountPage from './presentation/pages/AccountPage';
 import './AppShell.css';
@@ -8,29 +8,23 @@ type SettingsModal = 'accounts' | 'system' | null;
 
 const primaryTabs = [
   { to: '/dashboard', label: 'Dashboard', icon: '⌂' },
-  { to: '/responsibilities', label: 'Responsibilities', icon: '▣' },
-  { to: '/goals', label: 'Goal', icon: '◎' },
-  { to: '/stats', label: 'Stats', icon: '▤' },
+  { to: '/transactions', label: 'Transactions', icon: '↕' },
+  { to: '/goals', label: 'Goals', icon: '◎' },
+  { to: '/accounts', label: 'Accounts', icon: '▣' },
 ];
 
 export default function App() {
   const [settingsModal, setSettingsModal] = useState<SettingsModal>(null);
   const location = useLocation();
-  const isResponsibilitiesPage = location.pathname === '/responsibilities';
 
   const closeModal = () => setSettingsModal(null);
 
   return (
     <div className="app-shell">
       <div className="app-utility-nav">
-        <Link to="/transactions">交易記錄／新增交易</Link>
-        {!isResponsibilitiesPage && (
-          <button type="button" onClick={() => setSettingsModal('accounts')}>
-            帳戶管理
-          </button>
-        )}
+        <Link to="/dashboard-v3">V3 Preview</Link>
         <button type="button" onClick={() => setSettingsModal('system')}>
-          系統設定
+          Settings
         </button>
       </div>
 
@@ -43,17 +37,15 @@ export default function App() {
 
       <nav className="bottom-tab-nav" aria-label="主要導覽">
         {primaryTabs.map((tab) => (
-          <NavLink
+          <Link
             key={tab.to}
             to={tab.to}
-            end
-            className={({ isActive }) =>
-              `bottom-tab${isActive ? ' bottom-tab-active' : ''}`
-            }
+            aria-current={location.pathname === tab.to ? 'page' : undefined}
+            className={`bottom-tab${location.pathname === tab.to ? ' bottom-tab-active' : ''}`}
           >
             <span className="bottom-tab-icon" aria-hidden="true">{tab.icon}</span>
-            <span>{tab.label}</span>
-          </NavLink>
+            <span className="bottom-tab-label">{tab.label}</span>
+          </Link>
         ))}
       </nav>
 

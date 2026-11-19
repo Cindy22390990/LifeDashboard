@@ -1,0 +1,146 @@
+{
+  "privacy": {
+    "display": "プライバシー表示",
+    "hideAmounts": "金額を隠す",
+    "showAmounts": "金額を表示"
+  },
+  "common": {
+    "viewAll": "すべて表示",
+    "mockData": "サンプルデータ",
+    "previewOnly": "UI のプレビューです。このフォームでは取引データは保存されません。",
+    "close": "閉じる",
+    "closePreview": "プレビューを閉じる"
+  },
+  "navigation": {
+    "ariaLabel": "メインナビゲーション",
+    "close": "ナビゲーションを閉じる",
+    "sections": {
+      "overview": "概要",
+      "management": "管理",
+      "system": "システム"
+    },
+    "items": {
+      "dashboard": "ダッシュボード",
+      "ledger": "取引履歴",
+      "accounts": "口座",
+      "goals": "目標",
+      "reports": "レポート",
+      "budgets": "予算",
+      "fixedCommitments": "固定費",
+      "categories": "カテゴリ",
+      "settings": "設定",
+      "darkMode": "ダークモード",
+      "dataExport": "データのエクスポート",
+      "security": "セキュリティ",
+      "logout": "ログアウト"
+    },
+    "language": "言語",
+    "personalAccount": "個人アカウント"
+  },
+  "dashboard": {
+    "title": "ダッシュボード",
+    "openNavigation": "ナビゲーションを開く",
+    "greeting": "こんにちは、{{name}}さん。",
+    "summary": "今日の財務状況を確認しましょう。",
+    "hero": {
+      "ariaLabel": "財務概要",
+      "totalAssets": "総資産",
+      "netWorth": "純資産",
+      "spentToday": "今日の支出",
+      "today": "今日",
+      "leftToSpend": "利用可能額",
+      "budgetCycle": "現在の予算期間"
+    }
+  },
+  "calendar": {
+    "activity": "アクティビティ",
+    "title": "カレンダー",
+    "income": "収入",
+    "expense": "支出",
+    "closeDetails": "日別詳細を閉じる",
+    "dayDetails": "日別詳細",
+    "total": "合計",
+    "empty": "この日の取引はありません。",
+    "addTransaction": "取引を追加",
+    "collapseMonth": "月表示を閉じる",
+    "expandMonth": "月表示に展開",
+    "dayAriaLabel": "{{date}}、{{activity}}",
+    "markers": {
+      "income": "収入",
+      "expense": "支出",
+      "transfer": "振替",
+      "none": "予定なし"
+    }
+  },
+  "transactions": {
+    "add": "取引を追加",
+    "recentTitle": "最近の取引",
+    "date": "日付",
+    "type": "種類",
+    "title": "タイトル",
+    "amount": "金額",
+    "closePreview": "取引プレビューを閉じる",
+    "types": {
+      "income": "収入",
+      "expense": "支出",
+      "transfer": "振替"
+    },
+    "categories": {
+      "income": "収入",
+      "dining": "食費",
+      "groceries": "食料品",
+      "transfer": "振替"
+    }
+  },
+  "budget": {
+    "eyebrow": "予算状況",
+    "title": "予算状況",
+    "safe": "安全",
+    "leftToSpend": "利用可能額",
+    "currentCycle": "現在の予算期間",
+    "used": "予算使用率",
+    "progressAria": "予算使用率：{{percent}}%（サンプルデータ）",
+    "mockStatus": "サンプルの状態と割合"
+  },
+  "goals": {
+    "eyebrow": "目標",
+    "title": "目標の進捗",
+    "saved": "貯蓄 {{saved}} / {{target}}",
+    "left": "残り {{amount}}",
+    "deadline": "期限：{{date}}",
+    "progressAria": "{{name}}：{{percent}}%（サンプルデータ）"
+  },
+  "accounts": {
+    "eyebrow": "流動性",
+    "title": "口座の概要",
+    "types": {
+      "checking": "当座預金",
+      "cash": "現金",
+      "savings": "普通預金"
+    }
+  },
+  "reports": {
+    "eyebrow": "レポート",
+    "title": "レポート",
+    "comingSoon": "近日公開",
+    "phaseNote": "Phase 1 のプレビューです。レポートはまだデータやグラフに接続されていません。",
+    "sections": {
+      "spendingTrend": {
+        "title": "支出の推移",
+        "description": "日々の支出分析がここに表示されます。"
+      },
+      "incomeExpense": {
+        "title": "収入と支出",
+        "description": "月ごとの収入と支出を比較します。"
+      },
+      "categorySpending": {
+        "title": "カテゴリ別支出",
+        "description": "カテゴリごとの支出を確認します。"
+      },
+      "netWorthTrend": {
+        "title": "純資産の推移",
+        "description": "資産の推移を確認します。"
+      }
+    }
+  }
+}

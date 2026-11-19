@@ -17,6 +17,7 @@ export interface ITransaction {
   amount: number;          // 金額
   type: TransactionType;   // 收支類型
   categoryId?: string | null;
+  categoryEntityId?: string | null;
   description: string;     // 備註說明
   transactionDate: string; // 交易日期
 }

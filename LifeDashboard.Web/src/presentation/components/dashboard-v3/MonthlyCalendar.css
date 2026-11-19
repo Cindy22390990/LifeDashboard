@@ -1,0 +1,153 @@
+.v3-monthly-calendar {
+  min-width: 0;
+  padding: 20px;
+  border-radius: 18px;
+  background: var(--v3-surface);
+}
+
+.v3-monthly-calendar__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.v3-monthly-calendar__heading > strong {
+  color: var(--v3-text-primary);
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.v3-monthly-calendar__expand {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 9px;
+  border: 0;
+  border-radius: 8px;
+  color: var(--v3-accent);
+  background: var(--v3-accent-soft);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.v3-monthly-calendar__expand:focus-visible,
+.v3-calendar-day:focus-visible {
+  outline: 2px solid var(--v3-accent);
+  outline-offset: 2px;
+}
+
+.v3-monthly-calendar__weekdays,
+.v3-monthly-calendar__days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.v3-monthly-calendar__weekdays {
+  margin-bottom: 8px;
+}
+
+.v3-monthly-calendar__weekdays > span {
+  color: var(--v3-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.v3-monthly-calendar__days {
+  max-height: 480px;
+  overflow: hidden;
+  transition: max-height 300ms ease-in-out, opacity 300ms ease-in-out;
+}
+
+.v3-monthly-calendar__days--week {
+  max-height: 64px;
+}
+
+.v3-calendar-day {
+  display: grid;
+  min-width: 0;
+  min-height: 54px;
+  justify-items: center;
+  align-content: center;
+  gap: 3px;
+  padding: 4px 2px;
+  border: 0;
+  border-radius: 12px;
+  color: var(--v3-text-primary);
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.v3-calendar-day:hover {
+  background: #f1f5f9;
+}
+
+.v3-calendar-day.is-selected {
+  color: #fff;
+  background: var(--v3-accent);
+  box-shadow: 0 4px 10px rgb(5 150 105 / 18%);
+}
+
+.v3-calendar-day.is-outside-month {
+  color: #94a3b8;
+}
+
+.v3-calendar-day__number {
+  font-size: 13px;
+  font-weight: 550;
+  line-height: 1;
+}
+
+.v3-calendar-day__marker {
+  height: 12px;
+  color: transparent;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.v3-calendar-day__marker--income {
+  color: var(--v3-income);
+}
+
+.v3-calendar-day__marker--expense {
+  color: var(--v3-text-secondary);
+}
+
+.v3-calendar-day__marker--transfer {
+  color: var(--v3-text-muted);
+}
+
+.v3-calendar-day.is-selected .v3-calendar-day__marker {
+  color: #fff;
+}
+
+@media (max-width: 700px) {
+  .v3-monthly-calendar {
+    padding: 16px;
+  }
+
+  .v3-monthly-calendar__heading {
+    margin-bottom: 14px;
+  }
+
+  .v3-monthly-calendar__days {
+    gap: 4px;
+  }
+
+  .v3-calendar-day {
+    min-height: 48px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v3-monthly-calendar__days {
+    transition: none;
+  }
+}

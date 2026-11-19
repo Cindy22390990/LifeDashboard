@@ -1,13 +1,58 @@
 .budget-radar-summary {
   display: grid;
   align-content: start;
+  gap: var(--space-3);
+}
+
+.budget-radar-summary__status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 5px 10px;
+  border-radius: 999px;
+  color: #047857;
+  background: #d1fae5;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.budget-radar-summary__status small {
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.budget-radar-summary__content {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
   gap: var(--space-4);
 }
 
-.budget-radar-summary__period {
-  margin: 0;
+.budget-radar-summary__gauge {
+  display: grid;
+  width: 104px;
+  aspect-ratio: 1;
+  place-items: center;
+  border-radius: 50%;
+}
+
+.budget-radar-summary__gauge::before {
+  grid-area: 1 / 1;
+  width: 76px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--color-surface);
+  content: '';
+}
+
+.budget-radar-summary__gauge span {
+  z-index: 1;
+  grid-area: 1 / 1;
   color: var(--color-text-muted);
-  font-size: 12px;
+  font-size: 11px;
+  line-height: 1.2;
+  text-align: center;
 }
 
 .budget-radar-summary__remaining {
@@ -16,30 +61,41 @@
   gap: var(--space-2);
 }
 
-.budget-radar-summary__remaining {
-  padding: var(--space-4);
-  border-left: 3px solid var(--color-border-subtle);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-elevated);
-}
-
-.budget-radar-summary__remaining span,
-.budget-radar-summary__today span {
+.budget-radar-summary__remaining > span {
   color: var(--color-text-muted);
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .budget-radar-summary__remaining strong {
   color: var(--color-text-primary);
-  font-size: 26px;
+  font-size: clamp(18px, 2.1vw, 25px);
   font-weight: 650;
   font-variant-numeric: tabular-nums;
   line-height: 1.2;
   overflow-wrap: anywhere;
 }
 
+.budget-radar-summary__remaining .budget-radar-summary__period {
+  font-size: 11px;
+}
+
+.budget-radar-summary__note {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 11px;
+}
+
 @media (max-width: 480px) {
-  .budget-radar-summary__remaining strong {
-    font-size: 23px;
+  .budget-radar-summary__content {
+    grid-template-columns: 80px minmax(0, 1fr);
+    gap: var(--space-3);
+  }
+
+  .budget-radar-summary__gauge {
+    width: 80px;
+  }
+
+  .budget-radar-summary__gauge::before {
+    width: 58px;
   }
 }

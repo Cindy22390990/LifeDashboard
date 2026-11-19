@@ -1,9 +1,9 @@
 .dashboard-page {
   display: grid;
-  width: min(100%, 1120px);
-  gap: var(--space-5);
+  width: min(100%, 1240px);
+  gap: var(--space-6);
   margin-inline: auto;
-  padding: var(--space-2) var(--space-4) var(--space-7);
+  padding: var(--space-3) var(--space-4) var(--space-7);
   color: var(--color-text-primary);
   box-sizing: border-box;
 }
@@ -28,7 +28,7 @@
 .dashboard-header h1 {
   margin: 0;
   color: var(--color-text-primary);
-  font-size: 30px;
+  font-size: 32px;
   font-weight: 650;
   line-height: 1.2;
 }
@@ -65,26 +65,45 @@
 .dashboard-content {
   display: grid;
   min-width: 0;
-  gap: var(--space-6);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-areas:
+    "financial financial financial financial financial financial"
+    "budget budget goals goals goals goals"
+    "transactions transactions transactions accounts accounts accounts";
+  gap: var(--space-5);
 }
 
-.dashboard-primary-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-items: stretch;
-  gap: var(--space-4);
+.dashboard-content > div {
   min-width: 0;
 }
 
-.dashboard-secondary-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-items: start;
-  gap: var(--space-4);
-  min-width: 0;
+.dashboard-content__financial {
+  grid-area: financial;
 }
 
-@media (max-width: 700px) {
+.dashboard-content__budget {
+  grid-area: budget;
+}
+
+.dashboard-content__goals {
+  grid-area: goals;
+}
+
+.dashboard-content__transactions {
+  grid-area: transactions;
+}
+
+.dashboard-content__accounts {
+  grid-area: accounts;
+}
+
+.dashboard-card {
+  border: 0;
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+}
+
+@media (max-width: 760px) {
   .dashboard-page {
     gap: var(--space-4);
     padding-top: var(--space-1);
@@ -105,9 +124,15 @@
     justify-content: space-between;
   }
 
-  .dashboard-primary-grid,
-  .dashboard-secondary-grid {
+  .dashboard-content {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "financial"
+      "budget"
+      "transactions"
+      "goals"
+      "accounts";
+    gap: var(--space-4);
   }
 }
 

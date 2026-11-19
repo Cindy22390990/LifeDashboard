@@ -1,7 +1,16 @@
 .goal-summary {
   display: grid;
   align-content: start;
-  gap: var(--space-4);
+  gap: var(--space-3);
+}
+
+.goal-summary__mock-label {
+  flex: 0 0 auto;
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: #475569;
+  background: #f1f5f9;
+  font-size: 11px;
 }
 
 .goal-summary__list {
@@ -43,6 +52,12 @@
 
 .goal-summary__status {
   flex: 0 0 auto;
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.goal-summary__note {
+  margin: 0;
   color: var(--color-text-muted);
   font-size: 12px;
 }

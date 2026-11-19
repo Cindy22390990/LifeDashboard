@@ -60,144 +60,161 @@ same-Unit-of-Work behavior.
 
 ### Phase 0: Preparation
 
-- **Goal:** Resolve implementation prerequisites and identify the complete
-  legacy impact before changing code.
-- **Changed Components:** None. Review the ADRs, current project
-  boundaries, legacy readers/writers, Unit-of-Work behavior, and deployment
-  and recovery constraints.
+- **Goal:** Freeze the architecture and establish the implementation and
+  migration baseline before adding the new capability.
+- **Changed Components:** None. Complete ADR review/freeze, inventory
+  existing readers and writers, and record the current test/CI baseline.
 - **Dependency:** None; this phase precedes all implementation.
 - **Acceptance Criteria:**
-  - The Database Design ADR and Migration Plan have the required approval
-    for implementation; unresolved database decisions are not treated as
-    implemented facts.
-  - Every `Goal.CurrentAmount` and `Transaction.GoalId` reader and writer
-    is inventoried, including Goal lifecycle, Goal Purchase classification,
-    and Budget Radar consumers.
+  - The Domain Model ADR, Database Design ADR, and Migration Plan are
+    explicitly approved/frozen for implementation; proposed decisions are
+    not assumed to be accepted.
+  - Existing `Goal.CurrentAmount` and `Transaction.GoalId` readers and
+    writers are inventoried, including Goal lifecycle, Goal Purchase
+    classification, and Budget Radar consumers.
+  - The current test/CI baseline and any known failures are recorded for
+    comparison. This plan revision does not execute tests.
   - The Application notification and same-Unit-of-Work approach for
-    Transaction soft delete is feasible in the current architecture.
-  - The staged migration, backfill pause, validation, cutover, and recovery
-    responsibilities are agreed.
+    Transaction soft delete, plus deployment and recovery ownership, are
+    agreed.
 
-### Phase 1: Domain Model Addition
+### Phase 1: Domain/Foundation Implementation
 
-- **Goal:** Add the funding concept without coupling the Transaction or
-  Goal aggregates to one another.
+- **Goal:** Build the new Goal Funding capability without making it a
+  Production source of truth.
 - **Changed Components:** `LifeDashboard.Domain` adds the independent
-  `GoalFundingAllocation` Aggregate Root and its intrinsic lifecycle and
-  amount rules. Transaction and Goal do not gain Allocation navigation
-  properties.
-- **Dependency:** Phase 0 decisions are approved.
+  `GoalFundingAllocation` Aggregate Root and intrinsic lifecycle rules.
+  `LifeDashboard.Application` adds the repository interface, Goal Funding
+  Application Service, and validation rules. Add focused Domain and
+  Application unit tests.
+- **Dependency:** Phase 0 decisions are approved/frozen.
 - **Acceptance Criteria:**
-  - Allocation means an explicit funding-purpose designation, not a money
-    movement, budget, or account reservation.
-  - The model supports an active/inactive lifecycle that preserves history.
-  - Domain rules reject non-positive Allocation amounts and invalid
-    Allocation state transitions.
-  - Domain types do not reference EF Core, repositories, or the other
-    aggregates.
-  - Cross-Allocation totals and source Transaction eligibility remain
-    Application-coordinated rules.
+  - Allocation is an explicit funding-purpose designation for eligible
+    Income only; it is not a money movement or account reservation.
+  - Domain rules cover positive amounts and valid Allocation lifecycle
+    transitions; cross-Allocation caps and source eligibility remain
+    Application-coordinated.
+  - Allocation references Goal and Transaction by identifiers only; neither
+    aggregate gains an Allocation navigation property.
+  - The service and interface may be implemented and unit-tested, but
+    Allocation writes are not enabled in Production and the service is not
+    the Production Goal-progress source.
+  - The Dashboard source is unchanged. `Goal.CurrentAmount` is not removed
+    or repurposed, and existing `Transaction.GoalId` behavior is unchanged.
 
-### Phase 2: Application Use Cases
+### Phase 2: Database Expansion
 
-- **Goal:** Implement explicit Allocation operations and coordinate
-  Transaction and Goal behavior at the Application boundary.
-- **Changed Components:** `LifeDashboard.Application` adds the create and
-  lifecycle use cases, validates same-user ownership and eligible
-  non-deleted Income sources, enforces the active Allocation cap, and
-  coordinates Goal lifecycle transitions. It handles Transaction
-  soft-delete notifications in the same Unit of Work as Allocation
-  invalidation and history recording.
-- **Dependency:** Phase 1 Domain model; persistence and concurrency
-  contracts must be approved before wiring writes.
+- **Goal:** Add persistence support for the new capability while preserving
+  the legacy model and its current meaning.
+- **Changed Components:** `LifeDashboard.Infrastructure` adds the
+  approved persistence model, mappings, indexes, constraints, repository
+  implementation, and additive database migration for Allocations,
+  Allocation lifecycle history, and opening progress.
+- **Dependency:** Phase 1 is complete; the Database Design ADR is approved.
 - **Acceptance Criteria:**
-  - Creating a financial Transaction does not automatically create an
-    Allocation; an unallocated Transaction remains valid.
-  - A failed Transaction create cannot create an Allocation. If a separate
-    Allocation command fails after Transaction creation, the Transaction
-    remains valid and the Allocation failure is surfaced for a safe retry.
-  - Allocation create is idempotent and serialized with the active-total
-    check so concurrent requests cannot exceed the source amount.
-  - Transaction amount changes, if introduced, are rejected when active
-    Allocations would exceed the revised amount; Allocations are never
-    silently clamped or redistributed.
-  - Transaction soft delete either invalidates its active Allocations and
-    records their transitions in the same Unit of Work, or is rejected
-    while active Allocations remain if that atomicity cannot be guaranteed.
-  - Restore revalidates the source and Allocation cap before reactivating
-    prior Allocations; it does not create duplicates.
-  - Saving Goal completion/reopening is coordinated against the canonical
-    funded total in the same Unit of Work as the funding change.
+  - New persistence enforces the approved ownership, reference,
+    idempotency, and query requirements.
+  - Existing `Goal.CurrentAmount` and `Transaction.GoalId` columns,
+    relationships, and data meanings remain unchanged.
+  - This is additive expansion only: no legacy column is dropped and no
+    existing data is reinterpreted or backfilled as an Allocation.
+  - Production Allocation writes and Dashboard reads remain disabled.
+  - The expanded database can coexist with the legacy application behavior.
 
-### Phase 3: Read Model
+### Phase 3: Migration Preparation
 
-- **Goal:** Provide consistent Goal progress to the Dashboard and other
-  progress consumers.
-- **Changed Components:** `LifeDashboard.Application` defines the
-  `GoalFundingSummary` query/result; `LifeDashboard.Infrastructure`
-  implements its read; `LifeDashboard.Web` consumes the result.
-- **Dependency:** Phase 1 model and the required persisted Allocation and
-  opening-progress data from Phase 2/Phase 4. The summary semantics must
-  remain aligned with the Domain ADR.
+- **Goal:** Generate and validate the opening-progress baseline without
+  switching the Production Goal-progress source.
+- **Changed Components:** `LifeDashboard.Infrastructure` performs the
+  approved Legacy Opening Progress generation. The migration process
+  produces a validation report comparing frozen legacy progress with the
+  candidate Goal Funding read result.
+- **Dependency:** Phase 2 expansion is deployed; all legacy progress
+  writers are identified and can be paused.
 - **Acceptance Criteria:**
-  - Funded progress is calculated from opening progress plus active
-    Allocations; invalidated Allocations are excluded.
-  - Goals with no opening progress or Allocations return zero.
-  - The query does not use `Goal.CurrentAmount` as a fallback and does not
-    infer funding from `Transaction.GoalId`.
-  - Multiple Allocations for one Income Transaction and multiple Goals are
-    represented without double counting.
-  - No persisted summary projection is added for the MVP.
+  - Stop/drain legacy `CurrentAmount` writers before snapshot and keep them
+    stopped throughout backfill and validation.
+  - Capture each Goal's `CurrentAmount` once as immutable opening progress;
+    retries do not duplicate or overwrite a verified baseline.
+  - Do not convert pre-cutover Transactions or `Transaction.GoalId` values
+    into Allocations.
+  - Validate every Goal, including zero-progress Goals, and resolve all
+    unexplained differences before cutover.
+  - The validation report is reviewed and accepted.
+  - The new Dashboard source and Production Allocation writes remain
+    disabled; the frozen legacy value remains the Production source until
+    Phase 4 is approved.
 
-### Phase 4: Migration
+### Phase 4: Application Cutover
 
-- **Goal:** Move existing progress to the new read model without inventing
-  Allocation history or maintaining parallel sources of truth.
-- **Changed Components:** `LifeDashboard.Infrastructure` persistence and
-  the coordinated Application/Web read-write activation follow the
-  Migration Plan sequence: **Expand → Backfill → Dual Read Validation →
-  Cutover**. The cutover work includes stopping legacy progress writers,
-  capturing each Goal's `CurrentAmount` as immutable opening progress, and
-  enabling the new read/write path only after validation.
-- **Dependency:** Phases 1–3 are ready; the Database Design ADR and
-  Migration Plan are approved; all legacy consumers and writers are known.
+- **Goal:** Switch Production Goal-progress reads and writes to the
+  validated Goal Funding capability.
+- **Changed Components:** `LifeDashboard.Application` and
+  `LifeDashboard.Web` activate the `GoalFundingSummary` read path and
+  explicit Allocation use cases. Permanently disable legacy
+  `CurrentAmount` writes for Goal progress.
+- **Dependency:** Phase 3 validation report is accepted; the cutover and
+  rollback/recovery plan is approved and executable.
 - **Acceptance Criteria:**
-  - Pre-cutover Transactions and `Transaction.GoalId` values are not
-    backfilled as Allocations.
-  - Opening-progress capture is one-time, restartable, and does not overwrite
-    an already verified baseline.
-  - Legacy Goal-progress writes are drained before snapshot and remain
-    stopped through dual-read validation.
-  - Every Goal's candidate progress is compared with the frozen legacy
-    value, including zero-progress Goals; all differences are explained
-    before cutover.
-  - The cutover switches progress reads to the new summary and Allocation
-    writes to the explicit flow without dual-writing `CurrentAmount`.
-  - Recovery preserves authoritative new funding history and does not
-    restore stale legacy values as a second source of truth.
+  - The new Funding Source passes validation and its result matches the
+    frozen legacy value for every Goal before activation.
+  - Dashboard and other Goal-progress readers switch to
+    `GoalFundingSummary`, calculated from opening progress plus active
+    Allocations; `CurrentAmount` is not used as a fallback.
+  - Explicit Allocation writes are enabled only after validation and
+    cutover approval. New funding actions do not dual-write
+    `CurrentAmount`.
+  - Legacy Goal-progress writes stay disabled after cutover.
+  - A rollback/recovery plan is demonstrated: before new authoritative
+    Allocation writes, revert only if no new funding history is lost;
+    afterward, use forward correction or reconciled recovery and never
+    restore stale `CurrentAmount` as a competing source.
 
-### Phase 5: Legacy Removal
+### Phase 5: Legacy Retirement
 
-- **Goal:** Remove obsolete persistence and code paths after all consumers
-  have moved to the new model.
+- **Goal:** Remove legacy compatibility code after all consumers and
+  historical requirements have been addressed.
 - **Changed Components:** `LifeDashboard.Domain`,
   `LifeDashboard.Application`, `LifeDashboard.Infrastructure`, and
-  `LifeDashboard.Web` remove references to `Goal.CurrentAmount` and
-  `Transaction.GoalId` as each field becomes unused. Physical database
-  retirement is performed only through a separately approved contract
-  migration; this plan does not create one.
-- **Dependency:** Phase 4 cutover and validation are complete; replacements
-  exist for every legacy consumer.
+  `LifeDashboard.Web` remove obsolete `CurrentAmount` write paths,
+  `Transaction.GoalId` usage, and related compatibility code. Physical
+  column/relationship removal requires the separately approved Contract
+  migration; this plan does not implement it.
+- **Dependency:** Phase 4 cutover is stable; the Migration Plan is
+  complete; all legacy consumers have replacements.
 - **Acceptance Criteria:**
-  - No Goal-progress reader or writer depends on `Goal.CurrentAmount`.
+  - There are no active readers or writers relying on legacy progress or
+    `Transaction.GoalId`.
   - Goal deposit writes and Saving Goal completion decisions use the
-    Funding capability and canonical funded total.
+    canonical Goal Funding source.
   - Goal Purchase classification and Budget Radar no longer depend on
     `Transaction.GoalId`.
-  - No compatibility path dual-writes or treats a legacy field as
-    authoritative.
-  - Opening progress and Allocation history remain retained and auditable
-    after legacy-field removal.
+  - Opening progress and Allocation lifecycle history are complete,
+    retained, and auditable.
+  - Compatibility code and, after its separate approval, legacy
+    persistence can be removed without deleting or rewriting funding
+    history.
+
+## Dependency Graph
+
+```text
+Phase 0 — Preparation
+        ↓
+Phase 1 — Domain/Foundation Implementation
+        ↓
+Phase 2 — Database Expansion
+        ↓
+Phase 3 — Migration Preparation
+        ↓
+Phase 4 — Application Cutover
+        ↓
+Phase 5 — Legacy Retirement
+```
+
+The dependency is linear. Phase 3 prepares and validates data for Phase 4;
+it does not depend on Production cutover. Phase 4 consumes the completed
+Phase 3 validation report. There is no `Phase 3 → Phase 4 → Phase 3`
+dependency.
 
 ## 4. Transaction Boundary Design
 
@@ -283,11 +300,11 @@ references as Allocations.
 
 Before writing implementation code, confirm:
 
-- [ ] The Domain Model ADR, Database Design ADR, and Migration Plan have
-  explicit approval for implementation; Proposed documents are not assumed
-  to be accepted.
+- [ ] Phase 0 ADR freeze is complete, including explicit approval of the
+  Database Design ADR and Migration Plan.
 - [ ] The full set of legacy field readers and writers and their owners is
   documented.
+- [ ] The existing test/CI baseline is recorded for later comparison.
 - [ ] The eligible Income Transaction and Goal validation rules are
   implementable through existing Application abstractions.
 - [ ] The repository and Unit-of-Work approach supports atomic Allocation
@@ -298,6 +315,8 @@ Before writing implementation code, confirm:
   funding changes in the same Unit of Work.
 - [ ] Opening-progress capture can pause legacy writers, be retried safely,
   and be validated for every Goal before cutover.
+- [ ] The new capability can remain disabled as a Production source through
+  Phases 1–3.
 - [ ] The Database Design ADR's persistence and same-user integrity choices
   are resolved before Infrastructure implementation.
 - [ ] A rollback/recovery plan preserves new Allocation and opening-progress

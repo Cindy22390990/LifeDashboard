@@ -1,6 +1,5 @@
-import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { AccountType, type IAccount } from '../../../domain/Account';
-import { useMobileViewport } from '../../hooks/useMobileViewport';
 import { formatCurrency } from './dashboardFormatting';
 import './AccountDetails.css';
 
@@ -20,40 +19,24 @@ function getAccountTypeLabel(type: AccountType): string {
 }
 
 export default function AccountDetails({ accounts }: AccountDetailsProps) {
-  const isMobile = useMobileViewport();
-  const [isExpanded, setIsExpanded] = useState(false);
+  const physicalAccounts = accounts.filter((account) => !account.isSystemAccount);
 
   return (
     <section className="account-details dashboard-card" aria-labelledby="account-details-title">
       <div className="dashboard-card__heading">
         <div>
           <p className="dashboard-card__eyebrow">ACCOUNTS</p>
-          <h2 id="account-details-title">帳戶明細</h2>
+          <h2 id="account-details-title">帳戶摘要</h2>
         </div>
-        <span className="account-details__count">{accounts.length} 個帳戶</span>
-        {isMobile && (
-          <button
-            className="account-details__toggle"
-            type="button"
-            aria-expanded={isExpanded}
-            aria-controls="account-details-list"
-            onClick={() => setIsExpanded((expanded) => !expanded)}
-          >
-            {isExpanded ? '收合' : '展開'}
-          </button>
-        )}
+        <span className="account-details__count">{physicalAccounts.length} 個帳戶</span>
       </div>
 
-      <div
-        id="account-details-list"
-        className="account-details__content"
-        hidden={isMobile && !isExpanded}
-      >
-        {accounts.length === 0 ? (
+      <div className="account-details__content">
+        {physicalAccounts.length === 0 ? (
           <p className="account-details__empty">目前沒有帳戶資料。</p>
         ) : (
           <ul className="account-details__list">
-            {accounts.map((account) => (
+            {physicalAccounts.map((account) => (
               <li className="account-details__item" key={account.id}>
                 <div className="account-details__identity">
                   <strong>{account.name}</strong>
@@ -65,6 +48,9 @@ export default function AccountDetails({ accounts }: AccountDetailsProps) {
           </ul>
         )}
       </div>
+      <Link className="account-details__view-all" to="/accounts">
+        查看全部帳戶
+      </Link>
     </section>
   );
 }

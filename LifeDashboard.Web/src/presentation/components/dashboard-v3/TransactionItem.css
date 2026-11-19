@@ -1,0 +1,79 @@
+.v3-transaction-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px 0;
+  border-top: 1px solid var(--v3-border);
+}
+
+.v3-transaction-item__icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  place-items: center;
+  border-radius: 12px;
+  color: var(--v3-text-secondary);
+  background: #f1f5f9;
+  font-size: 17px;
+}
+
+.v3-transaction-item__content {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 4px;
+}
+
+.v3-transaction-item__title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.v3-transaction-item__title-row > strong:first-child {
+  color: var(--v3-text-primary);
+  font-size: 14px;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+
+.v3-transaction-item__amount {
+  flex: 0 0 auto;
+  color: var(--v3-text-primary);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.v3-transaction-item--income .v3-transaction-item__amount {
+  color: var(--v3-income);
+}
+
+.v3-transaction-item__subtitle {
+  color: var(--v3-text-secondary);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.v3-transaction-item__metadata {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  color: var(--v3-text-muted);
+  font-size: 12px;
+}
+
+.v3-transaction-item__metadata time {
+  margin-left: auto;
+}
+
+@media (max-width: 420px) {
+  .v3-transaction-item__metadata time {
+    margin-left: 0;
+  }
+}

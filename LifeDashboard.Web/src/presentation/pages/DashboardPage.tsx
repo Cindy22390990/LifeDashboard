@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useCategoryStore } from '../../application/stores/categoryStore';
 import { useDashboardSummaryStore } from '../../application/stores/dashboardSummaryStore';
 import FinancialOverview from '../components/dashboard/FinancialOverview';
 import BudgetRadarSummary from '../components/dashboard/BudgetRadarSummary';
@@ -17,11 +18,12 @@ function getLocalDateString(date: Date): string {
 }
 
 interface DashboardPageProps {
-  onNavigateToCategories?: () => void;
+  onNavigateToTransactions?: () => void;
 }
 
-export default function DashboardPage({ onNavigateToCategories }: DashboardPageProps) {
+export default function DashboardPage({ onNavigateToTransactions }: DashboardPageProps) {
   const [currentDate] = useState(() => getLocalDateString(new Date()));
+  const { categories, error: categoryError, fetchCategories } = useCategoryStore();
   const {
     summary,
     loading,
@@ -39,6 +41,12 @@ export default function DashboardPage({ onNavigateToCategories }: DashboardPageP
     void fetchDashboardSummary(currentDate).catch(() => undefined);
   }, [currentDate, fetchDashboardSummary]);
 
+  useEffect(() => {
+    if (categories.length === 0) {
+      void fetchCategories().catch(() => undefined);
+    }
+  }, [categories.length, fetchCategories]);
+
   return (
     <div className="dashboard-page">
       <header className="dashboard-header">
@@ -49,34 +57,43 @@ export default function DashboardPage({ onNavigateToCategories }: DashboardPageP
         </div>
         <div className="dashboard-header__actions">
           <time className="dashboard-header__date" dateTime={currentDate}>{displayDate}</time>
-          <QuickAddEntry onOpenTransactionEntry={onNavigateToCategories} />
+          <QuickAddEntry onOpenTransactionEntry={onNavigateToTransactions} />
         </div>
       </header>
 
       {loading && <p className="dashboard-feedback">載入中…</p>}
       {!loading && error && <p className="dashboard-feedback" role="alert">{error}</p>}
+      {!loading && summary && categoryError && (
+        <p className="dashboard-feedback" role="status">{categoryError}</p>
+      )}
 
       {!loading && !error && summary && (
-        <>
-          <div className="dashboard-content">
-            <div className="dashboard-primary-grid" aria-label="財務概況">
-              <FinancialOverview
-                totalAssets={summary.totalAssets}
-                monthlyIncome={summary.monthlyIncome}
-                monthlyExpense={summary.monthlyExpense}
-                todayRemaining={summary.budget.todayRemaining}
-                currentDate={currentDate}
-              />
-              <BudgetRadarSummary radarState={summary.budget} />
-              <GoalSummary goals={summary.goals} />
-            </div>
-
-            <div className="dashboard-secondary-grid">
-              <RecentActivity transactions={summary.recentTransactions} />
-              <AccountDetails accounts={summary.accounts} />
-            </div>
+        <div className="dashboard-content">
+          <div className="dashboard-content__financial">
+            <FinancialOverview
+              totalAssets={summary.totalAssets}
+              monthlyIncome={summary.monthlyIncome}
+              monthlyExpense={summary.monthlyExpense}
+              availableMoney={summary.budget.remainingLivingBudget}
+              currentDate={currentDate}
+            />
           </div>
-        </>
+          <div className="dashboard-content__budget">
+            <BudgetRadarSummary radarState={summary.budget} />
+          </div>
+          <div className="dashboard-content__goals">
+            <GoalSummary />
+          </div>
+          <div className="dashboard-content__transactions">
+            <RecentActivity
+              categories={categories}
+              transactions={summary.recentTransactions}
+            />
+          </div>
+          <div className="dashboard-content__accounts">
+            <AccountDetails accounts={summary.accounts} />
+          </div>
+        </div>
       )}
     </div>
   );

@@ -1,0 +1,115 @@
+.v3-widget {
+  min-width: 0;
+  padding: 22px;
+  border-radius: 20px;
+  background: var(--v3-surface);
+  box-shadow: var(--v3-shadow);
+}
+
+.v3-widget__heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.v3-widget__heading > div {
+  display: grid;
+  gap: 4px;
+}
+
+.v3-widget__heading h2 {
+  margin: 0;
+  color: var(--v3-text-primary);
+  font-size: 19px;
+  font-weight: 650;
+}
+
+.v3-budget-widget {
+  display: grid;
+  align-content: start;
+  gap: 22px;
+}
+
+.v3-budget-widget__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  color: var(--v3-income);
+  background: #ecfdf5;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.v3-budget-widget__status > span {
+  font-size: 10px;
+}
+
+.v3-budget-widget__main {
+  display: grid;
+  gap: 18px;
+}
+
+.v3-budget-widget__value {
+  display: grid;
+  gap: 5px;
+}
+
+.v3-budget-widget__value > span,
+.v3-budget-widget__value > small,
+.v3-budget-widget__used small {
+  color: var(--v3-text-muted);
+  font-size: 12px;
+}
+
+.v3-budget-widget__value > strong {
+  color: var(--v3-text-primary);
+  font-size: 28px;
+  font-weight: 680;
+  font-variant-numeric: tabular-nums;
+}
+
+.v3-budget-widget__used {
+  display: grid;
+  gap: 8px;
+}
+
+.v3-budget-widget__used-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--v3-text-secondary);
+  font-size: 12px;
+}
+
+.v3-budget-widget__used-label strong {
+  color: var(--v3-text-primary);
+}
+
+.v3-budget-widget__used progress {
+  width: 100%;
+  height: 9px;
+  appearance: none;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: #e2e8f0;
+}
+
+.v3-budget-widget__used progress::-webkit-progress-bar {
+  border-radius: 999px;
+  background: #e2e8f0;
+}
+
+.v3-budget-widget__used progress::-webkit-progress-value {
+  border-radius: 999px;
+  background: var(--v3-income);
+}
+
+.v3-budget-widget__used progress::-moz-progress-bar {
+  border-radius: 999px;
+  background: var(--v3-income);
+}
+
