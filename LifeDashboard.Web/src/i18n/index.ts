@@ -11,7 +11,7 @@ export const languageStorageKey = 'lifedashboard.language';
 export const supportedLanguages = [
   { code: 'en', label: 'English' },
   { code: 'zh-TW', label: '繁體中文' },
-  { code: 'pt-BR', label: 'Português' },
+  { code: 'pt-BR', label: 'Português Brasileiro' },
   { code: 'ko', label: '한국어' },
   { code: 'ja', label: '日本語' },
 ] as const;
