@@ -1,6 +1,7 @@
 export interface AccountSummaryDto {
   id: string;
   name: string;
-  type: string | number;
+  type: number;
+  accountType: string;
   balance: number;
 }

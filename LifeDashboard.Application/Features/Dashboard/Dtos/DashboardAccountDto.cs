@@ -6,4 +6,5 @@ public sealed record DashboardAccountDto(
     Guid Id,
     string Name,
     AccountType Type,
+    string AccountType,
     decimal Balance);

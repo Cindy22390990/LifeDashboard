@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 using LifeDashboard.Application.Features.Dashboard.Dtos;
 using LifeDashboard.Domain.Entities;
 using LifeDashboard.Domain.Enums;
@@ -41,13 +42,28 @@ public sealed class DashboardV3SummaryApiTests
         var account = Assert.Single(result.Accounts);
         Assert.Equal("Authorized account", account.Name);
         Assert.Equal(AccountType.Cashflow, account.Type);
+        Assert.Equal("Cashflow", account.AccountType);
         Assert.Equal(1_250_000m, account.Balance);
 
         var transaction = Assert.Single(result.RecentTransactions);
         Assert.Equal(125m, transaction.Amount);
         Assert.Equal(TransactionType.Expense, transaction.Type);
+        Assert.Equal("Expense", transaction.TransactionType);
         Assert.Equal("Authorized grocery", transaction.Note);
         Assert.Equal(today, transaction.TransactionDate);
+
+        using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        var accountJson = json.RootElement.GetProperty("accounts")[0];
+        Assert.Equal(JsonValueKind.Number, accountJson.GetProperty("type").ValueKind);
+        Assert.Equal((int)AccountType.Cashflow, accountJson.GetProperty("type").GetInt32());
+        Assert.Equal(JsonValueKind.String, accountJson.GetProperty("accountType").ValueKind);
+        Assert.Equal("Cashflow", accountJson.GetProperty("accountType").GetString());
+
+        var transactionJson = json.RootElement.GetProperty("recentTransactions")[0];
+        Assert.Equal(JsonValueKind.Number, transactionJson.GetProperty("type").ValueKind);
+        Assert.Equal((int)TransactionType.Expense, transactionJson.GetProperty("type").GetInt32());
+        Assert.Equal(JsonValueKind.String, transactionJson.GetProperty("transactionType").ValueKind);
+        Assert.Equal("Expense", transactionJson.GetProperty("transactionType").GetString());
     }
 
     [Fact]

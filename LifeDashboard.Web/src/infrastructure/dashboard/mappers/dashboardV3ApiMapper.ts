@@ -4,29 +4,13 @@ import type {
 } from '../../../application/dashboard/models/DashboardViewModel';
 import type { SectionState } from '../../../application/dashboard/models/SectionState';
 import {
-  AccountType as BackendAccountType,
-} from '../../../domain/Account';
-import {
   AccountType as DashboardAccountType,
 } from '../../../application/dashboard/models/AccountType';
 import type { AccountSummaryDto } from '../api/AccountSummaryDto';
 import type { DashboardSummaryResponse } from '../api/DashboardV3SummaryResponse';
 import { mapRecentTransaction } from './recentTransactionMapper';
 
-function mapAccountType(type: AccountSummaryDto['type']): DashboardAccountType {
-  if (typeof type === 'number') {
-    switch (type) {
-      case BackendAccountType.Invest:
-        return DashboardAccountType.Investment;
-      case BackendAccountType.Cashflow:
-        return DashboardAccountType.Cash;
-      case BackendAccountType.Saving:
-        return DashboardAccountType.Bank;
-      default:
-        return DashboardAccountType.Unknown;
-    }
-  }
-
+function mapAccountType(type: AccountSummaryDto['accountType']): DashboardAccountType {
   switch (type.toLowerCase()) {
     case 'bank':
     case 'saving':
@@ -49,7 +33,7 @@ function mapAccount(account: AccountSummaryDto): AccountSummaryViewModel {
     accountId: account.id,
     name: account.name,
     balance: account.balance,
-    accountType: mapAccountType(account.type),
+    accountType: mapAccountType(account.accountType),
   };
 }
 
@@ -62,8 +46,8 @@ function toSectionState<T>(items: T[]): SectionState<T[]> {
 export function mapDashboardV3Api(
   summary: DashboardSummaryResponse,
 ): DashboardViewModel {
-  const recentTransactions = (summary.recentTransactions ?? []).map(mapRecentTransaction);
-  const accountSummary = (summary.accounts ?? []).map(mapAccount);
+  const recentTransactions = summary.recentTransactions.map(mapRecentTransaction);
+  const accountSummary = summary.accounts.map(mapAccount);
 
   return {
     meta: {

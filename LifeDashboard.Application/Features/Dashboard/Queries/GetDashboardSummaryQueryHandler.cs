@@ -31,6 +31,7 @@ public sealed class GetDashboardSummaryQueryHandler
                 account.Id,
                 account.Name,
                 account.Type,
+                account.Type.ToString(),
                 account.Balance))
             .ToArray();
 
@@ -42,6 +43,7 @@ public sealed class GetDashboardSummaryQueryHandler
                 transaction.AccountName,
                 transaction.Amount,
                 transaction.Type,
+                transaction.Type.ToString(),
                 transaction.TransactionDate))
             .ToArray();
 

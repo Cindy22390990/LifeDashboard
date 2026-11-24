@@ -76,6 +76,7 @@ public sealed class GetDashboardSummaryQueryHandlerTests
         Assert.Equal(accountId, account.Id);
         Assert.Equal("Cash", account.Name);
         Assert.Equal(AccountType.Cashflow, account.Type);
+        Assert.Equal("Cashflow", account.AccountType);
         Assert.Equal(1_250_000m, account.Balance);
         Assert.Empty(result.RecentTransactions);
     }
@@ -118,6 +119,7 @@ public sealed class GetDashboardSummaryQueryHandlerTests
         Assert.Equal("Cash", transaction.AccountName);
         Assert.Equal(875m, transaction.Amount);
         Assert.Equal(TransactionType.Expense, transaction.Type);
+        Assert.Equal("Expense", transaction.TransactionType);
         Assert.Equal(transactionDate, transaction.TransactionDate);
     }
 }

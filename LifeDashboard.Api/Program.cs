@@ -87,6 +87,7 @@ namespace LifeDashboard.Api
             builder.Services.AddSwaggerGen(options =>
             {
                 options.CustomSchemaIds(type => type.FullName!);
+                options.SupportNonNullableReferenceTypes();
                 options.AddSecurityDefinition(
                     "Bearer",
                     new Microsoft.OpenApi.OpenApiSecurityScheme

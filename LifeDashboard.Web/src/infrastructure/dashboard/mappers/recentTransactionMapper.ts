@@ -1,32 +1,19 @@
 import type { RecentTransactionItemViewModel } from '../../../application/dashboard/models/DashboardViewModel';
 import {
-  TransactionType as BackendTransactionType,
-} from '../../../domain/Transaction';
-import {
   TransactionType as DashboardTransactionType,
 } from '../../../application/dashboard/models/TransactionType';
+import type { DayTransactionItemDto } from '../api/DashboardCalendarDayResponse';
 import type { RecentTransactionDto } from '../api/RecentTransactionDto';
 
-function mapTransactionType(type: RecentTransactionDto['type']): DashboardTransactionType {
-  if (typeof type === 'string') {
-    switch (type.trim().toLowerCase()) {
-      case 'income':
-        return DashboardTransactionType.Income;
-      case 'expense':
-        return DashboardTransactionType.Expense;
-      case 'transfer':
-        return DashboardTransactionType.Transfer;
-      default:
-        return DashboardTransactionType.Unknown;
-    }
-  }
+type TransactionDto = RecentTransactionDto | DayTransactionItemDto;
 
-  switch (type) {
-    case BackendTransactionType.Expense:
-      return DashboardTransactionType.Expense;
-    case BackendTransactionType.Income:
+function mapTransactionType(type: string): DashboardTransactionType {
+  switch (type.trim().toLowerCase()) {
+    case 'income':
       return DashboardTransactionType.Income;
-    case BackendTransactionType.Transfer:
+    case 'expense':
+      return DashboardTransactionType.Expense;
+    case 'transfer':
       return DashboardTransactionType.Transfer;
     default:
       return DashboardTransactionType.Unknown;
@@ -34,9 +21,13 @@ function mapTransactionType(type: RecentTransactionDto['type']): DashboardTransa
 }
 
 export function mapRecentTransaction(
-  transaction: RecentTransactionDto,
+  transaction: TransactionDto,
 ): RecentTransactionItemViewModel {
-  const transactionType = mapTransactionType(transaction.type);
+  const transactionType = mapTransactionType(
+    'transactionType' in transaction
+      ? transaction.transactionType
+      : transaction.type,
+  );
   const categoryKey =
     transactionType === 'income'
       ? 'transactions.types.income'
