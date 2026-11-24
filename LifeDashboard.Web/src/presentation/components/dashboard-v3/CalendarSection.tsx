@@ -1,27 +1,28 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { IDashboardDataSource } from '../../../application/dashboard/ports/IDashboardDataSource';
+import { useDashboardCalendar } from '../../../application/dashboard/useDashboardCalendar';
 import { useMobileViewport } from '../../hooks/useMobileViewport';
-import { usePrivacyDisplayStore } from '../../stores/privacyDisplayStore';
 import DayDetailPanel from './DayDetailPanel';
 import MonthlyCalendar, { type CalendarViewMode } from './MonthlyCalendar';
-import { mockDashboardData } from './mockDashboardData';
 import './CalendarSection.css';
 
-export default function CalendarSection() {
+interface CalendarSectionProps {
+  dataSource: IDashboardDataSource;
+  initialDate: string;
+}
+
+export default function CalendarSection({
+  dataSource,
+  initialDate,
+}: CalendarSectionProps) {
   const { t, i18n } = useTranslation();
   const locale = i18n.resolvedLanguage ?? i18n.language;
-  const isAmountHidden = usePrivacyDisplayStore((state) => state.isAmountHidden);
   const isMobile = useMobileViewport();
-  const [selectedDate, setSelectedDate] = useState<string>(mockDashboardData.currentDate);
   const [isMonthExpanded, setIsMonthExpanded] = useState(!isMobile);
   const [isMobilePanelOpen, setIsMobilePanelOpen] = useState(false);
+  const calendar = useDashboardCalendar(dataSource, initialDate);
   const viewMode: CalendarViewMode = isMobile && !isMonthExpanded ? 'week' : 'month';
-  const selectedTransactions = mockDashboardData.transactions.filter(
-    (transaction) => transaction.date === selectedDate,
-  );
-  const total = Object.entries(mockDashboardData.dailyTotals)
-    .find(([date]) => date === selectedDate)?.[1]
-    ?? { amount: 0, currency: 'TWD' };
 
   useEffect(() => {
     setIsMonthExpanded(!isMobile);
@@ -29,23 +30,38 @@ export default function CalendarSection() {
   }, [isMobile]);
 
   const handleSelectDate = (date: string) => {
-    setSelectedDate(date);
+    calendar.selectDate(date);
     if (isMobile) {
       setIsMobilePanelOpen(true);
     }
   };
 
-  const dayDetailPanel = (
+  const dayDetailPanel = calendar.dayDetail.loading ? (
+    <div
+      aria-label={t('calendar.dayLoading')}
+      aria-busy="true"
+      className="v3-calendar-section__loading v3-calendar-section__loading--day"
+      role="status"
+    >
+      <span />
+      <span />
+      <span />
+    </div>
+  ) : calendar.dayDetail.error ? (
+    <div className="v3-calendar-section__error" role="alert">
+      <p>{t('calendar.loadError')}</p>
+      <button className="v3-button v3-button--primary" onClick={calendar.retryDay} type="button">
+        {t('common.retry')}
+      </button>
+    </div>
+  ) : calendar.dayDetail.data ? (
     <DayDetailPanel
-      date={selectedDate}
       isMobileSheet={isMobile}
-      isAmountHidden={isAmountHidden}
       locale={locale}
       onClose={() => setIsMobilePanelOpen(false)}
-      total={total}
-      transactions={selectedTransactions}
+      viewModel={calendar.dayDetail.data}
     />
-  );
+  ) : null;
 
   return (
     <section className="v3-calendar-section" aria-labelledby="v3-calendar-title">
@@ -64,15 +80,36 @@ export default function CalendarSection() {
         </span>
       </div>
       <div className="v3-calendar-section__content">
-        <MonthlyCalendar
-          currentDate={mockDashboardData.currentDate}
-          isMobile={isMobile}
-          onExpandMonth={() => setIsMonthExpanded((expanded) => !expanded)}
-          onSelectDate={handleSelectDate}
-          selectedDate={selectedDate}
-          locale={locale}
-          viewMode={viewMode}
-        />
+        {calendar.monthSummary.loading ? (
+          <div
+            aria-label={t('calendar.monthLoading')}
+            aria-busy="true"
+            className="v3-calendar-section__loading"
+            role="status"
+          >
+            <span />
+            <span />
+            <span />
+          </div>
+        ) : calendar.monthSummary.error ? (
+          <div className="v3-calendar-section__error" role="alert">
+            <p>{t('calendar.loadError')}</p>
+            <button className="v3-button v3-button--primary" onClick={calendar.retryMonth} type="button">
+              {t('common.retry')}
+            </button>
+          </div>
+        ) : calendar.monthSummary.data && calendar.viewedMonth ? (
+          <MonthlyCalendar
+            viewModel={calendar.monthSummary.data}
+            isMobile={isMobile}
+            onExpandMonth={() => setIsMonthExpanded((expanded) => !expanded)}
+            onNavigateMonth={calendar.navigateMonth}
+            onSelectDate={handleSelectDate}
+            selectedDate={calendar.selectedDate ?? initialDate}
+            locale={locale}
+            viewMode={viewMode}
+          />
+        ) : null}
         {!isMobile && dayDetailPanel}
       </div>
       {isMobile && isMobilePanelOpen && (

@@ -7,6 +7,7 @@ import {
 } from 'react-router-dom';
 import App from './App';
 import { useAuthStore } from './application/stores/authStore';
+import { apiDashboardDataSource } from './infrastructure/dashboard/api/ApiDashboardDataSource';
 import AccountPage from './presentation/pages/AccountPage';
 import DashboardPage from './presentation/pages/DashboardPage';
 import DashboardV3Page from './presentation/pages/DashboardV3Page';
@@ -67,7 +68,10 @@ export default function AuthApp() {
             <Route path="/transactions" element={<TransactionPage />} />
             <Route path="/accounts" element={<AccountPage />} />
           </Route>
-          <Route path="/dashboard-v3" element={<DashboardV3Page />} />
+          <Route
+            path="/dashboard-v3"
+            element={<DashboardV3Page dataSource={apiDashboardDataSource} />}
+          />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

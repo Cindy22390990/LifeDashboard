@@ -9,7 +9,8 @@
     "mockData": "Mock data",
     "previewOnly": "UI preview only. This form does not save transaction data.",
     "close": "Close",
-    "closePreview": "Close preview"
+    "closePreview": "Close preview",
+    "retry": "Retry"
   },
   "navigation": {
     "ariaLabel": "Main navigation",
@@ -42,6 +43,8 @@
     "openNavigation": "Open navigation",
     "greeting": "Hello, {{name}}.",
     "summary": "Here’s your financial pulse for today.",
+    "loading": "Loading dashboard",
+    "loadError": "We couldn't load your dashboard.",
     "hero": {
       "ariaLabel": "Financial overview",
       "totalAssets": "Total assets",
@@ -57,6 +60,11 @@
     "title": "Calendar",
     "income": "Income",
     "expense": "Expense",
+    "dayLoading": "Loading transactions for this day…",
+    "monthLoading": "Loading month data…",
+    "loadError": "Unable to load calendar data.",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
     "closeDetails": "Close day details",
     "dayDetails": "Day details",
     "total": "Total",
@@ -83,19 +91,24 @@
     "types": {
       "income": "Income",
       "expense": "Expense",
-      "transfer": "Transfer"
+      "transfer": "Transfer",
+      "unknown": "Unknown"
     },
     "categories": {
       "income": "Income",
       "dining": "Dining",
       "groceries": "Groceries",
       "transfer": "Transfer"
-    }
+    },
+    "empty": "No recent transactions yet."
   },
   "budget": {
     "eyebrow": "Budget radar",
     "title": "Budget radar",
     "safe": "Safe",
+    "warning": "Caution",
+    "exceeded": "Over budget",
+    "unavailable": "Unavailable",
     "leftToSpend": "Left to spend",
     "currentCycle": "Current budget cycle",
     "used": "Budget used",
@@ -108,15 +121,20 @@
     "saved": "Saved {{saved}} / {{target}}",
     "left": "Left {{amount}}",
     "deadline": "Deadline: {{date}}",
-    "progressAria": "{{name}}: {{percent}}% (mock data)"
+    "progressAria": "{{name}}: {{percent}}% (mock data)",
+    "empty": "Add a goal to start tracking progress."
   },
   "accounts": {
     "eyebrow": "Liquidity",
     "title": "Account summary",
+    "empty": "Add an account to see balances here.",
     "types": {
       "checking": "Checking",
       "cash": "Cash",
-      "savings": "Savings"
+      "savings": "Savings",
+      "bank": "Bank",
+      "investment": "Investment",
+      "unknown": "Unknown"
     }
   },
   "reports": {

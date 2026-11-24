@@ -9,7 +9,8 @@
     "mockData": "Dados de demonstração",
     "previewOnly": "Apenas pré-visualização. Este formulário não salva transações.",
     "close": "Fechar",
-    "closePreview": "Fechar pré-visualização"
+    "closePreview": "Fechar pré-visualização",
+    "retry": "Tentar novamente"
   },
   "navigation": {
     "ariaLabel": "Navegação principal",
@@ -42,6 +43,8 @@
     "openNavigation": "Abrir navegação",
     "greeting": "Olá, {{name}}.",
     "summary": "Veja um resumo das suas finanças hoje.",
+    "loading": "Carregando painel",
+    "loadError": "Não foi possível carregar o painel.",
     "hero": {
       "ariaLabel": "Visão financeira",
       "totalAssets": "Patrimônio total",
@@ -57,6 +60,11 @@
     "title": "Calendário",
     "income": "Receita",
     "expense": "Despesa",
+    "dayLoading": "Carregando transações do dia…",
+    "monthLoading": "Carregando dados do mês…",
+    "loadError": "Não foi possível carregar os dados do calendário.",
+    "previousMonth": "Mês anterior",
+    "nextMonth": "Próximo mês",
     "closeDetails": "Fechar detalhes do dia",
     "dayDetails": "Detalhes do dia",
     "total": "Total",
@@ -83,19 +91,24 @@
     "types": {
       "income": "Receita",
       "expense": "Despesa",
-      "transfer": "Transferência"
+      "transfer": "Transferência",
+      "unknown": "Desconhecido"
     },
     "categories": {
       "income": "Receita",
       "dining": "Alimentação",
       "groceries": "Compras",
       "transfer": "Transferência"
-    }
+    },
+    "empty": "Ainda não há transações recentes."
   },
   "budget": {
     "eyebrow": "Radar do orçamento",
     "title": "Radar do orçamento",
     "safe": "Dentro do limite",
+    "warning": "Atenção",
+    "exceeded": "Acima do orçamento",
+    "unavailable": "Indisponível",
     "leftToSpend": "Disponível para gastar",
     "currentCycle": "Ciclo orçamentário atual",
     "used": "Orçamento utilizado",
@@ -108,15 +121,20 @@
     "saved": "Guardado {{saved}} / {{target}}",
     "left": "Faltam {{amount}}",
     "deadline": "Prazo: {{date}}",
-    "progressAria": "{{name}}: {{percent}}% (dados de demonstração)"
+    "progressAria": "{{name}}: {{percent}}% (dados de demonstração)",
+    "empty": "Adicione uma meta para começar a acompanhar o progresso."
   },
   "accounts": {
     "eyebrow": "Liquidez",
     "title": "Resumo das contas",
+    "empty": "Adicione uma conta para ver os saldos aqui.",
     "types": {
       "checking": "Conta corrente",
       "cash": "Dinheiro",
-      "savings": "Poupança"
+      "savings": "Poupança",
+      "bank": "Banco",
+      "investment": "Investimento",
+      "unknown": "Desconhecido"
     }
   },
   "reports": {

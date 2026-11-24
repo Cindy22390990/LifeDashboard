@@ -38,6 +38,41 @@
   color: var(--v3-text-secondary);
 }
 
+.v3-calendar-section__loading,
+.v3-calendar-section__error {
+  display: grid;
+  min-width: 0;
+  min-height: 320px;
+  align-content: center;
+  justify-items: center;
+  gap: 14px;
+  padding: 22px;
+  border-radius: 18px;
+  background: var(--v3-surface);
+}
+
+.v3-calendar-section__loading span {
+  width: 82%;
+  height: 18px;
+  border-radius: 8px;
+  background: #e2e8f0;
+  animation: v3-calendar-pulse 1.2s ease-in-out infinite alternate;
+}
+
+.v3-calendar-section__loading span:first-child {
+  width: 48%;
+}
+
+.v3-calendar-section__loading--day {
+  min-width: 280px;
+}
+
+.v3-calendar-section__error p {
+  margin: 0;
+  color: var(--v3-text-secondary);
+  text-align: center;
+}
+
 .v3-calendar-section__content {
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
@@ -46,6 +81,12 @@
   padding: 16px;
   border-radius: 22px;
   background: #eef2f6;
+}
+
+@keyframes v3-calendar-pulse {
+  to {
+    opacity: 0.45;
+  }
 }
 
 .v3-day-detail-backdrop {

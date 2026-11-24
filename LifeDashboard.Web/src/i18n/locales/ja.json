@@ -9,7 +9,8 @@
     "mockData": "サンプルデータ",
     "previewOnly": "UI のプレビューです。このフォームでは取引データは保存されません。",
     "close": "閉じる",
-    "closePreview": "プレビューを閉じる"
+    "closePreview": "プレビューを閉じる",
+    "retry": "再試行"
   },
   "navigation": {
     "ariaLabel": "メインナビゲーション",
@@ -42,6 +43,8 @@
     "openNavigation": "ナビゲーションを開く",
     "greeting": "こんにちは、{{name}}さん。",
     "summary": "今日の財務状況を確認しましょう。",
+    "loading": "ダッシュボードを読み込んでいます",
+    "loadError": "ダッシュボードを読み込めませんでした。",
     "hero": {
       "ariaLabel": "財務概要",
       "totalAssets": "総資産",
@@ -57,6 +60,11 @@
     "title": "カレンダー",
     "income": "収入",
     "expense": "支出",
+    "dayLoading": "当日の取引を読み込み中…",
+    "monthLoading": "月のデータを読み込み中…",
+    "loadError": "カレンダーを読み込めませんでした。",
+    "previousMonth": "前の月",
+    "nextMonth": "次の月",
     "closeDetails": "日別詳細を閉じる",
     "dayDetails": "日別詳細",
     "total": "合計",
@@ -83,19 +91,24 @@
     "types": {
       "income": "収入",
       "expense": "支出",
-      "transfer": "振替"
+      "transfer": "振替",
+      "unknown": "不明"
     },
     "categories": {
       "income": "収入",
       "dining": "食費",
       "groceries": "食料品",
       "transfer": "振替"
-    }
+    },
+    "empty": "最近の取引はありません。"
   },
   "budget": {
     "eyebrow": "予算状況",
     "title": "予算状況",
     "safe": "安全",
+    "warning": "注意",
+    "exceeded": "予算超過",
+    "unavailable": "利用不可",
     "leftToSpend": "利用可能額",
     "currentCycle": "現在の予算期間",
     "used": "予算使用率",
@@ -108,15 +121,20 @@
     "saved": "貯蓄 {{saved}} / {{target}}",
     "left": "残り {{amount}}",
     "deadline": "期限：{{date}}",
-    "progressAria": "{{name}}：{{percent}}%（サンプルデータ）"
+    "progressAria": "{{name}}：{{percent}}%（サンプルデータ）",
+    "empty": "目標を追加して進捗を記録しましょう。"
   },
   "accounts": {
     "eyebrow": "流動性",
     "title": "口座の概要",
+    "empty": "口座を追加すると残高がここに表示されます。",
     "types": {
       "checking": "当座預金",
       "cash": "現金",
-      "savings": "普通預金"
+      "savings": "普通預金",
+      "bank": "銀行",
+      "investment": "投資",
+      "unknown": "不明"
     }
   },
   "reports": {

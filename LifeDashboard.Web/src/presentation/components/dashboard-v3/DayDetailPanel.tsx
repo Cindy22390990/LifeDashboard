@@ -1,31 +1,26 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { formatDate, formatSensitiveMoney, type MoneyAmount } from '../../../i18n/formatters';
-import type { MockTransaction } from './mockDashboardData';
-import { toTransactionItemViewModel } from './transactionItemAdapter';
+import type { CalendarDayDetailViewModel } from '../../../application/dashboard/models/DashboardViewModel';
+import { formatDate, formatSensitiveMoney } from '../../../i18n/formatters';
+import { usePrivacyDisplayStore } from '../../stores/privacyDisplayStore';
 import TransactionItem from './TransactionItem';
 import './DayDetailPanel.css';
 
 interface DayDetailPanelProps {
-  date: string;
-  isAmountHidden: boolean;
   locale: string;
   isMobileSheet?: boolean;
   onClose?: () => void;
-  transactions: readonly MockTransaction[];
-  total: MoneyAmount;
+  viewModel: CalendarDayDetailViewModel;
 }
 
 export default function DayDetailPanel({
-  date,
-  isAmountHidden,
   locale,
   isMobileSheet = false,
   onClose,
-  transactions,
-  total,
+  viewModel,
 }: DayDetailPanelProps) {
   const { t } = useTranslation();
+  const isAmountHidden = usePrivacyDisplayStore((state) => state.isAmountHidden);
   const [isAddTransactionOpen, setIsAddTransactionOpen] = useState(false);
   const [transactionType, setTransactionType] = useState('Expense');
 
@@ -39,7 +34,7 @@ export default function DayDetailPanel({
           <div>
             <p className="v3-section-eyebrow">{t('calendar.dayDetails')}</p>
             <h3 id="v3-day-detail-title">
-              {formatDate(date, locale, {
+              {formatDate(viewModel.date, locale, {
                 month: 'short',
                 day: 'numeric',
                 year: 'numeric',
@@ -57,18 +52,23 @@ export default function DayDetailPanel({
             </button>
           )}
         </div>
-        <div className="v3-day-detail-panel__total">
-          <span>{t('calendar.total')}</span>
-          <strong>{formatSensitiveMoney(total, locale, isAmountHidden)}</strong>
+        <div className="v3-day-detail-panel__totals">
+          <div>
+            <span>{t('calendar.income')}</span>
+            <strong>{formatSensitiveMoney(viewModel.totalIncome, locale, isAmountHidden)}</strong>
+          </div>
+          <div>
+            <span>{t('calendar.expense')}</span>
+            <strong>{formatSensitiveMoney(viewModel.totalExpense, locale, isAmountHidden)}</strong>
+          </div>
         </div>
-        {transactions.length > 0 ? (
+        {viewModel.status === 'ready' ? (
           <ul className="v3-day-detail-panel__transactions">
-            {transactions.map((transaction) => (
+            {viewModel.transactions.map((transaction) => (
               <TransactionItem
                 key={transaction.id}
-                isAmountHidden={isAmountHidden}
                 locale={locale}
-                transaction={toTransactionItemViewModel(transaction, locale)}
+                viewModel={transaction}
               />
             ))}
           </ul>
@@ -117,7 +117,7 @@ export default function DayDetailPanel({
             </p>
             <label>
               {t('transactions.date')}
-              <input type="date" value={date} readOnly />
+              <input type="date" value={viewModel.date} readOnly />
             </label>
             <label>
               {t('transactions.type')}

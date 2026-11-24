@@ -1,53 +1,59 @@
-import type { TransactionItemViewModel } from './transactionItemAdapter';
-import { formatSensitiveMoney } from '../../../i18n/formatters';
+import type { RecentTransactionItemViewModel } from '../../../application/dashboard/models/DashboardViewModel';
+import { formatDate, formatSensitiveMoney } from '../../../i18n/formatters';
 import { useTranslation } from 'react-i18next';
+import { usePrivacyDisplayStore } from '../../stores/privacyDisplayStore';
 import './TransactionItem.css';
 
 interface TransactionItemProps {
-  isAmountHidden: boolean;
   locale: string;
-  transaction: TransactionItemViewModel;
+  viewModel: RecentTransactionItemViewModel;
 }
 
 export default function TransactionItem({
-  isAmountHidden,
   locale,
-  transaction,
+  viewModel,
 }: TransactionItemProps) {
   const { t } = useTranslation();
-  const categoryKeys: Record<string, string> = {
-    Income: 'transactions.categories.income',
-    Dining: 'transactions.categories.dining',
-    Groceries: 'transactions.categories.groceries',
-    Transfer: 'transactions.categories.transfer',
-  };
-  const categoryKey = categoryKeys[transaction.category];
-  const category = categoryKey
-    ? t(categoryKey)
-    : transaction.category;
+  const isAmountHidden = usePrivacyDisplayStore((state) => state.isAmountHidden);
 
   return (
-    <li className={`v3-transaction-item v3-transaction-item--${transaction.type.toLowerCase()}`}>
+    <li className={`v3-transaction-item v3-transaction-item--${viewModel.transactionType}`}>
       <span className="v3-transaction-item__icon" aria-hidden="true">
-        {transaction.icon}
+        {viewModel.icon}
       </span>
       <div className="v3-transaction-item__content">
         <div className="v3-transaction-item__title-row">
-          <strong>{transaction.title}</strong>
+          <strong>{viewModel.title}</strong>
           <strong className="v3-transaction-item__amount">
-            {formatSensitiveMoney(transaction.amount, locale, isAmountHidden, {
-              signDisplay: transaction.type === 'Income' ? 'exceptZero' : 'auto',
+            {formatSensitiveMoney(viewModel.amount, locale, isAmountHidden, {
+              amountSign: viewModel.transactionType === 'income'
+                ? 'positive'
+                : viewModel.transactionType === 'expense'
+                  ? 'negative'
+                  : undefined,
             })}
           </strong>
         </div>
-        {transaction.subtitle && (
-          <span className="v3-transaction-item__subtitle">{transaction.subtitle}</span>
+        {viewModel.subtitle && (
+          <span className="v3-transaction-item__subtitle">{viewModel.subtitle}</span>
         )}
         <div className="v3-transaction-item__metadata">
-          <span>{category}</span>
+          <span>
+            {viewModel.transactionType === 'unknown'
+              ? t('transactions.types.unknown')
+              : t(viewModel.categoryKey)}
+          </span>
+          {viewModel.transactionType === 'unknown' && (
+            <>
+              <span aria-hidden="true">·</span>
+              <span>{t(viewModel.categoryKey)}</span>
+            </>
+          )}
           <span aria-hidden="true">·</span>
-          <span>{transaction.account}</span>
-          <time dateTime={transaction.date}>{transaction.date}</time>
+          <span>{viewModel.accountName}</span>
+          <time dateTime={viewModel.occurredAt}>
+            {formatDate(viewModel.occurredAt, locale, { month: 'short', day: '2-digit' })}
+          </time>
         </div>
       </div>
     </li>

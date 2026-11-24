@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { formatDate } from '../../../i18n/formatters';
-import { mockDashboardData } from './mockDashboardData';
+import type { CalendarMonthViewModel } from '../../../application/dashboard/models/DashboardViewModel';
 import './MonthlyCalendar.css';
 
 export type CalendarViewMode = 'week' | 'month';
@@ -11,12 +11,13 @@ interface CalendarDay {
 }
 
 interface MonthlyCalendarProps {
-  currentDate: string;
+  viewModel: CalendarMonthViewModel;
   locale: string;
   isMobile: boolean;
   selectedDate: string;
   viewMode: CalendarViewMode;
   onExpandMonth: () => void;
+  onNavigateMonth: (offset: number) => void;
   onSelectDate: (date: string) => void;
 }
 
@@ -27,26 +28,25 @@ function toDateKey(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-function getMonthDays(currentDate: string): CalendarDay[] {
-  const referenceDate = new Date(`${currentDate}T00:00:00`);
-  const year = referenceDate.getFullYear();
-  const month = referenceDate.getMonth();
-  const firstDay = new Date(year, month, 1);
+function getMonthDays(year: number, month: number): CalendarDay[] {
+  const monthIndex = month - 1;
+  const firstDay = new Date(year, monthIndex, 1);
   const mondayOffset = (firstDay.getDay() + 6) % 7;
-  const gridStart = new Date(year, month, 1 - mondayOffset);
+  const gridStart = new Date(year, monthIndex, 1 - mondayOffset);
 
   return Array.from({ length: 42 }, (_, index) => {
     const date = new Date(gridStart);
     date.setDate(gridStart.getDate() + index);
     return {
       date: toDateKey(date),
-      isCurrentMonth: date.getMonth() === month,
+      isCurrentMonth: date.getMonth() === monthIndex,
     };
   });
 }
 
 function getWeekDays(selectedDate: string): CalendarDay[] {
-  const selected = new Date(`${selectedDate}T00:00:00`);
+  const [year, month, day] = selectedDate.split('-').map(Number);
+  const selected = new Date(year, month - 1, day);
   const mondayOffset = (selected.getDay() + 6) % 7;
   const weekStart = new Date(selected);
   weekStart.setDate(selected.getDate() - mondayOffset);
@@ -61,28 +61,25 @@ function getWeekDays(selectedDate: string): CalendarDay[] {
   });
 }
 
-function getMarker(date: string): string | undefined {
-  return Object.entries(mockDashboardData.calendarMarkers)
-    .find(([markerDate]) => markerDate === date)?.[1];
-}
-
 export default function MonthlyCalendar({
-  currentDate,
+  viewModel,
   locale,
   isMobile,
   selectedDate,
   viewMode,
   onExpandMonth,
+  onNavigateMonth,
   onSelectDate,
 }: MonthlyCalendarProps) {
   const { t } = useTranslation();
-  const monthLabel = formatDate(currentDate, locale, {
+  const monthDate = `${viewModel.year}-${String(viewModel.month).padStart(2, '0')}-01`;
+  const monthLabel = formatDate(monthDate, locale, {
     month: 'long',
     year: 'numeric',
   });
   const days = viewMode === 'week'
     ? getWeekDays(selectedDate)
-    : getMonthDays(currentDate);
+    : getMonthDays(viewModel.year, viewModel.month);
   const weekdays = Array.from({ length: 7 }, (_, index) => {
     const date = new Date(Date.UTC(2024, 0, index + 1));
     return formatDate(date, locale, { weekday: 'short', timeZone: 'UTC' });
@@ -91,7 +88,23 @@ export default function MonthlyCalendar({
   return (
     <div className={`v3-monthly-calendar v3-monthly-calendar--${viewMode}`}>
       <div className="v3-monthly-calendar__heading">
-        <strong>{monthLabel}</strong>
+        <div className="v3-monthly-calendar__month-navigation">
+          <button
+            aria-label={t('calendar.previousMonth')}
+            onClick={() => onNavigateMonth(-1)}
+            type="button"
+          >
+            ‹
+          </button>
+          <strong>{monthLabel}</strong>
+          <button
+            aria-label={t('calendar.nextMonth')}
+            onClick={() => onNavigateMonth(1)}
+            type="button"
+          >
+            ›
+          </button>
+        </div>
         {isMobile && (
           <button
             aria-expanded={viewMode === 'month'}
@@ -111,7 +124,7 @@ export default function MonthlyCalendar({
       </div>
       <div className={`v3-monthly-calendar__days v3-monthly-calendar__days--${viewMode}`}>
         {days.map(({ date, isCurrentMonth }) => {
-          const marker = getMarker(date);
+          const marker = viewModel.daysByDate[date]?.marker;
           const dayNumber = Number(date.slice(-2));
           const markerIcon = marker === 'income' ? '↑' : marker === 'expense' ? '↓' : '↔';
           const activity = marker

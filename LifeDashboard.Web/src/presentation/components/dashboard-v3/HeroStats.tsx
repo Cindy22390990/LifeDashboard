@@ -1,14 +1,45 @@
-import { mockDashboardData } from './mockDashboardData';
 import { formatSensitiveMoney } from '../../../i18n/formatters';
+import type { HeroStatsViewModel } from '../../../application/dashboard/models/DashboardViewModel';
 import { useTranslation } from 'react-i18next';
 import { usePrivacyDisplayStore } from '../../stores/privacyDisplayStore';
 import './HeroStats.css';
 
-export default function HeroStats() {
+interface HeroStatsProps {
+  viewModel: HeroStatsViewModel;
+}
+
+export default function HeroStats({ viewModel }: HeroStatsProps) {
   const { t, i18n } = useTranslation();
   const locale = i18n.resolvedLanguage ?? i18n.language;
   const isAmountHidden = usePrivacyDisplayStore((state) => state.isAmountHidden);
   const toggleVisibility = usePrivacyDisplayStore((state) => state.toggleVisibility);
+
+  const stats = [
+    {
+      id: 'assets',
+      amount: viewModel.totalAssets,
+      labelKey: 'dashboard.hero.totalAssets',
+      captionKey: 'dashboard.hero.netWorth',
+      emphasis: 'primary',
+      icon: '◇',
+    },
+    {
+      id: 'spent',
+      amount: viewModel.spentToday,
+      labelKey: 'dashboard.hero.spentToday',
+      captionKey: 'dashboard.hero.today',
+      emphasis: 'standard',
+      icon: '↓',
+    },
+    {
+      id: 'remaining',
+      amount: viewModel.remainingBudget,
+      labelKey: 'dashboard.hero.leftToSpend',
+      captionKey: 'dashboard.hero.budgetCycle',
+      emphasis: 'positive',
+      icon: '○',
+    },
+  ];
 
   return (
     <section className="v3-hero-stats" aria-label={t('dashboard.hero.ariaLabel')}>
@@ -34,7 +65,7 @@ export default function HeroStats() {
         </button>
       </div>
       <div className="v3-hero-stats__grid">
-        {mockDashboardData.heroStats.map((stat) => (
+        {stats.map((stat) => (
           <article
             className={`v3-hero-stat v3-hero-stat--${stat.emphasis}`}
             key={stat.id}
@@ -44,7 +75,9 @@ export default function HeroStats() {
               <span>{t(stat.labelKey)}</span>
             </div>
             <strong className="v3-hero-stat__value">
-              {formatSensitiveMoney(stat.amount, locale, isAmountHidden)}
+              {stat.amount === null
+                ? '—'
+                : formatSensitiveMoney(stat.amount, locale, isAmountHidden)}
             </strong>
             <span className="v3-hero-stat__caption">{t(stat.captionKey)}</span>
           </article>

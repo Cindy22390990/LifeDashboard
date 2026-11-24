@@ -5,41 +5,43 @@ export interface MoneyAmount {
 
 export interface CurrencyFormatOptions {
   signDisplay?: Intl.NumberFormatOptions['signDisplay'];
+  amountSign?: 'positive' | 'negative';
 }
 
 export function formatCurrency(
-  value: MoneyAmount,
+  value: MoneyAmount | number,
   locale: string,
   options: CurrencyFormatOptions = {},
 ): string {
+  const money = typeof value === 'number'
+    ? { amount: value, currency: 'TWD' }
+    : value;
+  const amount = options.amountSign === 'negative'
+    ? -Math.abs(money.amount)
+    : options.amountSign === 'positive'
+      ? Math.abs(money.amount)
+      : money.amount;
+
   return new Intl.NumberFormat(locale, {
     style: 'currency',
-    currency: value.currency,
-    signDisplay: options.signDisplay,
-  }).format(value.amount);
+    currency: money.currency,
+    signDisplay: options.amountSign === 'positive'
+      ? 'exceptZero'
+      : options.signDisplay,
+  }).format(amount);
 }
 
 export function formatSensitiveMoney(
-  value: MoneyAmount,
+  value: MoneyAmount | number,
   locale: string,
   isAmountHidden: boolean,
   options: CurrencyFormatOptions = {},
 ): string {
-  if (!isAmountHidden) {
-    return formatCurrency(value, locale, options);
-  }
+  const money = typeof value === 'number'
+    ? { amount: value, currency: 'TWD' }
+    : value;
 
-  return new Intl.NumberFormat(locale, {
-    style: 'currency',
-    currency: value.currency,
-  })
-    .formatToParts(0)
-    .map((part) => {
-      if (part.type === 'integer') return '••••••';
-      if (['group', 'decimal', 'fraction'].includes(part.type)) return '';
-      return part.value;
-    })
-    .join('');
+  return isAmountHidden ? '••••••' : formatCurrency(money, locale, options);
 }
 
 export function formatDate(

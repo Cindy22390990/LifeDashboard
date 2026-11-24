@@ -9,7 +9,8 @@
     "mockData": "模擬資料",
     "previewOnly": "僅供介面預覽。此表單不會儲存交易資料。",
     "close": "關閉",
-    "closePreview": "關閉預覽"
+    "closePreview": "關閉預覽",
+    "retry": "重試"
   },
   "navigation": {
     "ariaLabel": "主導覽",
@@ -42,6 +43,8 @@
     "openNavigation": "開啟導覽",
     "greeting": "你好，{{name}}。",
     "summary": "查看今天的財務概況。",
+    "loading": "正在載入儀表板",
+    "loadError": "無法載入儀表板。",
     "hero": {
       "ariaLabel": "財務總覽",
       "totalAssets": "總資產",
@@ -57,6 +60,11 @@
     "title": "行事曆",
     "income": "收入",
     "expense": "支出",
+    "dayLoading": "正在載入當日交易…",
+    "monthLoading": "正在載入月份資料…",
+    "loadError": "無法載入行事曆資料。",
+    "previousMonth": "上一個月",
+    "nextMonth": "下一個月",
     "closeDetails": "關閉每日明細",
     "dayDetails": "每日明細",
     "total": "總計",
@@ -83,19 +91,24 @@
     "types": {
       "income": "收入",
       "expense": "支出",
-      "transfer": "轉帳"
+      "transfer": "轉帳",
+      "unknown": "未知"
     },
     "categories": {
       "income": "收入",
       "dining": "餐飲",
       "groceries": "日用品",
       "transfer": "轉帳"
-    }
+    },
+    "empty": "目前沒有最近交易。"
   },
   "budget": {
     "eyebrow": "預算雷達",
     "title": "預算雷達",
     "safe": "安全",
+    "warning": "注意",
+    "exceeded": "超出預算",
+    "unavailable": "無法使用",
     "leftToSpend": "可用餘額",
     "currentCycle": "目前預算週期",
     "used": "預算使用率",
@@ -108,15 +121,20 @@
     "saved": "已存 {{saved}}／{{target}}",
     "left": "尚差 {{amount}}",
     "deadline": "期限：{{date}}",
-    "progressAria": "{{name}}：{{percent}}%（模擬資料）"
+    "progressAria": "{{name}}：{{percent}}%（模擬資料）",
+    "empty": "新增目標以開始追蹤進度。"
   },
   "accounts": {
     "eyebrow": "資金概況",
     "title": "帳戶摘要",
+    "empty": "新增帳戶即可在此查看餘額。",
     "types": {
       "checking": "支票帳戶",
       "cash": "現金",
-      "savings": "儲蓄帳戶"
+      "savings": "儲蓄帳戶",
+      "bank": "銀行",
+      "investment": "投資",
+      "unknown": "未知"
     }
   },
   "reports": {

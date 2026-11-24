@@ -4,6 +4,8 @@ using LifeDashboard.Application.Repositories.Interfaces;
 using LifeDashboard.Infrastructure.Repositories;
 using LifeDashboard.Application.Services.Interfaces;
 using LifeDashboard.Application.Services;
+using LifeDashboard.Application.Features.Dashboard.Interfaces;
+using LifeDashboard.Application.Features.Dashboard.Queries;
 using LifeDashboard.Application.Interfaces.Security;
 using LifeDashboard.Application.Interfaces;
 using LifeDashboard.Infrastructure.Security;
@@ -55,6 +57,11 @@ namespace LifeDashboard.Api
             builder.Services.AddScoped<IBudgetRadarQueryRepository, BudgetRadarQueryRepository>();
             builder.Services.AddScoped<BudgetRadarAssembler>();
             builder.Services.AddScoped<IDashboardService, DashboardService>();
+            builder.Services.AddScoped<IDashboardSummaryReader, DashboardSummaryReader>();
+            builder.Services.AddScoped<GetDashboardSummaryQueryHandler>();
+            builder.Services.AddScoped<IDashboardCalendarReader, DashboardCalendarReader>();
+            builder.Services.AddScoped<GetDashboardCalendarDayQueryHandler>();
+            builder.Services.AddScoped<GetDashboardCalendarMonthQueryHandler>();
             builder.Services.AddScoped<IGoalRepository, GoalRepository>();
             builder.Services.AddScoped<IGoalService, GoalService>();
             builder.Services.AddScoped<IGoalDepositService, GoalDepositService>();
@@ -79,6 +86,7 @@ namespace LifeDashboard.Api
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {
+                options.CustomSchemaIds(type => type.FullName!);
                 options.AddSecurityDefinition(
                     "Bearer",
                     new Microsoft.OpenApi.OpenApiSecurityScheme
