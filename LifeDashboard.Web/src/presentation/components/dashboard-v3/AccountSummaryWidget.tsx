@@ -1,7 +1,8 @@
-import { formatCurrency } from '../../../i18n/formatters';
+import { formatSensitiveMoney } from '../../../i18n/formatters';
 import type { AccountSummaryViewModel } from '../../../application/dashboard/models/DashboardViewModel';
 import type { SectionState } from '../../../application/dashboard/models/SectionState';
 import { useTranslation } from 'react-i18next';
+import { usePrivacyDisplayStore } from '../../stores/privacyDisplayStore';
 import SectionStateMessage from './SectionStateMessage';
 import './AccountSummaryWidget.css';
 
@@ -12,6 +13,7 @@ interface AccountSummaryWidgetProps {
 export default function AccountSummaryWidget({ state }: AccountSummaryWidgetProps) {
   const { t, i18n } = useTranslation();
   const locale = i18n.resolvedLanguage ?? i18n.language;
+  const isAmountHidden = usePrivacyDisplayStore((store) => store.isAmountHidden);
 
   return (
     <section className="v3-widget v3-account-summary" aria-labelledby="v3-account-title">
@@ -34,7 +36,7 @@ export default function AccountSummaryWidget({ state }: AccountSummaryWidgetProp
                 })}</small>
               </span>
               <strong className="v3-account-summary__balance">
-                {formatCurrency(account.balance, locale)}
+                {formatSensitiveMoney(account.balance, locale, isAmountHidden)}
               </strong>
             </li>
           ))}

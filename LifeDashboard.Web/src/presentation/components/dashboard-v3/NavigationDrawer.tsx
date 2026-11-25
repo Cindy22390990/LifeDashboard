@@ -1,9 +1,11 @@
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   changeAppLanguage,
   isSupportedLanguage,
   supportedLanguages,
 } from '../../../i18n';
+import { useAuthStore } from '../../../application/stores/authStore';
 import { usePrivacyDisplayStore } from '../../stores/privacyDisplayStore';
 import './NavigationDrawer.css';
 
@@ -14,10 +16,10 @@ interface NavigationDrawerProps {
 }
 
 const primaryNavigation = [
-  { key: 'dashboard', icon: '⌂', active: true },
-  { key: 'ledger', icon: '≡', active: false },
-  { key: 'accounts', icon: '▣', active: false },
-  { key: 'goals', icon: '◎', active: false },
+  { key: 'dashboard', icon: '⌂', active: true, to: '/dashboard' },
+  { key: 'ledger', icon: '≡', active: false, to: '/transactions' },
+  { key: 'accounts', icon: '▣', active: false, to: '/accounts' },
+  { key: 'goals', icon: '◎', active: false, to: '/goals' },
   { key: 'reports', icon: '▤', active: false },
 ];
 
@@ -33,9 +35,36 @@ export default function NavigationDrawer({
   onReportsClick,
 }: NavigationDrawerProps) {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const activeLanguage = i18n.resolvedLanguage ?? i18n.language;
   const isAmountHidden = usePrivacyDisplayStore((state) => state.isAmountHidden);
   const toggleVisibility = usePrivacyDisplayStore((state) => state.toggleVisibility);
+  const logout = useAuthStore((state) => state.logout);
+
+  const handlePrimaryNavigation = (item: typeof primaryNavigation[number]) => {
+    if (item.key === 'reports') {
+      onReportsClick();
+      return;
+    }
+
+    const routeByKey: Partial<Record<typeof item.key, string>> = {
+      dashboard: '/dashboard',
+      ledger: '/transactions',
+      accounts: '/accounts',
+      goals: '/goals',
+    };
+    const route = routeByKey[item.key];
+    if (!route) return;
+
+    onClose();
+    navigate(route);
+  };
+
+  const handleLogout = () => {
+    logout();
+    onClose();
+    navigate('/login', { replace: true });
+  };
 
   return (
     <>
@@ -74,7 +103,7 @@ export default function NavigationDrawer({
               aria-current={item.active ? 'page' : undefined}
               className={`v3-navigation-drawer__item${item.active ? ' is-active' : ''}`}
               key={item.key}
-              onClick={item.key === 'reports' ? onReportsClick : undefined}
+              onClick={() => handlePrimaryNavigation(item)}
               type="button"
             >
               <span aria-hidden="true">{item.icon}</span>
@@ -155,7 +184,11 @@ export default function NavigationDrawer({
               ))}
             </select>
           </label>
-          <button className="v3-navigation-drawer__item v3-navigation-drawer__item--logout" type="button">
+          <button
+            className="v3-navigation-drawer__item v3-navigation-drawer__item--logout"
+            onClick={handleLogout}
+            type="button"
+          >
             <span aria-hidden="true">↪</span>
             {t('navigation.items.logout')}
           </button>

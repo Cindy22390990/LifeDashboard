@@ -22,7 +22,6 @@ export default function App() {
   return (
     <div className="app-shell">
       <div className="app-utility-nav">
-        <Link to="/dashboard-v3">V3 Preview</Link>
         <button type="button" onClick={() => setSettingsModal('system')}>
           Settings
         </button>

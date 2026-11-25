@@ -3,13 +3,11 @@ import {
   Navigate,
   Route,
   Routes,
-  useNavigate,
 } from 'react-router-dom';
 import App from './App';
 import { useAuthStore } from './application/stores/authStore';
 import { apiDashboardDataSource } from './infrastructure/dashboard/api/ApiDashboardDataSource';
 import AccountPage from './presentation/pages/AccountPage';
-import DashboardPage from './presentation/pages/DashboardPage';
 import DashboardV3Page from './presentation/pages/DashboardV3Page';
 import FixedCommitmentPage from './presentation/pages/FixedCommitmentPage';
 import GoalPage from './presentation/pages/GoalPage';
@@ -42,16 +40,6 @@ function LoginRoute() {
     : <LoginPage />;
 }
 
-function DashboardRoute() {
-  const navigate = useNavigate();
-
-  return (
-    <DashboardPage
-      onNavigateToTransactions={() => navigate('/transactions')}
-    />
-  );
-}
-
 export default function AuthApp() {
   return (
     <BrowserRouter>
@@ -59,19 +47,22 @@ export default function AuthApp() {
         <Route path="/login" element={<LoginRoute />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route element={<RequireAuth />}>
+          <Route
+            path="/dashboard"
+            element={<DashboardV3Page dataSource={apiDashboardDataSource} />}
+          />
+          <Route
+            path="/dashboard-v3"
+            element={<Navigate to="/dashboard" replace />}
+          />
           <Route element={<Dashboard />}>
             <Route index element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<DashboardRoute />} />
             <Route path="/responsibilities" element={<FixedCommitmentPage />} />
             <Route path="/goals" element={<GoalPage />} />
             <Route path="/stats" element={<MonthlyReportPage />} />
             <Route path="/transactions" element={<TransactionPage />} />
             <Route path="/accounts" element={<AccountPage />} />
           </Route>
-          <Route
-            path="/dashboard-v3"
-            element={<DashboardV3Page dataSource={apiDashboardDataSource} />}
-          />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

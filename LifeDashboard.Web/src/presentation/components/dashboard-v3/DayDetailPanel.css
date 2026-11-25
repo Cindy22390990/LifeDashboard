@@ -96,8 +96,7 @@
   margin-top: auto;
 }
 
-.v3-day-detail-panel__close,
-.v3-mock-transaction-modal__heading button {
+.v3-day-detail-panel__close {
   width: 36px;
   height: 36px;
   border: 0;
@@ -106,63 +105,6 @@
   background: #f1f5f9;
   font-size: 22px;
   cursor: pointer;
-}
-
-.v3-mock-modal-backdrop {
-  position: fixed;
-  z-index: 60;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  padding: 16px;
-  background: rgb(15 23 42 / 45%);
-}
-
-.v3-mock-transaction-modal {
-  display: grid;
-  width: min(440px, 100%);
-  gap: 14px;
-  padding: 24px;
-  border-radius: 20px;
-  background: var(--v3-surface);
-  box-shadow: 0 24px 60px rgb(15 23 42 / 20%);
-}
-
-.v3-mock-transaction-modal__heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.v3-mock-transaction-modal__heading h3 {
-  margin: 0;
-  color: var(--v3-text-primary);
-  font-size: 18px;
-}
-
-.v3-mock-transaction-modal__note {
-  margin: 0;
-  color: var(--v3-text-muted);
-  font-size: 12px;
-}
-
-.v3-mock-transaction-modal label {
-  display: grid;
-  gap: 6px;
-  color: var(--v3-text-secondary);
-  font-size: 13px;
-}
-
-.v3-mock-transaction-modal input,
-.v3-mock-transaction-modal select {
-  min-height: 42px;
-  padding: 8px 10px;
-  border: 1px solid var(--v3-border);
-  border-radius: 10px;
-  color: var(--v3-text-primary);
-  background: #fff;
-  font: inherit;
 }
 
 @media (max-width: 700px) {

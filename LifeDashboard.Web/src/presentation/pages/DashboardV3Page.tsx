@@ -10,6 +10,7 @@ import HeroStats from '../components/dashboard-v3/HeroStats';
 import NavigationDrawer from '../components/dashboard-v3/NavigationDrawer';
 import RecentTransactionsWidget from '../components/dashboard-v3/RecentTransactionsWidget';
 import ReportsPlaceholder from '../components/dashboard-v3/ReportsPlaceholder';
+import TransactionBottomSheet from '../components/dashboard-v3/TransactionBottomSheet';
 import { formatDate } from '../../i18n/formatters';
 import './DashboardV3Page.css';
 
@@ -19,9 +20,11 @@ interface DashboardV3PageProps {
 
 export default function DashboardV3Page({ dataSource }: DashboardV3PageProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isTransactionSheetOpen, setIsTransactionSheetOpen] = useState(false);
+  const [transactionDefaultDate, setTransactionDefaultDate] = useState('');
   const { t, i18n } = useTranslation();
   const locale = i18n.resolvedLanguage ?? i18n.language;
-  const { data, isLoading, error, refetch } = useDashboardData(dataSource);
+  const { data, isLoading, error, retry } = useDashboardData(dataSource);
 
   const handleReportsClick = () => {
     setIsDrawerOpen(false);
@@ -82,6 +85,10 @@ export default function DashboardV3Page({ dataSource }: DashboardV3PageProps) {
             <CalendarSection
               dataSource={dataSource}
               initialDate={data.meta.businessDate}
+              onAddTransaction={(date) => {
+                setTransactionDefaultDate(date);
+                setIsTransactionSheetOpen(true);
+              }}
             />
 
             <div className="dashboard-v3__widget-grid">
@@ -110,7 +117,7 @@ export default function DashboardV3Page({ dataSource }: DashboardV3PageProps) {
           <section aria-labelledby="dashboard-v3-error-title" className="dashboard-v3__error-state" role="alert">
             <h1 id="dashboard-v3-error-title">{t('dashboard.loadError')}</h1>
             {error && <p>{error.message}</p>}
-            <button className="v3-button v3-button--primary" onClick={() => void refetch()} type="button">
+            <button className="v3-button v3-button--primary" onClick={() => void retry()} type="button">
               {t('common.retry')}
             </button>
           </section>
@@ -121,6 +128,11 @@ export default function DashboardV3Page({ dataSource }: DashboardV3PageProps) {
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
         onReportsClick={handleReportsClick}
+      />
+      <TransactionBottomSheet
+        defaultDate={transactionDefaultDate}
+        isOpen={isTransactionSheetOpen}
+        onClose={() => setIsTransactionSheetOpen(false)}
       />
     </div>
   );

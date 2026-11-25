@@ -5,8 +5,8 @@ import { mapDashboardCalendarDay, mapDashboardCalendarMonth } from '../mappers/c
 import { mapDashboardV3Api } from '../mappers/dashboardV3ApiMapper';
 
 export const apiDashboardDataSource: IDashboardDataSource = {
-  async getDashboardSummary() {
-    const summary = await DashboardV3SummaryService.getDashboardSummary();
+  async getDashboardSummary(options) {
+    const summary = await DashboardV3SummaryService.getDashboardSummary(options);
     return mapDashboardV3Api(summary);
   },
   async getCalendarDayDetail(date, options) {

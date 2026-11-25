@@ -10,11 +10,13 @@ import './CalendarSection.css';
 interface CalendarSectionProps {
   dataSource: IDashboardDataSource;
   initialDate: string;
+  onAddTransaction: (date: string) => void;
 }
 
 export default function CalendarSection({
   dataSource,
   initialDate,
+  onAddTransaction,
 }: CalendarSectionProps) {
   const { t, i18n } = useTranslation();
   const locale = i18n.resolvedLanguage ?? i18n.language;
@@ -59,6 +61,7 @@ export default function CalendarSection({
       isMobileSheet={isMobile}
       locale={locale}
       onClose={() => setIsMobilePanelOpen(false)}
+      onAddTransaction={onAddTransaction}
       viewModel={calendar.dayDetail.data}
     />
   ) : null;

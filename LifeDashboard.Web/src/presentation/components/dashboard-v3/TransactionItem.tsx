@@ -15,6 +15,11 @@ export default function TransactionItem({
 }: TransactionItemProps) {
   const { t } = useTranslation();
   const isAmountHidden = usePrivacyDisplayStore((state) => state.isAmountHidden);
+  const title = viewModel.title || (
+    viewModel.transactionType === 'unknown'
+      ? t('transactions.types.unknown')
+      : t(viewModel.categoryKey)
+  );
 
   return (
     <li className={`v3-transaction-item v3-transaction-item--${viewModel.transactionType}`}>
@@ -23,7 +28,7 @@ export default function TransactionItem({
       </span>
       <div className="v3-transaction-item__content">
         <div className="v3-transaction-item__title-row">
-          <strong>{viewModel.title}</strong>
+          <strong>{title}</strong>
           <strong className="v3-transaction-item__amount">
             {formatSensitiveMoney(viewModel.amount, locale, isAmountHidden, {
               amountSign: viewModel.transactionType === 'income'

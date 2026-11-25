@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { CalendarDayDetailViewModel } from '../../../application/dashboard/models/DashboardViewModel';
 import { formatDate, formatSensitiveMoney } from '../../../i18n/formatters';
@@ -10,6 +9,7 @@ interface DayDetailPanelProps {
   locale: string;
   isMobileSheet?: boolean;
   onClose?: () => void;
+  onAddTransaction: (date: string) => void;
   viewModel: CalendarDayDetailViewModel;
 }
 
@@ -17,16 +17,14 @@ export default function DayDetailPanel({
   locale,
   isMobileSheet = false,
   onClose,
+  onAddTransaction,
   viewModel,
 }: DayDetailPanelProps) {
   const { t } = useTranslation();
   const isAmountHidden = usePrivacyDisplayStore((state) => state.isAmountHidden);
-  const [isAddTransactionOpen, setIsAddTransactionOpen] = useState(false);
-  const [transactionType, setTransactionType] = useState('Expense');
 
   return (
-    <>
-      <section
+    <section
         aria-labelledby="v3-day-detail-title"
         className={`v3-day-detail-panel${isMobileSheet ? ' v3-day-detail-panel--sheet' : ''}`}
       >
@@ -80,74 +78,11 @@ export default function DayDetailPanel({
         )}
         <button
           className="v3-button v3-button--primary v3-day-detail-panel__add"
-          onClick={() => setIsAddTransactionOpen(true)}
+          onClick={() => onAddTransaction(viewModel.date)}
           type="button"
         >
           + {t('calendar.addTransaction')}
         </button>
       </section>
-
-      {isAddTransactionOpen && (
-        <div
-          className="v3-mock-modal-backdrop"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) {
-              setIsAddTransactionOpen(false);
-            }
-          }}
-        >
-          <section
-            aria-labelledby="v3-mock-transaction-title"
-            aria-modal="true"
-            className="v3-mock-transaction-modal"
-            role="dialog"
-          >
-            <div className="v3-mock-transaction-modal__heading">
-              <h3 id="v3-mock-transaction-title">{t('transactions.add')}</h3>
-              <button
-                aria-label={t('transactions.closePreview')}
-                onClick={() => setIsAddTransactionOpen(false)}
-                type="button"
-              >
-                ×
-              </button>
-            </div>
-            <p className="v3-mock-transaction-modal__note">
-              {t('common.previewOnly')}
-            </p>
-            <label>
-              {t('transactions.date')}
-              <input type="date" value={viewModel.date} readOnly />
-            </label>
-            <label>
-              {t('transactions.type')}
-              <select
-                onChange={(event) => setTransactionType(event.target.value)}
-                value={transactionType}
-              >
-                <option value="Income">{t('transactions.types.income')}</option>
-                <option value="Expense">{t('transactions.types.expense')}</option>
-                <option value="Transfer">{t('transactions.types.transfer')}</option>
-              </select>
-            </label>
-            <label>
-              {t('transactions.title')}
-              <input placeholder={t('transactions.title')} type="text" />
-            </label>
-            <label>
-              {t('transactions.amount')}
-              <input min="0" placeholder="0" type="number" />
-            </label>
-            <button
-              className="v3-button v3-button--primary"
-              onClick={() => setIsAddTransactionOpen(false)}
-              type="button"
-            >
-              {t('common.closePreview')}
-            </button>
-          </section>
-        </div>
-      )}
-    </>
   );
 }

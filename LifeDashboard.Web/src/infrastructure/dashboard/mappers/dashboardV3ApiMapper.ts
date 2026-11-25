@@ -10,16 +10,14 @@ import type { AccountSummaryDto } from '../api/AccountSummaryDto';
 import type { DashboardSummaryResponse } from '../api/DashboardV3SummaryResponse';
 import { mapRecentTransaction } from './recentTransactionMapper';
 
-function mapAccountType(type: AccountSummaryDto['accountType']): DashboardAccountType {
-  switch (type.toLowerCase()) {
-    case 'bank':
-    case 'saving':
-      return DashboardAccountType.Bank;
-    case 'cash':
+function mapAccountType(
+  accountType: AccountSummaryDto['accountType'],
+): DashboardAccountType {
+  switch (accountType.trim().toLowerCase()) {
     case 'cashflow':
       return DashboardAccountType.Cash;
-    case 'creditcard':
-      return DashboardAccountType.CreditCard;
+    case 'saving':
+      return DashboardAccountType.Bank;
     case 'investment':
     case 'invest':
       return DashboardAccountType.Investment;
@@ -46,8 +44,10 @@ function toSectionState<T>(items: T[]): SectionState<T[]> {
 export function mapDashboardV3Api(
   summary: DashboardSummaryResponse,
 ): DashboardViewModel {
-  const recentTransactions = summary.recentTransactions.map(mapRecentTransaction);
-  const accountSummary = summary.accounts.map(mapAccount);
+  const recentTransactions = (summary.recentTransactions ?? [])
+    .map(mapRecentTransaction);
+  const accountSummary = (summary.accounts ?? [])
+    .map(mapAccount);
 
   return {
     meta: {

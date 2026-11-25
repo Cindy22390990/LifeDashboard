@@ -23,6 +23,8 @@ function mapTransactionType(type: string): DashboardTransactionType {
 export function mapRecentTransaction(
   transaction: TransactionDto,
 ): RecentTransactionItemViewModel {
+  const note = transaction.note ?? '';
+  const trimmedNote = note.trim();
   const transactionType = mapTransactionType(
     'transactionType' in transaction
       ? transaction.transactionType
@@ -39,8 +41,8 @@ export function mapRecentTransaction(
 
   return {
     id: transaction.id,
-    title: transaction.note?.trim() || transaction.categoryName || transaction.accountName,
-    subtitle: transaction.note?.trim() || null,
+    title: trimmedNote,
+    subtitle: trimmedNote || null,
     categoryKey,
     accountName: transaction.accountName,
     transactionType,

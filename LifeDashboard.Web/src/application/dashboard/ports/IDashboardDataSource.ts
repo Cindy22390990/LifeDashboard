@@ -6,7 +6,9 @@ import type {
 import type { DashboardFetchOptions } from './DashboardFetchOptions';
 
 export interface IDashboardDataSource {
-  getDashboardSummary(): Promise<DashboardViewModel>;
+  getDashboardSummary(
+    options?: DashboardFetchOptions,
+  ): Promise<DashboardViewModel>;
   getCalendarDayDetail(
     date: string,
     options?: DashboardFetchOptions,
