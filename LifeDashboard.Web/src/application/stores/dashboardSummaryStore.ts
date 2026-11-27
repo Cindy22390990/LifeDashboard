@@ -1,17 +1,18 @@
 import axios from 'axios';
 import { create } from 'zustand';
-import type { DashboardSummaryDto } from '../../domain/dashboardSummary';
 import { DashboardSummaryService } from '../../infrastructure/api/DashboardSummaryService';
+import { mapV4DashboardSummary } from '../../mappers/dashboardV4';
+import type { V4DashboardSummaryViewModel } from '../../mappers/dashboardV4';
 
 interface ApiError {
   message?: string;
 }
 
 interface DashboardSummaryState {
-  summary: DashboardSummaryDto | null;
+  summary: V4DashboardSummaryViewModel | null;
   loading: boolean;
   error: string | null;
-  fetchDashboardSummary: (currentDate: string) => Promise<void>;
+  fetchDashboardSummary: () => Promise<void>;
 }
 
 function getErrorMessage(error: unknown): string {
@@ -20,7 +21,7 @@ function getErrorMessage(error: unknown): string {
   }
 
   if (error.response?.status === 400) {
-    return error.response.data?.message ?? '請提供有效的查詢日期。';
+    return error.response.data?.message ?? '無法載入儀表板摘要。';
   }
 
   if (error.response?.status === 404) {
@@ -39,12 +40,12 @@ export const useDashboardSummaryStore = create<DashboardSummaryState>((set) => (
   loading: false,
   error: null,
 
-  fetchDashboardSummary: async (currentDate) => {
+  fetchDashboardSummary: async () => {
     set({ loading: true, error: null });
 
     try {
-      const summary = await DashboardSummaryService.getDashboardSummary(currentDate);
-      set({ summary, loading: false });
+      const summary = await DashboardSummaryService.getDashboardSummary();
+      set({ summary: mapV4DashboardSummary(summary), loading: false });
     } catch (error) {
       set({ loading: false, error: getErrorMessage(error) });
       throw error;

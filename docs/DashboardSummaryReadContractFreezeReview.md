@@ -51,6 +51,7 @@ Contract Status:
 Implementation Status:
 
 - Backend: **Completed**
+- Frontend Summary Integration: **Completed**
 - Tests: **Passed**
 
 The frozen endpoint has been implemented without adding fields or changing Domain scope.

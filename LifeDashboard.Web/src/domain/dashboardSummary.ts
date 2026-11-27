@@ -1,6 +1,3 @@
-import type { IAccount } from './Account';
-import type { IGoal } from './Goal';
-import type { RadarStateDto } from './budgetRadar';
 import type { TransactionType } from './Transaction';
 
 export interface DashboardTransactionReadModel {
@@ -18,11 +15,7 @@ export interface DashboardTransactionReadModel {
 }
 
 export interface DashboardSummaryDto {
-  budget: RadarStateDto;
-  accounts: IAccount[];
-  goals: IGoal[];
   totalAssets: number;
   monthlyIncome: number;
   monthlyExpense: number;
-  recentTransactions: DashboardTransactionReadModel[];
 }

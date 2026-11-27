@@ -79,3 +79,9 @@ export interface V4CategoryReadViewModel {
   bucketType: 1 | 2 | 3 | 4 | 5;
   bucketTypeName: string;
 }
+
+export interface V4DashboardSummaryViewModel {
+  totalAssets: number;
+  monthlyIncome: number;
+  monthlyExpense: number;
+}
