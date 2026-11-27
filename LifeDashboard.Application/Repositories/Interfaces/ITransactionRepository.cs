@@ -20,6 +20,17 @@ namespace LifeDashboard.Application.Repositories.Interfaces
             Guid userId,
             DateOnly startDate,
             DateOnly endDate);
+        Task<Guid?> GetRecentCategoryIdAsync(
+            Guid userId,
+            CancellationToken cancellationToken);
+        Task<Guid?> GetMostUsedCategoryIdAsync(
+            Guid userId,
+            DateOnly startDate,
+            CancellationToken cancellationToken);
+        Task<Guid?> GetMostUsedExpenseAccountIdAsync(
+            Guid userId,
+            DateOnly startDate,
+            CancellationToken cancellationToken);
         Task AddAsync(Transaction transaction);
         void Delete(Transaction transaction);
     }

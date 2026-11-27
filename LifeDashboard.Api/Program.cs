@@ -9,6 +9,9 @@ using LifeDashboard.Application.Features.Dashboard.Queries;
 using LifeDashboard.Application.Interfaces.Security;
 using LifeDashboard.Application.Interfaces;
 using LifeDashboard.Infrastructure.Security;
+using LifeDashboard.Api.Middleware;
+using LifeDashboard.Application.Features.V4.Interfaces;
+using LifeDashboard.Application.Features.V4.Services;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -24,6 +27,8 @@ namespace LifeDashboard.Api
             // Add services to the container.
 
             builder.Services.AddControllers();
+            builder.Services.AddProblemDetails();
+            builder.Services.AddExceptionHandler<V4ProblemDetailsExceptionHandler>();
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("Frontend", policy =>
@@ -76,6 +81,22 @@ namespace LifeDashboard.Api
             builder.Services.AddScoped<IReportRepository, ReportRepository>();
             builder.Services.AddScoped<IReportService, ReportService>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IUserPreferenceRepository, UserPreferenceRepository>();
+            builder.Services.AddScoped<IV4HomeReader, V4HomeReader>();
+            builder.Services.AddScoped<IV4MeAssetsReader, V4MeAssetsReader>();
+            builder.Services.AddScoped<IV4AccountsReader, V4AccountsReader>();
+            builder.Services.AddScoped<IV4CategoryReader, V4CategoryReader>();
+            builder.Services.AddScoped<IV4TransactionReader, V4TransactionReader>();
+            builder.Services.AddScoped<IDailyBudgetStrategy, AccumulatedDailyBudgetStrategy>();
+            builder.Services.AddScoped<IV4HomeService, V4HomeService>();
+            builder.Services.AddScoped<IV4MeAssetsService, V4MeAssetsService>();
+            builder.Services.AddScoped<IV4AccountsService, V4AccountsService>();
+            builder.Services.AddScoped<IV4CategoriesService, V4CategoriesService>();
+            builder.Services.AddScoped<IV4DashboardSummaryService, V4DashboardSummaryService>();
+            builder.Services.AddScoped<IV4TransactionService, V4TransactionService>();
+            builder.Services.AddScoped<ITransactionDefaultResolver, TransactionDefaultResolver>();
+            builder.Services.AddScoped<UserPreferenceValidator>();
+            builder.Services.AddScoped<IUserPreferenceService, UserPreferenceService>();
             // 密碼加密
             builder.Services.AddScoped<IPasswordHasher,PasswordHasher>();
             // JWT Token產生
@@ -175,6 +196,8 @@ namespace LifeDashboard.Api
 
 
             var app = builder.Build();
+
+            app.UseExceptionHandler();
 
             // Configure the HTTP request pipeline.
                 app.UseSwagger();

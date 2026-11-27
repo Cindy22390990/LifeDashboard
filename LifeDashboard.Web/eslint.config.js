@@ -19,4 +19,25 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    files: [
+      'src/presentation/components/dashboard-v4/**/*.{ts,tsx}',
+      'src/presentation/pages/HomePage.tsx',
+      'src/presentation/pages/TransactionsPage.tsx',
+      'src/presentation/pages/PlanPage.tsx',
+      'src/presentation/pages/MePage.tsx',
+      'src/api/dashboard-v4/**/*.{ts,tsx}',
+    ],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            '**/dashboard-v3/**',
+            '**/dashboardV3Store*',
+          ],
+        },
+      ],
+    },
+  },
 ])

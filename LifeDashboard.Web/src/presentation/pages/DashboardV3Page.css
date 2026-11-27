@@ -172,6 +172,21 @@
   font-size: 13px;
 }
 
+.dashboard-v3__toast {
+  position: fixed;
+  z-index: 70;
+  right: 16px;
+  bottom: 16px;
+  max-width: calc(100% - 32px);
+  padding: 12px 16px;
+  border-radius: 12px;
+  color: #fff;
+  background: var(--v3-text-primary);
+  box-shadow: 0 12px 30px rgb(15 23 42 / 20%);
+  font-size: 13px;
+  font-weight: 700;
+}
+
 @keyframes dashboard-v3-loading {
   to {
     background-position: -200% 0;

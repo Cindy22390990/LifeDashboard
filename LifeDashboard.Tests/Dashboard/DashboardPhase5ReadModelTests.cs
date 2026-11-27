@@ -115,26 +115,13 @@ public class DashboardPhase5ReadModelTests
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         var root = json.RootElement;
+        Assert.Equal(3, root.EnumerateObject().Count());
         Assert.Equal(10_000m, root.GetProperty("totalAssets").GetDecimal());
         Assert.Equal(1_000m, root.GetProperty("monthlyIncome").GetDecimal());
         Assert.Equal(150m, root.GetProperty("monthlyExpense").GetDecimal());
-
-        var recentTransactions = root.GetProperty("recentTransactions")
-            .EnumerateArray()
-            .ToArray();
-        Assert.Equal(5, recentTransactions.Length);
-        Assert.Equal(
-            activeTransactions
-                .OrderByDescending(transaction => transaction.TransactionDate)
-                .Take(5)
-                .Select(transaction => transaction.Id),
-            recentTransactions.Select(transaction => transaction.GetProperty("id").GetGuid()));
-        Assert.DoesNotContain(
-            recentTransactions,
-            transaction =>
-                transaction.GetProperty("id").GetGuid() == deletedExpense.Id ||
-                transaction.GetProperty("id").GetGuid() == deletedIncome.Id ||
-                transaction.GetProperty("id").GetGuid() == otherUserExpense.Id);
+        Assert.False(root.TryGetProperty("balance", out _));
+        Assert.False(root.TryGetProperty("netWorth", out _));
+        Assert.False(root.TryGetProperty("recentActivity", out _));
     }
 
     private static TransactionEntity CreateTransaction(

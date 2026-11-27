@@ -58,12 +58,11 @@ public class DashboardSoftDeleteRegressionTests
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-        Assert.Equal(
-            1_000m,
-            json.RootElement
-                .GetProperty("budget")
-                .GetProperty("todaySpent")
-                .GetDecimal());
+        var root = json.RootElement;
+        Assert.Equal(3, root.EnumerateObject().Count());
+        Assert.Equal(10_000m, root.GetProperty("totalAssets").GetDecimal());
+        Assert.Equal(0m, root.GetProperty("monthlyIncome").GetDecimal());
+        Assert.Equal(1_000m, root.GetProperty("monthlyExpense").GetDecimal());
     }
 
     private static TransactionEntity CreateExpense(

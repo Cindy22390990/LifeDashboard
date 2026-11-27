@@ -1,7 +1,7 @@
 using LifeDashboard.Api.Extensions;
-using LifeDashboard.Application.Models.DTOs;
-using LifeDashboard.Application.Services.Interfaces;
 using LifeDashboard.Application.Features.Dashboard.Queries;
+using LifeDashboard.Application.Features.V4.Dtos;
+using LifeDashboard.Application.Features.V4.Services;
 using DashboardCalendarMonthDto = LifeDashboard.Application.Features.Dashboard.Dtos.DashboardCalendarMonthDto;
 using DashboardDayDetailDto = LifeDashboard.Application.Features.Dashboard.Dtos.DashboardDayDetailDto;
 using V3DashboardSummaryDto = LifeDashboard.Application.Features.Dashboard.Dtos.DashboardSummaryDto;
@@ -15,48 +15,33 @@ namespace LifeDashboard.Api.Controllers;
 [Authorize]
 public sealed class DashboardController : ControllerBase
 {
-    private readonly IDashboardService _dashboardService;
     private readonly GetDashboardSummaryQueryHandler _summaryQueryHandler;
     private readonly GetDashboardCalendarDayQueryHandler _calendarDayQueryHandler;
     private readonly GetDashboardCalendarMonthQueryHandler _calendarMonthQueryHandler;
+    private readonly IV4DashboardSummaryService _v4SummaryService;
 
     public DashboardController(
-        IDashboardService dashboardService,
         GetDashboardSummaryQueryHandler summaryQueryHandler,
         GetDashboardCalendarDayQueryHandler calendarDayQueryHandler,
-        GetDashboardCalendarMonthQueryHandler calendarMonthQueryHandler)
+        GetDashboardCalendarMonthQueryHandler calendarMonthQueryHandler,
+        IV4DashboardSummaryService v4SummaryService)
     {
-        _dashboardService = dashboardService;
         _summaryQueryHandler = summaryQueryHandler;
         _calendarDayQueryHandler = calendarDayQueryHandler;
         _calendarMonthQueryHandler = calendarMonthQueryHandler;
+        _v4SummaryService = v4SummaryService;
     }
 
     [HttpGet]
-    public async Task<ActionResult<DashboardSummaryDto>> GetSummary(
-        [FromQuery] DateOnly? currentDate,
+    [ProducesResponseType(typeof(DashboardSummaryReadDto), StatusCodes.Status200OK)]
+    public async Task<ActionResult<DashboardSummaryReadDto>> GetSummary(
         CancellationToken cancellationToken)
     {
-        if (!currentDate.HasValue)
-        {
-            return BadRequest(new { message = "currentDate is required in yyyy-MM-dd format." });
-        }
-
-        var readModel = await _dashboardService.GetSummaryAsync(
+        var result = await _v4SummaryService.GetSummaryAsync(
             User.GetUserId(),
-            currentDate.Value,
             cancellationToken);
 
-        return Ok(new DashboardSummaryDto
-        {
-            Budget = readModel.Budget,
-            Accounts = readModel.Accounts,
-            Goals = readModel.Goals,
-            TotalAssets = readModel.TotalAssets,
-            MonthlyIncome = readModel.MonthlyIncome,
-            MonthlyExpense = readModel.MonthlyExpense,
-            RecentTransactions = readModel.RecentTransactions
-        });
+        return Ok(result);
     }
 
     [HttpGet("/api/dashboard/v3/summary")]

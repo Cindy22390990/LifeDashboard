@@ -20,6 +20,7 @@ namespace LifeDashboard.Infrastructure.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<FixedCommitment> FixedCommitments { get; set; }
+        public DbSet<UserPreference> UserPreferences { get; set; }
         // ====== 這是我們新增的 ======
         // 系統設定資料表
         public DbSet<SystemSetting> SystemSettings { get; set; }
@@ -105,6 +106,22 @@ namespace LifeDashboard.Infrastructure.Data
                         allocation.Property(p => p.Entertainment)
                             .HasColumnName("AllocEntertainment");
                     });
+            });
+
+            modelBuilder.Entity<UserPreference>(entity =>
+            {
+                entity.HasKey(preference => preference.Id);
+
+                entity.HasIndex(preference => preference.UserId)
+                    .IsUnique();
+
+                entity.Property(preference => preference.DefaultExpenseAccountId);
+                entity.Property(preference => preference.DefaultCategoryId);
+
+                entity.HasOne<User>()
+                    .WithOne(user => user.UserPreference)
+                    .HasForeignKey<UserPreference>(preference => preference.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Account>(entity =>

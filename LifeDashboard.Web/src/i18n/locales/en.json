@@ -45,6 +45,11 @@
     "summary": "Here’s your financial pulse for today.",
     "loading": "Loading dashboard",
     "loadError": "We couldn't load your dashboard.",
+    "monthlyProgress": {
+      "title": "Monthly progress",
+      "saved": "Saved this month",
+      "invested": "Invested this month"
+    },
     "hero": {
       "ariaLabel": "Financial overview",
       "totalAssets": "Total assets",
@@ -52,8 +57,12 @@
       "spentToday": "Spent today",
       "today": "Today",
       "leftToSpend": "Left to spend",
+      "dailyLimit": "Daily spending limit",
       "budgetCycle": "This budget cycle"
     }
+  },
+  "home": {
+    "todayTransactions": "Today's transactions"
   },
   "calendar": {
     "activity": "Activity",
@@ -88,6 +97,8 @@
     "title": "Title",
     "amount": "Amount",
     "closePreview": "Close transaction preview",
+    "createdExpense": "Expense added -${{amount}}",
+    "createdIncome": "Income added +${{amount}}",
     "types": {
       "income": "Income",
       "expense": "Expense",

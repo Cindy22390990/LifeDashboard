@@ -45,6 +45,11 @@
     "summary": "오늘의 재정 현황을 확인하세요.",
     "loading": "대시보드 불러오는 중",
     "loadError": "대시보드를 불러오지 못했습니다.",
+    "monthlyProgress": {
+      "title": "이번 달 진행 상황",
+      "saved": "이번 달 저축",
+      "invested": "이번 달 투자"
+    },
     "hero": {
       "ariaLabel": "재정 개요",
       "totalAssets": "총자산",
@@ -52,8 +57,12 @@
       "spentToday": "오늘 지출",
       "today": "오늘",
       "leftToSpend": "사용 가능 금액",
+      "dailyLimit": "오늘 지출 한도",
       "budgetCycle": "이번 예산 주기"
     }
+  },
+  "home": {
+    "todayTransactions": "오늘의 거래"
   },
   "calendar": {
     "activity": "활동",
@@ -88,6 +97,8 @@
     "title": "제목",
     "amount": "금액",
     "closePreview": "거래 미리보기 닫기",
+    "createdExpense": "지출이 추가되었습니다 -${{amount}}",
+    "createdIncome": "수입이 추가되었습니다 +${{amount}}",
     "types": {
       "income": "수입",
       "expense": "지출",

@@ -6,6 +6,8 @@ using LifeDashboard.Api.Controllers;
 using LifeDashboard.Application.Models.DTOs;
 using LifeDashboard.Application.Models.ReadModels;
 using LifeDashboard.Application.Services.Interfaces;
+using LifeDashboard.Application.Features.V4.Dtos;
+using LifeDashboard.Application.Features.V4.Services;
 using LifeDashboard.Domain.Enums;
 using LifeDashboard.Tests.Helpers;
 using Microsoft.AspNetCore.Hosting;
@@ -20,86 +22,37 @@ namespace LifeDashboard.Tests.Dashboard;
 public class DashboardControllerApiTests
 {
     [Fact]
-    public async Task GetSummary_returns_composed_dashboard_response()
+    public async Task GetSummary_returns_frozen_v4_summary_response()
     {
         var userId = Guid.NewGuid();
-        var budget = new RadarStateDto
-        {
-            DailySafeLimit = 200m,
-            TodaySpent = 50m,
-            TodayRemaining = 150m,
-            RemainingDays = 5,
-            TotalLivingBudget = 1_000m,
-            UncategorizedExpenseAmount = 10m
-        };
-        var account = new AccountDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Checking",
-            Type = AccountType.Cashflow,
-            CurrentBalance = 500m,
-            IsSystemAccount = false,
-            AllowNegativeBalance = false
-        };
-        var goal = new GoalDto
-        {
-            Id = 17,
-            Name = "Emergency fund",
-            TargetAmount = 2_000m,
-            CurrentAmount = 800m,
-            Tier = GoalTier.Tier1_Safety,
-            GoalType = GoalType.Saving,
-            Status = GoalStatus.Active,
-            Note = "Reserve",
-            CompletedDate = null
-        };
-        var recentTransaction = new TransactionDto
-        {
-            Id = Guid.NewGuid(),
-            Amount = 75m,
-            Type = (int)TransactionType.Expense,
-            Description = "Groceries",
-            TransactionDate = new DateOnly(2026, 11, 9)
-        };
-        var dashboardService = new Mock<IDashboardService>();
-        dashboardService
+        var summaryService = new Mock<IV4DashboardSummaryService>();
+        summaryService
             .Setup(service => service.GetSummaryAsync(
                 userId,
-                new DateOnly(2026, 11, 10),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new DashboardSummaryReadModel(
-                budget,
-                new[] { account },
-                new[] { goal },
+            .ReturnsAsync(new DashboardSummaryReadDto(
                 500m,
                 2_500m,
-                750m,
-                new[] { recentTransaction }));
-        using var factory = CreateFactory(dashboardService.Object);
+                750m));
+        using var factory = CreateFactory(summaryService.Object);
         using var client = CreateAuthenticatedClient(factory, userId);
 
         var response = await client.GetAsync(
-            "/api/dashboard/summary?currentDate=2026-11-10");
+            "/api/dashboard/summary");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         var root = json.RootElement;
-        Assert.Equal(200m, root.GetProperty("budget").GetProperty("dailySafeLimit").GetDecimal());
-        Assert.Equal(50m, root.GetProperty("budget").GetProperty("todaySpent").GetDecimal());
-        Assert.Equal("Checking", root.GetProperty("accounts")[0].GetProperty("name").GetString());
-        Assert.Equal(500m, root.GetProperty("accounts")[0].GetProperty("currentBalance").GetDecimal());
-        Assert.Equal("Emergency fund", root.GetProperty("goals")[0].GetProperty("name").GetString());
-        Assert.Equal(800m, root.GetProperty("goals")[0].GetProperty("currentAmount").GetDecimal());
+        Assert.Equal(3, root.EnumerateObject().Count());
         Assert.Equal(500m, root.GetProperty("totalAssets").GetDecimal());
         Assert.Equal(2_500m, root.GetProperty("monthlyIncome").GetDecimal());
         Assert.Equal(750m, root.GetProperty("monthlyExpense").GetDecimal());
-        Assert.Equal(
-            "Groceries",
-            root.GetProperty("recentTransactions")[0].GetProperty("description").GetString());
+        Assert.False(root.TryGetProperty("balance", out _));
+        Assert.False(root.TryGetProperty("netWorth", out _));
+        Assert.False(root.TryGetProperty("recentActivity", out _));
 
-        dashboardService.Verify(service => service.GetSummaryAsync(
+        summaryService.Verify(service => service.GetSummaryAsync(
                 userId,
-                new DateOnly(2026, 11, 10),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -108,24 +61,23 @@ public class DashboardControllerApiTests
     public async Task GetSummary_service_failure_is_handled_by_pipeline_without_partial_response()
     {
         var userId = Guid.NewGuid();
-        var dashboardService = new Mock<IDashboardService>();
-        dashboardService
+        var summaryService = new Mock<IV4DashboardSummaryService>();
+        summaryService
             .Setup(service => service.GetSummaryAsync(
                 userId,
-                new DateOnly(2026, 11, 10),
                 It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("Dashboard service failure marker."));
-        using var factory = CreateFactory(dashboardService.Object);
+        using var factory = CreateFactory(summaryService.Object);
         using var client = CreateAuthenticatedClient(factory, userId);
 
         var response = await client.GetAsync(
-            "/api/dashboard/summary?currentDate=2026-11-10");
+            "/api/dashboard/summary");
         var body = await response.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
-        Assert.DoesNotContain("\"budget\"", body, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("\"accounts\"", body, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("\"goals\"", body, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("\"totalAssets\"", body, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("\"monthlyIncome\"", body, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("\"monthlyExpense\"", body, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
@@ -182,14 +134,14 @@ public class DashboardControllerApiTests
     }
 
     private static WebApplicationFactory<Program> CreateFactory(
-        IDashboardService dashboardService)
+        IV4DashboardSummaryService summaryService)
     {
         return new CustomWebApplicationFactory().WithWebHostBuilder(builder =>
         {
             builder.ConfigureTestServices(services =>
             {
-                services.RemoveAll<IDashboardService>();
-                services.AddSingleton(dashboardService);
+                services.RemoveAll<IV4DashboardSummaryService>();
+                services.AddSingleton(summaryService);
             });
         });
     }

@@ -38,6 +38,5 @@ public class User
     // 一個 User 一份設定
     public SystemSetting? SystemSetting { get; set; }
 
-
-
+    public UserPreference? UserPreference { get; set; }
 }

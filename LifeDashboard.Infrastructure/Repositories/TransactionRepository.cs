@@ -76,6 +76,81 @@ namespace LifeDashboard.Infrastructure.Repositories
                 .SumAsync(transaction => (decimal?)transaction.Amount) ?? 0m;
         }
 
+        public Task<Guid?> GetRecentCategoryIdAsync(
+            Guid userId,
+            CancellationToken cancellationToken)
+        {
+            return _context.Transactions
+                .AsNoTracking()
+                .Where(transaction =>
+                    transaction.UserId == userId &&
+                    transaction.Type == TransactionType.Expense &&
+                    transaction.CategoryId.HasValue)
+                .OrderByDescending(transaction => transaction.TransactionDate)
+                .ThenByDescending(transaction => transaction.CreatedAtUtc)
+                .Select(transaction => transaction.CategoryId)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        public async Task<Guid?> GetMostUsedCategoryIdAsync(
+            Guid userId,
+            DateOnly startDate,
+            CancellationToken cancellationToken)
+        {
+            var result = await _context.Transactions
+                .AsNoTracking()
+                .Where(transaction =>
+                    transaction.UserId == userId &&
+                    transaction.CategoryId.HasValue &&
+                    transaction.TransactionDate >= startDate)
+                .GroupBy(transaction => transaction.CategoryId!.Value)
+                .Select(group => new
+                {
+                    CategoryId = group.Key,
+                    Count = group.Count()
+                })
+                .OrderByDescending(item => item.Count)
+                .ThenByDescending(item => item.CategoryId)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            return result?.CategoryId;
+        }
+
+        public async Task<Guid?> GetMostUsedExpenseAccountIdAsync(
+            Guid userId,
+            DateOnly startDate,
+            CancellationToken cancellationToken)
+        {
+            var result = await _context.Transactions
+                .AsNoTracking()
+                .Where(transaction =>
+                    transaction.UserId == userId &&
+                    transaction.Type == TransactionType.Expense &&
+                    transaction.Account != null &&
+                    transaction.Account.UserId == userId &&
+                    !transaction.Account.IsDeleted &&
+                    !transaction.Account.IsSystemAccount &&
+                    transaction.Account.Type == AccountType.Cashflow &&
+                    transaction.TransactionDate >= startDate)
+                .GroupBy(transaction => new
+                {
+                    transaction.AccountId,
+                    transaction.Account.CreatedAtUtc
+                })
+                .Select(group => new
+                {
+                    group.Key.AccountId,
+                    group.Key.CreatedAtUtc,
+                    Count = group.Count()
+                })
+                .OrderByDescending(item => item.Count)
+                .ThenBy(item => item.CreatedAtUtc)
+                .ThenBy(item => item.AccountId)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            return result?.AccountId;
+        }
+
         public async Task AddAsync(Transaction transaction)
         {
             await _context.Transactions.AddAsync(transaction);

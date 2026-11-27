@@ -317,6 +317,32 @@ namespace LifeDashboard.Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("LifeDashboard.Domain.Entities.UserPreference", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("DefaultCategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("DefaultExpenseAccountId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("UserPreferences");
+                });
+
             modelBuilder.Entity("LifeDashboard.Domain.Entities.Account", b =>
                 {
                     b.HasOne("LifeDashboard.Domain.Entities.User", "User")
@@ -436,6 +462,15 @@ namespace LifeDashboard.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("LifeDashboard.Domain.Entities.UserPreference", b =>
+                {
+                    b.HasOne("LifeDashboard.Domain.Entities.User", null)
+                        .WithOne("UserPreference")
+                        .HasForeignKey("LifeDashboard.Domain.Entities.UserPreference", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("LifeDashboard.Domain.Entities.Account", b =>
                 {
                     b.Navigation("Transactions");
@@ -448,6 +483,8 @@ namespace LifeDashboard.Infrastructure.Migrations
                     b.Navigation("SystemSetting");
 
                     b.Navigation("Transactions");
+
+                    b.Navigation("UserPreference");
                 });
 #pragma warning restore 612, 618
         }

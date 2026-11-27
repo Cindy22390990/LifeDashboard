@@ -45,6 +45,11 @@
     "summary": "查看今天的財務概況。",
     "loading": "正在載入儀表板",
     "loadError": "無法載入儀表板。",
+    "monthlyProgress": {
+      "title": "本月進度",
+      "saved": "本月儲蓄",
+      "invested": "本月投資"
+    },
     "hero": {
       "ariaLabel": "財務總覽",
       "totalAssets": "總資產",
@@ -52,8 +57,12 @@
       "spentToday": "今日支出",
       "today": "今天",
       "leftToSpend": "可用餘額",
+      "dailyLimit": "今日可花上限",
       "budgetCycle": "本預算週期"
     }
+  },
+  "home": {
+    "todayTransactions": "今日交易"
   },
   "calendar": {
     "activity": "活動",
@@ -88,6 +97,8 @@
     "title": "名稱",
     "amount": "金額",
     "closePreview": "關閉交易預覽",
+    "createdExpense": "已新增支出 -${{amount}}",
+    "createdIncome": "已新增收入 +${{amount}}",
     "types": {
       "income": "收入",
       "expense": "支出",

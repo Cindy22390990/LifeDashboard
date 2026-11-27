@@ -45,6 +45,11 @@
     "summary": "Veja um resumo das suas finanças hoje.",
     "loading": "Carregando painel",
     "loadError": "Não foi possível carregar o painel.",
+    "monthlyProgress": {
+      "title": "Progresso do mês",
+      "saved": "Economizado neste mês",
+      "invested": "Investido neste mês"
+    },
     "hero": {
       "ariaLabel": "Visão financeira",
       "totalAssets": "Patrimônio total",
@@ -52,8 +57,12 @@
       "spentToday": "Gasto hoje",
       "today": "Hoje",
       "leftToSpend": "Disponível para gastar",
+      "dailyLimit": "Limite diário de gastos",
       "budgetCycle": "Ciclo orçamentário atual"
     }
+  },
+  "home": {
+    "todayTransactions": "Transações de hoje"
   },
   "calendar": {
     "activity": "Atividade",
@@ -88,6 +97,8 @@
     "title": "Título",
     "amount": "Valor",
     "closePreview": "Fechar pré-visualização da transação",
+    "createdExpense": "Despesa adicionada -${{amount}}",
+    "createdIncome": "Receita adicionada +${{amount}}",
     "types": {
       "income": "Receita",
       "expense": "Despesa",

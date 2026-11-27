@@ -1,6 +1,8 @@
 using LifeDashboard.Api.Extensions;
 using LifeDashboard.Application.Models.DTOs;
 using LifeDashboard.Application.Services.Interfaces;
+using LifeDashboard.Application.Features.V4.Dtos;
+using LifeDashboard.Application.Features.V4.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,17 +14,25 @@ namespace LifeDashboard.Api.Controllers;
 public class CategoryController : ControllerBase
 {
     private readonly ICategoryService _categoryService;
+    private readonly IV4CategoriesService _v4CategoriesService;
 
-    public CategoryController(ICategoryService categoryService)
+    public CategoryController(
+        ICategoryService categoryService,
+        IV4CategoriesService v4CategoriesService)
     {
         _categoryService = categoryService;
+        _v4CategoriesService = v4CategoriesService;
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<CategoryDto>>> GetCategories()
+    [ProducesResponseType(typeof(IReadOnlyList<CategoryReadDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<CategoryReadDto>>> GetCategories(
+        CancellationToken cancellationToken)
     {
         var userId = User.GetUserId();
-        return Ok(await _categoryService.GetAllAsync(userId));
+        return Ok(await _v4CategoriesService.GetCategoriesAsync(
+            userId,
+            cancellationToken));
     }
 
     [HttpPost]

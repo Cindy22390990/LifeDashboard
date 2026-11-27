@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using LifeDashboard.Application.Models.DTOs;
+using LifeDashboard.Application.Features.V4.Dtos;
 using LifeDashboard.Domain.Entities;
 using LifeDashboard.Domain.Enums;
 using LifeDashboard.Domain.ValueObjects;
@@ -194,19 +195,15 @@ public class GoalDepositApiTests
         }
 
         var activeSummaryResponse = await client.GetAsync(
-            $"/api/dashboard/summary?currentDate={currentDate:yyyy-MM-dd}");
+            "/api/dashboard/summary");
 
         Assert.Equal(HttpStatusCode.OK, activeSummaryResponse.StatusCode);
         var activeSummary = await activeSummaryResponse.Content
-            .ReadFromJsonAsync<DashboardSummaryDto>();
+            .ReadFromJsonAsync<DashboardSummaryReadDto>();
         Assert.NotNull(activeSummary);
-        var activeSummaryGoal = Assert.Single(
-            activeSummary.Goals,
-            goal => goal.Name == "Emergency Fund");
-        Assert.Equal(30_000m, activeSummaryGoal.CurrentAmount);
-        Assert.Equal(100_000m, activeSummaryGoal.TargetAmount);
-        Assert.Equal(GoalTier.Tier1_Safety, activeSummaryGoal.Tier);
-        Assert.Equal(GoalStatus.Active, activeSummaryGoal.Status);
+        Assert.Equal(200_000m, activeSummary.TotalAssets);
+        Assert.Equal(0m, activeSummary.MonthlyIncome);
+        Assert.Equal(0m, activeSummary.MonthlyExpense);
 
         var secondDepositResponse = await client.PostAsJsonAsync(
             $"/api/goals/{createdGoal.Id}/deposit",
@@ -263,20 +260,15 @@ public class GoalDepositApiTests
         }
 
         var completedSummaryResponse = await client.GetAsync(
-            $"/api/dashboard/summary?currentDate={currentDate:yyyy-MM-dd}");
+            "/api/dashboard/summary");
 
         Assert.Equal(HttpStatusCode.OK, completedSummaryResponse.StatusCode);
         var completedSummary = await completedSummaryResponse.Content
-            .ReadFromJsonAsync<DashboardSummaryDto>();
+            .ReadFromJsonAsync<DashboardSummaryReadDto>();
         Assert.NotNull(completedSummary);
-        var completedSummaryGoal = Assert.Single(
-            completedSummary.Goals,
-            goal => goal.Name == "Emergency Fund");
-        Assert.Equal(100_000m, completedSummaryGoal.CurrentAmount);
-        Assert.Equal(100_000m, completedSummaryGoal.TargetAmount);
-        Assert.Equal(GoalTier.Tier1_Safety, completedSummaryGoal.Tier);
-        Assert.Equal(GoalStatus.Completed, completedSummaryGoal.Status);
-        Assert.NotNull(completedSummaryGoal.CompletedDate);
+        Assert.Equal(200_000m, completedSummary.TotalAssets);
+        Assert.Equal(0m, completedSummary.MonthlyIncome);
+        Assert.Equal(0m, completedSummary.MonthlyExpense);
     }
 
     [Fact]

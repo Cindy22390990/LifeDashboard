@@ -1,4 +1,9 @@
-import { useEffect, useState } from 'react';
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import type { IDashboardDataSource } from '../../../application/dashboard/ports/IDashboardDataSource';
 import { useDashboardCalendar } from '../../../application/dashboard/useDashboardCalendar';
@@ -13,11 +18,18 @@ interface CalendarSectionProps {
   onAddTransaction: (date: string) => void;
 }
 
-export default function CalendarSection({
+export interface CalendarSectionHandle {
+  getSelectedDate: () => string | null;
+  refreshMonth: () => void;
+  refreshSelectedDay: () => void;
+}
+
+const CalendarSection = forwardRef<CalendarSectionHandle, CalendarSectionProps>(
+  function CalendarSection({
   dataSource,
   initialDate,
   onAddTransaction,
-}: CalendarSectionProps) {
+}, ref) {
   const { t, i18n } = useTranslation();
   const locale = i18n.resolvedLanguage ?? i18n.language;
   const isMobile = useMobileViewport();
@@ -25,6 +37,12 @@ export default function CalendarSection({
   const [isMobilePanelOpen, setIsMobilePanelOpen] = useState(false);
   const calendar = useDashboardCalendar(dataSource, initialDate);
   const viewMode: CalendarViewMode = isMobile && !isMonthExpanded ? 'week' : 'month';
+
+  useImperativeHandle(ref, () => ({
+    getSelectedDate: () => calendar.selectedDate,
+    refreshMonth: calendar.retryMonth,
+    refreshSelectedDay: calendar.retryDay,
+  }), [calendar.selectedDate, calendar.retryMonth, calendar.retryDay]);
 
   useEffect(() => {
     setIsMonthExpanded(!isMobile);
@@ -128,4 +146,6 @@ export default function CalendarSection({
       )}
     </section>
   );
-}
+});
+
+export default CalendarSection;

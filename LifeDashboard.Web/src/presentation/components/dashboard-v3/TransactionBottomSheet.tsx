@@ -1,9 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
+import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import { useAccountStore } from '../../../application/stores/accountStore';
+import { useTransactionStore } from '../../../application/stores/transactionStore';
 import {
   TransactionType,
-  type ITransaction,
+  type ICreateTransactionPayload,
   type TransactionType as TransactionTypeValue,
 } from '../../../domain/Transaction';
 import './TransactionBottomSheet.css';
@@ -12,19 +14,48 @@ interface TransactionBottomSheetProps {
   isOpen: boolean;
   defaultDate: string;
   onClose: () => void;
-  onSuccess?: (transaction: ITransaction) => void;
+  onSuccess?: (payload: ICreateTransactionPayload) => void | Promise<void>;
+}
+
+function isValidDateOnly(value: string): boolean {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return false;
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  if (month < 1 || month > 12 || day < 1) return false;
+
+  const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  const daysInMonth = [
+    31,
+    leapYear ? 29 : 28,
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    30,
+    31,
+    30,
+    31,
+  ];
+
+  return day <= daysInMonth[month - 1];
 }
 
 export default function TransactionBottomSheet({
   isOpen,
   defaultDate,
   onClose,
-  onSuccess: _onSuccess,
+  onSuccess,
 }: TransactionBottomSheetProps) {
   const { t } = useTranslation();
   const accounts = useAccountStore((state) => state.accounts);
   const isAccountLoading = useAccountStore((state) => state.isLoading);
   const fetchAccounts = useAccountStore((state) => state.fetchAccounts);
+  const addTransaction = useTransactionStore((state) => state.addTransaction);
   const [transactionType, setTransactionType] = useState<TransactionTypeValue>(
     TransactionType.Expense,
   );
@@ -32,7 +63,17 @@ export default function TransactionBottomSheet({
   const [accountId, setAccountId] = useState('');
   const [transactionDate, setTransactionDate] = useState(defaultDate);
   const [note, setNote] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [amountError, setAmountError] = useState('');
+  const [accountError, setAccountError] = useState('');
+  const [dateError, setDateError] = useState('');
+  const [submitError, setSubmitError] = useState('');
   const hasRequestedAccounts = useRef(false);
+  const accountCount = accounts.length;
+  const firstAccountId = accounts[0]?.id ?? '';
+  const hasSelectedAccount = accountId
+    ? accounts.some((account) => account.id === accountId)
+    : false;
 
   useEffect(() => {
     if (!isOpen) return;
@@ -40,18 +81,25 @@ export default function TransactionBottomSheet({
     setTransactionDate(defaultDate);
     setAmount('');
     setNote('');
-    setAccountId('');
     setTransactionType(TransactionType.Expense);
+    setAmountError('');
+    setAccountError('');
+    setDateError('');
+    setSubmitError('');
+  }, [isOpen, defaultDate]);
+
+  useEffect(() => {
+    if (!isOpen) return;
 
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      if (event.key === 'Escape' && !isSubmitting) {
         onClose();
       }
     };
 
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen, defaultDate, onClose]);
+  }, [isOpen, isSubmitting, onClose]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -60,22 +108,74 @@ export default function TransactionBottomSheet({
     }
 
     if (
-      accounts.length === 0 &&
+      accountCount === 0 &&
       !isAccountLoading &&
       !hasRequestedAccounts.current
     ) {
       hasRequestedAccounts.current = true;
       void fetchAccounts();
     }
-  }, [isOpen, accounts.length, isAccountLoading, fetchAccounts]);
+  }, [isOpen, accountCount, isAccountLoading, fetchAccounts]);
 
   useEffect(() => {
-    if (accountId && accounts.some((account) => account.id === accountId)) {
+    if (hasSelectedAccount) return;
+    setAccountId(firstAccountId);
+  }, [firstAccountId, hasSelectedAccount]);
+
+  const getApiErrorMessage = (error: unknown): string => {
+    if (axios.isAxiosError<{ message?: string; Message?: string }>(error)) {
+      return error.response?.data?.message
+        ?? error.response?.data?.Message
+        ?? '無法新增交易，請稍後再試。';
+    }
+
+    return error instanceof Error
+      ? error.message
+      : '無法新增交易，請稍後再試。';
+  };
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setAmountError('');
+    setAccountError('');
+    setDateError('');
+    setSubmitError('');
+
+    const numericAmount = Number(amount);
+    if (amount.trim() === '' || !Number.isFinite(numericAmount) || numericAmount <= 0) {
+      setAmountError('金額必須大於 0');
       return;
     }
 
-    setAccountId(accounts[0]?.id ?? '');
-  }, [accounts, accountId]);
+    if (!accountId || !accounts.some((account) => account.id === accountId)) {
+      setAccountError('請選擇有效帳戶');
+      return;
+    }
+
+    if (!isValidDateOnly(transactionDate)) {
+      setDateError('請選擇有效日期');
+      return;
+    }
+
+    const payload: ICreateTransactionPayload = {
+      accountId,
+      amount: numericAmount,
+      type: transactionType,
+      transactionDate,
+      description: note.trim(),
+    };
+
+    setIsSubmitting(true);
+    try {
+      await addTransaction(payload);
+      await onSuccess?.(payload);
+      onClose();
+    } catch (error) {
+      setSubmitError(getApiErrorMessage(error));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -83,7 +183,7 @@ export default function TransactionBottomSheet({
     <div
       className="v3-transaction-sheet-backdrop"
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget) {
+        if (event.target === event.currentTarget && !isSubmitting) {
           onClose();
         }
       }}
@@ -107,12 +207,13 @@ export default function TransactionBottomSheet({
             aria-label={t('transactions.closePreview')}
             className="v3-transaction-sheet__close"
             onClick={onClose}
+            disabled={isSubmitting}
             type="button"
           >
             ×
           </button>
         </div>
-        <div className="v3-transaction-sheet__form">
+        <form className="v3-transaction-sheet__form" onSubmit={handleSubmit}>
           <div
             aria-label={t('transactions.type')}
             className="v3-transaction-sheet__type-toggle"
@@ -144,11 +245,20 @@ export default function TransactionBottomSheet({
             <input
               inputMode="decimal"
               min="0"
-              onChange={(event) => setAmount(event.target.value)}
+              onChange={(event) => {
+                setAmount(event.target.value);
+                setAmountError('');
+                setSubmitError('');
+              }}
               placeholder="0"
               type="number"
               value={amount}
             />
+            {amountError && (
+              <p className="v3-transaction-sheet__error" role="alert">
+                {amountError}
+              </p>
+            )}
           </label>
 
           <div className="v3-transaction-sheet__field">
@@ -166,7 +276,11 @@ export default function TransactionBottomSheet({
                     aria-pressed={accountId === account.id}
                     className={accountId === account.id ? 'is-active' : ''}
                     key={account.id}
-                    onClick={() => setAccountId(account.id)}
+                    onClick={() => {
+                      setAccountId(account.id);
+                      setAccountError('');
+                      setSubmitError('');
+                    }}
                     type="button"
                   >
                     {account.name}
@@ -174,34 +288,57 @@ export default function TransactionBottomSheet({
                 ))}
               </div>
             )}
+            {accountError && (
+              <p className="v3-transaction-sheet__error" role="alert">
+                {accountError}
+              </p>
+            )}
           </div>
 
           <label className="v3-transaction-sheet__field">
             <span>{t('transactions.date')}</span>
             <input
-              onChange={(event) => setTransactionDate(event.target.value)}
+              onChange={(event) => {
+                setTransactionDate(event.target.value);
+                setDateError('');
+                setSubmitError('');
+              }}
               type="date"
               value={transactionDate}
             />
+            {dateError && (
+              <p className="v3-transaction-sheet__error" role="alert">
+                {dateError}
+              </p>
+            )}
           </label>
 
           <label className="v3-transaction-sheet__field">
             <span>{t('transactions.title')}</span>
             <textarea
-              onChange={(event) => setNote(event.target.value)}
+              onChange={(event) => {
+                setNote(event.target.value);
+                setSubmitError('');
+              }}
               rows={3}
               value={note}
             />
           </label>
 
+          {submitError && (
+            <p className="v3-transaction-sheet__error" role="alert">
+              {submitError}
+            </p>
+          )}
+
           <button
             className="v3-transaction-sheet__submit"
-            disabled
-            type="button"
+            disabled={isSubmitting || accounts.length === 0}
+            type="submit"
           >
-            TODO
+            {isSubmitting ? 'Saving...' : 'Save transaction'}
           </button>
-        </div>
+        </form>
       </section>
     </div>
   );
